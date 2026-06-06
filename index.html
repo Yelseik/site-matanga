@@ -8,7 +8,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
         body { background-color: #0a0a0c; color: #00ff66; padding: 20px; }
         header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px #00ff66; }
+        h1 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px #00ff66; }
         .status-badge { background: #112211; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
         
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -17,15 +17,21 @@
         
         /* Lista de Presença */
         .presence-list { list-style: none; margin-bottom: 15px; }
-        .presence-list li { padding: 5px 0; font-size: 0.9rem; display: flex; justify-content: space-between; }
-        .status-online { color: #00ff66; }
-        .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 8px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #141914; }
+        .presence-list li:last-child { border-bottom: none; }
+        .membro-nome { font-weight: bold; color: #00ff66; }
+        .membro-cargo { color: #888; font-size: 0.75rem; display: block; margin-top: 2px; }
+        .status-box { float: right; font-size: 0.8rem; padding: 2px 6px; border-radius: 2px; }
+        .status-online { background: #113311; color: #00ff66; border: 1px solid #00ff66; }
+        .status-offline { background: #331111; color: #ff3333; border: 1px solid #ff3333; }
+        
+        .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
         .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
         
         /* Quadro de Tarefas */
         .task-list { display: flex; flex-direction: column; gap: 10px; }
-        .task-item { background: #141820; border-left: 3px solid #ffcc00; padding: 8px; font-size: 0.85rem; }
-        .task-item.done { border-left-color: #00ff66; opacity: 0.7; }
+        .task-item { background: #141820; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; }
+        .task-item.done { border-left-color: #00ff66; opacity: 0.6; }
         .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -34,56 +40,105 @@
 <body>
 
     <header>
-        <h1>ÁREA 51 // OPERAÇÕES</h1>
-        <div class="status-badge">SISTEMA ONLINE</div>
+        <h1>ÁREA 51 // QG MATANGA</h1>
+        <div class="status-badge">SISTEMA PROTEGIDO</div>
     </header>
 
     <div class="grid-container">
         
         <div class="card">
-            <h2>CONTROLO DE PRESENÇA DIÁRIA</h2>
+            <h2>CONTROLO DE ACESSO & PRESENÇA</h2>
             <ul class="presence-list">
-                <li><span>[AGENTE] Comandante</span> <span class="status-online">ATIVO</span></li>
-                <li><span>[AGENTE] Wagner</span> <span style="color: #ff3333;">AUSENTE</span></li>
-                <li><span>[AGENTE] Operador</span> <span class="status-online">ATIVO</span></li>
+                <li>
+                    <span class="membro-nome">[CEO] yelseik</span>
+                    <span class="status-box status-online" id="status-yelseik">ATIVO</span>
+                    <span class="membro-cargo">Líder Supremo da Organização</span>
+                </li>
+                <li>
+                    <span class="membro-nome">[ASSISTENTE] aihosj</span>
+                    <span class="status-box status-offline" id="status-aihosj">AUSENTE</span>
+                    <span class="membro-cargo">Assistente Direto do CEO</span>
+                </li>
+                <li>
+                    <span class="membro-nome">[CONSELHEIRO] Rengaw</span>
+                    <span class="status-box status-offline" id="status-rengaw">AUSENTE</span>
+                    <span class="membro-cargo">Segurança Pessoal e Conselheiro do CEO</span>
+                </li>
+                <li>
+                    <span class="membro-nome">[S. CHEFE] innavoeg</span>
+                    <span class="status-box status-offline" id="status-innavoeg">AUSENTE</span>
+                    <span class="membro-cargo">Chefe do Esquadrão de Segurança</span>
+                </li>
+                <li>
+                    <span class="membro-nome">[SEGURANÇA] onaitsirc</span>
+                    <span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span>
+                    <span class="membro-cargo">Segurança Tático da Base</span>
+                </li>
             </ul>
-            <button class="btn-action" onclick="baterPonto()">Registar Presença no QG</button>
+            <button class="btn-action" onclick="autenticarAgente()">Autenticar Identidade no QG</button>
         </div>
 
         <div class="card">
-            <h2>MISSÕES & DIRETRIZES</h2>
+            <h2>DIRETRIZES & TAREFAS DIÁRIAS</h2>
             <div class="task-list">
                 <div class="task-item">
-                    <div>Configurar script automatizado no Termux</div>
-                    <div class="task-meta"><span>DEVER: Infraestrutura</span> <span style="color: #ffcc00;">EM CURSO</span></div>
-                </div>
-                <div class="task-item done">
-                    <div>Aprovação do servidor de hospedagem pública</div>
-                    <div class="task-meta"><span>DEVER: Sistemas</span> <span style="color: #00ff66;">CONCLUÍDO</span></div>
+                    <div>Mapear o perímetro tático do território virtual</div>
+                    <div class="task-meta"><span>RESPONSÁVEL: innavoeg</span> <span style="color: #ff3333;">PENDENTE</span></div>
                 </div>
                 <div class="task-item">
-                    <div>Definir regras de segurança do território virtual</div>
-                    <div class="task-meta"><span>DEVER: Segurança</span> <span style="color: #ff3333;">PENDENTE</span></div>
+                    <div>Refinar os scripts de automação e integração da base</div>
+                    <div class="task-meta"><span>RESPONSÁVEL: yelseik</span> <span style="color: #ffcc00;">EM CURSO</span></div>
+                </div>
+                <div class="task-item">
+                    <div>Preparar ata do próximo briefing organizacional</div>
+                    <div class="task-meta"><span>RESPONSÁVEL: aihosj</span> <span style="color: #ff3333;">PENDENTE</span></div>
+                </div>
+                <div class="task-item done">
+                    <div>Hospedar o servidor central seguro (GitHub Pages)</div>
+                    <div class="task-meta"><span>RESPONSÁVEL: yelseik</span> <span style="color: #00ff66;">CONCLUÍDO</span></div>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>SALA DE BRIEFING (REUNIÕES)</h2>
+            <h2>SALA DE BRIEFING & REUNIÕES</h2>
             <div style="font-size: 0.85rem; line-height: 1.6;">
-                <p style="color: #ffcc00; margin-bottom: 10px;">⚠️ PRÓXIMA REUNIÃO AGENDADA:</p>
-                <p><strong>Pauta:</strong> Distribuição de tarefas semanais e alinhamento do bot.</p>
-                <p><strong>Canal:</strong> Sala Privada de Voz</p>
+                <p style="color: #ffcc00; margin-bottom: 10px;">⚠️ NOTA DO COMANDANTE SUPREMO:</p>
+                <p>Todas as tarefas diárias devem ser reportadas diretamente ao canal de comunicações assim que concluídas.</p>
                 <br>
-                <p style="color: #888;">* Nota: A presença é obrigatória para validação de patentes no grupo.</p>
+                <p><strong>Próxima Reunião:</strong> Alinhamento tático de cargos e controle de metas.</p>
+                <p><strong>Acesso:</strong> Canal de Voz Encriptado</p>
+                <br>
+                <p style="color: #ff3333; font-weight: bold;">* QUEBRA DE PROTOCOLO GERARÁ DESLIGAMENTO DA BASE.</p>
             </div>
         </div>
 
     </div>
 
     <script>
-        function baterPonto() {
-            alert("Identidade confirmada! Presença registada nos logs do servidor principal.");
+        // Sistema de chaves de acesso para os agentes
+        const codigosAgentes = {
+            "yelseik99": "status-yelseik",
+            "aihosj01": "status-aihosj",
+            "rengaw02": "status-rengaw",
+            "innavoeg03": "status-innavoeg",
+            "onaitsirc04": "status-onaitsirc"
+        };
+
+        function autenticarAgente() {
+            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
+            
+            if (chave in codigosAgentes) {
+                let idStatus = codigosAgentes[chave];
+                let elemento = document.getElementById(idStatus);
+                
+                elemento.innerText = "ATIVO";
+                elemento.className = "status-box status-online";
+                
+                alert("ACESSO CONCEDIDO. Identidade confirmada e presença registada no servidor central.");
+            } else {
+                alert("🚨 ACESSO NEGADO! Chave de autenticação inválida. Tentativa registada nos logs de segurança.");
+            }
         }
     </script>
 </body>
