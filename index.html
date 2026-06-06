@@ -39,9 +39,9 @@
         .input-field { width: 100%; background: #001100; border: 1px solid #004411; padding: 8px; color: #00ff66; font-family: inherit; }
         .input-field:focus { border-color: #00ff66; outline: none; box-shadow: 0 0 5px #00ff66; }
         
-        /* Quadro de Tarefas / Atas */
+        /* Listas */
         .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; }
-        .task-item { background: #001100; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; }
+        .task-item { background: #001100; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; }
         .task-item.done { border-left-color: #00ff66; opacity: 0.5; text-decoration: line-through; }
         .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
         
@@ -49,8 +49,9 @@
         .chat-box { background: #020502; border: 1px solid #00ff66; height: 150px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
         .chat-msg { border-bottom: 1px dashed #002205; padding-bottom: 4px; }
         .chat-user { color: #fff; font-weight: bold; }
+        .chat-meta { color: #ffcc00; font-size: 0.7rem; }
         
-        /* Radar Elemento Visual (Ideia Extra) */
+        /* Radar Elemento Visual */
         .radar-container { display: flex; align-items: center; gap: 15px; background: #020502; border: 1px solid #004411; padding: 10px; margin-top: 10px; }
         .radar { width: 60px; height: 60px; border: 2px solid #004411; border-radius: 50%; position: relative; background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, rgba(0,0,0,1) 80%); overflow: hidden; }
         .radar::after { content: ""; position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,255,102,0.4) 0%, rgba(0,0,0,0) 50%); top: 0; left: 0; transform-origin: center; animation: radar-sweep 3s linear infinite; }
@@ -67,8 +68,8 @@
 <body>
 
     <header>
-        <h1>ÁREA 51 // GESTÃO CORPORATIVA SUPREMA</h1>
-        <div class="status-badge">SISTEMA ATUALIZADO</div>
+        <h1>ÁREA 51 // OPERAÇÕES EM TEMPO REAL</h1>
+        <div class="status-badge">REDE SINCRONIZADA</div>
     </header>
 
     <div class="grid-container">
@@ -90,7 +91,7 @@
             <h2>COMUNICAÇÕES INTERNAS (CIPHER)</h2>
             <div class="chat-box" id="chatContainer"></div>
             <div class="input-group">
-                <input type="text" id="chatInput" class="input-field" placeholder="Mensagem encriptada..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
+                <input type="text" id="chatInput" class="input-field" placeholder="Mensagem encriptada na rede..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
             </div>
             <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
             
@@ -102,9 +103,8 @@
 
         <div class="card">
             <h2>ARQUIVO DE BRIEFINGS (ATAS)</h2>
-            <p style="font-size: 0.72rem; color: #888; margin-bottom: 10px;">* Sumários permanentes das reuniões do conselho supremo.</p>
-            <div class="task-list" id="ataContainer">
-                </div>
+            <p style="font-size: 0.72rem; color: #888; margin-bottom: 10px;">* Registos permanentes das reuniões do conselho supremo.</p>
+            <div class="task-list" id="ataContainer"></div>
         </div>
 
         <div class="card">
@@ -145,7 +145,24 @@
         <ul class="log-content" id="logContainer"></ul>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script>
+        // Configuração exata retirada do teu console do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...", 
+            authDomain: "area51-matanga.firebaseapp.com",
+            databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
+            projectId: "area51-matanga",
+            storageBucket: "area51-matanga.firebasestorage.app",
+            messagingSenderId: "8932975266",
+            appId: "1:8932975266:web:50532f72a8c73b42"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         const codigosAgentes = {
             "yelseik99": { id: "status-yelseik", nome: "yelseik" },
             "aihosj01": { id: "status-aihosj", nome: "aihosj" },
@@ -154,20 +171,17 @@
             "onaitsirc04": { id: "status-onaitsirc", nome: "onaitsirc" }
         };
 
-        let agenteAutenticado = null;
-        let listaTarefas = JSON.parse(localStorage.getItem("matanga_tasks")) || [];
-        let listaAtas = JSON.parse(localStorage.getItem("matanga_atas")) || [
-            { id: 1, titulo: "Briefing Inicial - Alinhamento de Cargos", data: "06/2026", resumo: "Definição das chaves secretas e atribuição das patentes da gangue." }
-        ];
-        let presencasSalvas = JSON.parse(localStorage.getItem("matanga_presence")) || {};
-        let historicoChat = JSON.parse(localStorage.getItem("matanga_chat")) || [];
+        let agenteAutenticado = localStorage.getItem("matanga_agente_logado") || null;
 
         window.onload = function() {
-            renderizarTarefas();
-            renderizarAtas();
-            aplicarPresencas();
-            renderizarChat();
-            adicionarLog("Módulos de arquivo de atas e Radar Tático acoplados.");
+            ouvirPresencas();
+            ouvirChat();
+            ouvirTarefas();
+            ouvirAtas();
+            adicionarLog("Terminal operacional conectado à Nuvem Realtime.");
+            if(agenteAutenticado) {
+                adicionarLog(`Sessão ativa restaurada para: ${agenteAutenticado}`);
+            }
         };
 
         function adicionarLog(mensagem) {
@@ -176,6 +190,7 @@
             container.innerHTML = `<li>[${hora}] - ${mensagem}</li>` + container.innerHTML;
         }
 
+        /* 1. AUTENTICAÇÃO E PRESENÇA REALTIME */
         function autenticarAgente() {
             let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
             if (!chave) return;
@@ -183,44 +198,81 @@
             if (chave in codigosAgentes) {
                 let agente = codigosAgentes[chave];
                 agenteAutenticado = agente.nome;
-                presencasSalvas[agente.id] = true;
-                localStorage.setItem("matanga_presence", JSON.stringify(presencasSalvas));
-                aplicarPresencas();
-                adicionarLog(`SINAL: Agente ${agente.nome} autenticado.`);
+                localStorage.setItem("matanga_agente_logado", agente.nome);
+                
+                // Grava no Firebase o status ativo
+                database.ref('presencas/' + agente.id).set("ATIVO");
+                adicionarLog(`SINAL: Agente ${agente.nome} entrou na rede.`);
                 alert(`Identidade validada. Canal ativo para ${agente.nome}.`);
             } else {
-                adicionarLog(`🚨 ALERTA: Falha na validação de credenciais.`);
+                adicionarLog(`🚨 ALERTA: Tentativa ilegal de quebra com chave inválida.`);
                 alert("🚨 CHAVE INVÁLIDA!");
             }
         }
 
-        function aplicarPresencas() {
-            for (let id in codigosAgentes) {
-                let elementId = codigosAgentes[id].id;
-                let el = document.getElementById(elementId);
-                if (presencasSalvas[elementId]) {
-                    el.innerText = "ATIVO";
-                    el.className = "status-box status-online";
-                } else {
-                    el.innerText = "AUSENTE";
-                    el.className = "status-box status-offline";
+        function ouvirPresencas() {
+            database.ref('presencas').on('value', (snapshot) => {
+                const dados = snapshot.val() || {};
+                for (let key in codigosAgentes) {
+                    let elementId = codigosAgentes[key].id;
+                    let el = document.getElementById(elementId);
+                    if (dados[elementId] === "ATIVO") {
+                        el.innerText = "ATIVO";
+                        el.className = "status-box status-online";
+                    } else {
+                        el.innerText = "AUSENTE";
+                        el.className = "status-box status-offline";
+                    }
                 }
-            }
+            });
         }
 
         function limparPresencas() {
             let chave = prompt("CONFIRME A CHAVE DO CEO:");
             if (chave === "yelseik99") {
-                presencasSalvas = {};
-                localStorage.setItem("matanga_presence", JSON.stringify(presencasSalvas));
-                aplicarPresencas();
-                adicionarLog("Wipe completo das presenças diárias executado.");
-                alert("Presenças reinicializadas.");
+                database.ref('presencas').remove();
+                adicionarLog("CEO executou wipe de presença global.");
+                alert("Presenças reinicializadas na nuvem.");
             } else {
                 alert("Ação negada.");
             }
         }
 
+        /* 2. CHAT EM TEMPO REAL */
+        function enviarMensagemChat() {
+            const txt = document.getElementById("chatInput").value;
+            if (!txt.trim()) return;
+            if (!agenteAutenticado) return alert("Erro: Deves autenticar a tua chave no QG primeiro!");
+
+            const novaMsgRef = database.ref('chat').push();
+            novaMsgRef.set({
+                user: agenteAutenticado,
+                msg: txt,
+                time: new Date().toLocaleTimeString()
+            });
+
+            document.getElementById("chatInput").value = "";
+        }
+
+        function ouvirChat() {
+            database.ref('chat').on('value', (snapshot) => {
+                const container = document.getElementById("chatContainer");
+                container.innerHTML = "";
+                const dados = snapshot.val();
+                if(dados) {
+                    Object.values(dados).forEach(m => {
+                        container.innerHTML += `
+                            <div class="chat-msg">
+                                <span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span>
+                            </div>
+                        `;
+                    });
+                }
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        /* 3. MISSÕES E ATAS DINÂMICAS */
         function alternarCamposPainel() {
             const tipo = document.getElementById("emissaoTipo").value;
             const label = document.getElementById("labelDinamica");
@@ -241,97 +293,77 @@
         function executarAcaoPainel() {
             const tipo = document.getElementById("emissaoTipo").value;
             const desc = document.getElementById("panelDesc").value;
-            
-            if (!desc.trim()) return alert("Preencha as informações.");
+            if (!desc.trim()) return alert("Preencha a descrição.");
 
-            let chave = prompt("AUTENTIQUE COMO CEO PARA EMISSÃO:");
-            if (chave !== "yelseik99") return alert("Erro: Privilégios insuficientes.");
+            let chave = prompt("CHAVE DO CEO PARA CONFIRMAÇÃO:");
+            if (chave !== "yelseik99") return alert("Ação restrita ao Criador Supremo.");
 
             if (tipo === "missao") {
                 const agente = document.getElementById("taskAgent").value;
-                listaTarefas.unshift({ id: Date.now(), desc: desc, agente: agente, status: "pending" });
-                renderizarTarefas();
-                adicionarLog(`DIRETRIZ: Nova missão para ${agente}.`);
+                const novaTarefaRef = database.ref('tarefas').push();
+                novaTarefaRef.set({ desc: desc, agente: agente, status: "pending", timestamp: Date.now() });
+                adicionarLog(`DIRETRIZ: Emitida nova missão para ${agente}.`);
             } else {
-                listaAtas.unshift({
-                    id: Date.now(),
-                    titulo: `Ata Oficial #${listaAtas.length + 1}`,
-                    data: new Date().toLocaleDateString(),
-                    resumo: desc
-                });
-                renderizarAtas();
-                adicionarLog(`ARQUIVO: Nova Ata de Briefing guardada com sucesso.`);
+                const novaAtaRef = database.ref('atas').push();
+                novaAtaRef.set({ resumo: desc, data: new Date().toLocaleDateString(), timestamp: Date.now() });
+                adicionarLog(`ARQUIVO: Nova Ata registada na base de dados.`);
             }
-
             document.getElementById("panelDesc").value = "";
         }
 
-        function renderizarTarefas() {
-            const container = document.getElementById("taskContainer");
-            container.innerHTML = "";
-            listaTarefas.forEach(t => {
-                let statusTxt = t.status === "done" ? "CONCLUÍDO" : (t.status === "process" ? "EM CURSO" : "PENDENTE");
-                let statusColor = t.status === "done" ? "#00ff66" : (t.status === "process" ? "#ffcc00" : "#ff3333");
-                let doneClass = t.status === "done" ? "task-item done" : "task-item";
+        function ouvirTarefas() {
+            database.ref('tarefas').on('value', (snapshot) => {
+                const container = document.getElementById("taskContainer");
+                container.innerHTML = "";
+                const dados = snapshot.val();
+                if (dados) {
+                    Object.keys(dados).forEach(id => {
+                        let t = dados[id];
+                        let statusTxt = t.status === "done" ? "CONCLUÍDO" : (t.status === "process" ? "EM CURSO" : "PENDENTE");
+                        let statusColor = t.status === "done" ? "#00ff66" : (t.status === "process" ? "#ffcc00" : "#ff3333");
+                        let doneClass = t.status === "done" ? "task-item done" : "task-item";
 
-                container.innerHTML += `
-                    <div class="${doneClass}" onclick="alternarStatusTarefa(${t.id})">
-                        <div>${t.desc}</div>
-                        <div class="task-meta">
-                            <span>RESPONSÁVEL: ${t.agente}</span>
-                            <span style="color: ${statusColor};">${statusTxt}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            localStorage.setItem("matanga_tasks", JSON.stringify(listaTarefas));
-        }
-
-        function alternarStatusTarefa(id) {
-            listaTarefas = listaTarefas.map(t => {
-                if (t.id === id) {
-                    if (t.status === "pending") t.status = "process";
-                    else if (t.status === "process") t.status = "done";
-                    else t.status = "pending";
+                        container.innerHTML += `
+                            <div class="${doneClass}" onclick="alternarStatusTarefa('${id}', '${t.status}')">
+                                <div>${t.desc}</div>
+                                <div class="task-meta">
+                                    <span>RESPONSÁVEL: ${t.agente}</span>
+                                    <span style="color: ${statusColor};">${statusTxt}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
                 }
-                return t;
             });
-            renderizarTarefas();
         }
 
-        function renderizarAtas() {
-            const container = document.getElementById("ataContainer");
-            container.innerHTML = "";
-            listaAtas.forEach(a => {
-                container.innerHTML += `
-                    <div class="task-item" style="border-left-color: #00ffaa;">
-                        <div style="font-weight: bold; color: #fff;">${a.titulo}</div>
-                        <div style="margin-top: 5px; font-size: 0.8rem; color: #bbb;">${a.resumo}</div>
-                        <div class="task-meta"><span>REGISTADO EM: ${a.data}</span></div>
-                    </div>
-                `;
-            });
-            localStorage.setItem("matanga_atas", JSON.stringify(listaAtas));
+        function alternarStatusTarefa(id, statusAtual) {
+            let novoStatus = "pending";
+            if (statusAtual === "pending") novoStatus = "process";
+            else if (statusAtual === "process") novoStatus = "done";
+            
+            database.ref('tarefas/' + id).update({ status: novoStatus });
         }
 
-        function renderizarChat() {
-            const container = document.getElementById("chatContainer");
-            container.innerHTML = "";
-            historicoChat.forEach(m => {
-                container.innerHTML += `<div class="chat-msg"><span class="chat-user">${m.user}:</span> <span>${m.msg}</span></div>`;
+        function ouvirAtas() {
+            database.ref('atas').on('value', (snapshot) => {
+                const container = document.getElementById("ataContainer");
+                container.innerHTML = "";
+                const dados = snapshot.val();
+                if (dados) {
+                    let index = 1;
+                    Object.values(dados).forEach(a => {
+                        container.innerHTML += `
+                            <div class="task-item" style="border-left-color: #00ffaa;">
+                                <div style="font-weight: bold; color: #fff;">Ata Oficial #${index}</div>
+                                <div style="margin-top: 5px; font-size: 0.8rem; color: #bbb;">${a.resumo}</div>
+                                <div class="task-meta"><span>REGISTADO EM: ${a.data}</span></div>
+                            </div>
+                        `;
+                        index++;
+                    });
+                }
             });
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function enviarMensagemChat() {
-            const txt = document.getElementById("chatInput").value;
-            if (!txt.trim()) return;
-            if (!agenteAutenticado) return alert("Autentique-se primeiro.");
-
-            historicoChat.push({ user: agenteAutenticado, msg: txt });
-            document.getElementById("chatInput").value = "";
-            renderizarChat();
-            localStorage.setItem("matanga_chat", JSON.stringify(historicoChat));
         }
     </script>
 </body>
