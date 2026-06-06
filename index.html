@@ -2,116 +2,392 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <title>CONTROLO DE PRESENÇA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA CENTRAL - ÁREA 51 VIRTUAL</title>
     <style>
-        /* O TEU DESIGN ANTIGO E ORIGINAL INTEGRAL */
-        body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; }
-        h2 { color: #58a6ff; text-align: center; }
-        .btn { background-color: #238636; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn:hover { background-color: #2ea043; }
-        .input-box { width: 100%; padding: 10px; margin-top: 10px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
-        .lista { margin-top: 20px; }
-        .item { background: #21262d; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #30363d; }
-        .alerta-sirene { background-color: #4c1111 !important; border-color: #f85149 !important; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #050705; color: #00ff66; padding: 20px; position: relative; transition: background-color 0.3s; }
+        body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 9999; background-size: 100% 4px, 6px 100%; pointer-events: none; }
+        header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #00ff66; }
+        .status-badge { background: #0b1d0b; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: #0a0c0a; border: 1px solid #004411; padding: 15px; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,102,0.1); }
+        .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; text-shadow: 0 0 3px #fff; }
+        .presence-list { list-style: none; margin-bottom: 15px; }
+        .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #002205; }
+        .membro-nome { font-weight: bold; color: #00ff66; }
+        .membro-cargo { color: #888; font-size: 0.75rem; display: block; margin-top: 2px; }
+        .status-box { float: right; font-size: 0.8rem; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
+        .status-online { background: #003311; color: #00ff66; border: 1px solid #00ff66; box-shadow: 0 0 5px #00ff66; }
+        .status-offline { background: #330000; color: #ff3333; border: 1px solid #ff3333; }
+        .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
+        .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
+        .btn-danger { border-color: #ff3333; color: #ff3333; }
+        .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 10px #ff3333; }
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #888; }
+        .input-field { width: 100%; background: #001100; border: 1px solid #004411; padding: 8px; color: #00ff66; font-family: inherit; }
+        .input-field:focus { border-color: #00ff66; outline: none; box-shadow: 0 0 5px #00ff66; }
+        .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; }
+        .task-item { background: #001100; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; transition: 0.3s; }
+        .task-item:hover { background: #002200; }
+        .task-item.done { border-left-color: #00ff66; opacity: 0.5; text-decoration: line-through; }
+        .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
+        .chat-box { background: #020502; border: 1px solid #00ff66; height: 150px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .chat-msg { border-bottom: 1px dashed #002205; padding-bottom: 4px; }
+        .chat-user { color: #fff; font-weight: bold; }
+        .chat-meta { color: #ffcc00; font-size: 0.7rem; }
+        .radar-container { display: flex; align-items: center; gap: 15px; background: #020502; border: 1px solid #004411; padding: 10px; margin-top: 10px; }
+        .radar { width: 60px; height: 60px; border: 2px solid #004411; border-radius: 50%; position: relative; background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, rgba(0,0,0,1) 80%); overflow: hidden; }
+        .radar::after { content: ""; position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,255,102,0.4) 0%, rgba(0,0,0,0) 50%); top: 0; left: 0; transform-origin: center; animation: radar-sweep 3s linear infinite; }
+        .log-panel { margin-top: 20px; background: #020202; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; border-radius: 4px; }
+        .log-title { color: #ff3333; font-weight: bold; margin-bottom: 5px; }
+        .log-content { max-height: 150px; overflow-y: auto; color: #aaa; list-style: none; }
+        .log-erro { color: #ff3333; font-weight: bold; animation: blink 1s infinite; }
+        
+        /* ANIMAÇÃO DE SIRENE PARA NOVAS MISSÕES */
+        @keyframes alert-flash { 0%, 100% { box-shadow: inset 0 0 0px transparent; } 50% { box-shadow: inset 0 0 100px rgba(255,0,0,0.8); background-color: #220000; } }
+        .siren-active { animation: alert-flash 0.5s 6; }
+        
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+    <header>
+        <h1>ÁREA 51 // OPERAÇÕES EM TEMPO REAL</h1>
+        <div class="status-badge">REDE SINCRONIZADA</div>
+    </header>
+    <div class="grid-container">
+        <div class="card">
+            <h2>CONTROLO DE PRESENÇA</h2>
+            <ul class="presence-list">
+                <li><span class="membro-nome">[CEO] yelseik</span><span class="status-box status-offline" id="status-yelseik">AUSENTE</span><span class="membro-cargo">Líder Supremo da Organização</span></li>
+                <li><span class="membro-nome">[ASSISTENTE] aihosj</span><span class="status-box status-offline" id="status-aihosj">AUSENTE</span><span class="membro-cargo">Assistente Direto do CEO</span></li>
+                <li><span class="membro-nome">[CONSELHEIRO] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo">Segurança Pessoal e Conselheiro do CEO</span></li>
+                <li><span class="membro-nome">[S. CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo">Chefe do Esquadrão de Segurança</span></li>
+                <li><span class="membro-nome">[SEGURANÇA] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo">Segurança Tático da Base</span></li>
+            </ul>
+            <button class="btn-action" onclick="autenticarAgente()">Autenticar Chave no QG</button>
+            <button class="btn-action btn-danger" onclick="limparPresencas()">Reset de Presenças (CEO)</button>
+        </div>
+        <div class="card">
+            <h2>COMUNICAÇÕES INTERNAS (CIPHER)</h2>
+            <div class="chat-box" id="chatContainer"></div>
+            <div class="input-group">
+                <input type="text" id="chatInput" class="input-field" placeholder="Mensagem encriptada na rede..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
+            </div>
+            <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
+            <div class="radar-container">
+                <div class="radar"></div>
+                <div style="font-size: 0.75rem; color: #888;">SCANNER DE PERÍMETRO:<br><span style="color: #00ff66; animation: blink 1s infinite;">PROCURANDO INTRUSOS...</span></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>ARQUIVO DE BRIEFINGS (ATAS)</h2>
+            <p style="font-size: 0.72rem; color: #888; margin-bottom: 10px;">* Registos permanentes das reuniões do conselho supremo.</p>
+            <div class="task-list" id="ataContainer"></div>
+        </div>
+        <div class="card">
+            <h2>MISSÕES OPERACIONAIS</h2>
+            <div class="task-list" id="taskContainer"></div>
+        </div>
+        <div class="card">
+            <h2>PAINEL DO COMANDANTE SUPREMO</h2>
+            <div class="input-group">
+                <label>Tipo de Emissão:</label>
+                <select id="emissaoTipo" class="input-field" onchange="alternarCamposPainel()">
+                    <option value="missao">Lançar Nova Missão</option>
+                    <option value="ata">Arquivar Ata de Reunião</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label id="labelDinamica">Descrição da Missão:</label>
+                <input type="text" id="panelDesc" class="input-field" placeholder="Digite os detalhes...">
+            </div>
+            
+            <div class="input-group" id="grupoCoordenadas">
+                <label>Coordenadas / Setor:</label>
+                <input type="text" id="panelCoord" class="input-field" placeholder="Ex: Setor Sul, Grupo X...">
+            </div>
 
-    <div class="container" id="painelPrincipal">
-        <h2>PAINEL DE CONTROLO</h2>
-        
-        <button class="btn" style="background-color: #1f6feb;" onclick="entrarNoQG()">Autenticar Agente</button>
-        
-        <input type="text" id="missaoDesc" class="input-box" placeholder="Nova Missão...">
-        <input type="text" id="missaoSetor" class="input-box" placeholder="Setor / Coordenadas...">
-        <button class="btn" onclick="enviarNovaMissao()">Lançar Missão</button>
-
-        <div class="lista" id="listaDeMissoes"></div>
+            <div class="input-group" id="grupoAgente">
+                <label>Agente Encarregue:</label>
+                <select id="taskAgent" class="input-field">
+                    <option value="yelseik">yelseik</option>
+                    <option value="aihosj">aihosj</option>
+                    <option value="Rengaw">Rengaw</option>
+                    <option value="innavoeg">innavoeg</option>
+                    <option value="onaitsirc">onaitsirc</option>
+                </select>
+            </div>
+            <button class="btn-action" onclick="executarAcaoPainel()">Executar Diretriz</button>
+        </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <div class="log-panel">
+        <div class="log-title">LOGS DE INCIDENTES (GRAVADOS NA NUVEM):</div>
+        <ul class="log-content" id="logContainer"></ul>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
-        // Teu Firebase estável
-        const firebaseConfig = { 
+        const firebaseConfig = {
             apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...", 
-            databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com" 
+            authDomain: "area51-matanga.firebaseapp.com",
+            databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
+            projectId: "area51-matanga",
+            storageBucket: "area51-matanga.firebasestorage.app",
+            messagingSenderId: "8932975266",
+            appId: "1:8932975266:web:50532f72a8c73b42"
         };
+
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Chaves agora protegidas em SHA-256 (Ninguém consegue ler no código fonte do GitHub)
-        const chavesPermitidas = {
-            "7c26ecee7ff804e101f3db9cf8ff6719b0d19e67d4f3e6704bf1f88a2b534442": "yelseik", // hash de yelseik99
-            "0714fc2a76f2fc71b870ef46087b3240212a7638d9482d334000f4f982121011": "aihosj"   // hash de aihosj01
+        const codigosAgentes = {
+            "yelseik99": { id: "status-yelseik", nome: "yelseik" },
+            "aihosj01": { id: "status-aihosj", nome: "aihosj" },
+            "rengaw02": { id: "status-rengaw", nome: "Rengaw" },
+            "innavoeg03": { id: "status-innavoeg", nome: "innavoeg" },
+            "onaitsirc04": { id: "status-onaitsirc", nome: "onaitsirc" }
         };
 
-        function pegarUsuario() { return sessionStorage.getItem("user_sessao"); }
+        let agenteAutenticado = localStorage.getItem("matanga_agente_logado") || null;
+        let primeiraCargaTarefas = true; // Variável para controlar a sirene inicial
 
-        function entrarNoQG() {
-            let chave = prompt("DIGITE A SUA CHAVE:");
-            if(!chave) return;
-            let hash = CryptoJS.SHA256(chave).toString();
+        window.onload = function() {
+            ouvirPresencas();
+            ouvirChat();
+            ouvirTarefas();
+            ouvirAtas();
+            ouvirLogs();
+            adicionarLog("Terminal operacional conectado à Nuvem Realtime.");
+            
+            // Ativa o detetor de sirene para novas missões
+            setTimeout(() => { primeiraCargaTarefas = false; }, 3000); 
+            ouvirAlarmeMissoes();
+        };
 
-            if(hash in chavesPermitidas) {
-                let nome = chavesPermitidas[hash];
-                sessionStorage.setItem("user_sessao", nome);
-                alert("Acesso Confirmado: " + nome);
+        function adicionarLog(mensagem, erro = false) {
+            database.ref('logs').push().set({ msg: mensagem, erro: erro, timestamp: Date.now(), hora: new Date().toLocaleTimeString() });
+        }
+
+        function ouvirLogs() {
+            database.ref('logs').limitToLast(50).on('value', (snapshot) => {
+                const container = document.getElementById("logContainer");
+                container.innerHTML = "";
+                const logs = snapshot.val();
+                if (logs) {
+                    Object.values(logs).reverse().forEach(l => {
+                        let classe = l.erro ? "class='log-erro'" : "";
+                        container.innerHTML += `<li ${classe}>[${l.hora}] - ${l.msg}</li>`;
+                    });
+                }
+            });
+        }
+
+        // NOVA FUNÇÃO: Dispara a sirene visual e sonora se for uma missão nova
+        function ouvirAlarmeMissoes() {
+            database.ref('tarefas').on('child_added', (snapshot) => {
+                if (!primeiraCargaTarefas && agenteAutenticado !== "yelseik") {
+                    document.body.classList.add("siren-active");
+                    tocarSomErro(); // Reutiliza o som agudo
+                    setTimeout(() => { document.body.classList.remove("siren-active"); }, 3000);
+                }
+            });
+        }
+
+        function tocarSomErro() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc1 = ctx.createOscillator(); const gain1 = ctx.createGain();
+                osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(120, ctx.currentTime); osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.4);
+                const osc2 = ctx.createOscillator(); const gain2 = ctx.createGain();
+                osc2.type = 'sine'; osc2.frequency.setValueAtTime(800, ctx.currentTime);
+                gain1.gain.setValueAtTime(0.3, ctx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                gain2.gain.setValueAtTime(0.15, ctx.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc1.connect(gain1); gain1.connect(ctx.destination); osc2.connect(gain2); gain2.connect(ctx.destination);
+                osc1.start(); osc2.start(); osc1.stop(ctx.currentTime + 0.4); osc2.stop(ctx.currentTime + 0.4);
+            } catch(e) {}
+        }
+
+        function tocarSomSucesso() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.2);
+            } catch(e) {}
+        }
+
+        function autenticarAgente() {
+            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
+            if (!chave) return;
+            if (chave in codigosAgentes) {
+                let agente = codigosAgentes[chave];
+                agenteAutenticado = agente.nome;
+                localStorage.setItem("matanga_agente_logado", agente.nome);
+                database.ref('presencas/' + agente.id).set("ATIVO");
+                adicionarLog(`SINAL: Agente ${agente.nome} entrou na rede.`);
+                tocarSomSucesso();
+                alert(`Identidade validada. Canal ativo para ${agente.nome}.`);
             } else {
-                ativarArmadilhaRadar(hash);
+                tocarSomErro();
+                adicionarLog(`🚨 ALERTA BREACH: Tentativa ilegal com chave: "${chave}"`, true);
+                alert("🚨 CHAVE INVÁLIDA! INCIDENTE REGISTADO.");
             }
         }
 
-        async function activarArmadilhaRadar(hashIncorreto) {
-            document.getElementById("painelPrincipal").classList.add("alerta-sirene");
-            let ip = await fetch('https://api.ipify.org').then(r => r.text()).catch(() => "Desconhecido");
-            database.ref('logs').push({ alerta: `🚨 INVASOR DETETADO! IP: ${ip} | Tentou usar hash: ${hashIncorreto}` });
-            alert("🚨 CHAVE FAILA! SISTEMA DE SEGURANÇA ATIVADO.");
-            setTimeout(() => { document.getElementById("painelPrincipal").classList.remove("alerta-sirene"); }, 5000);
+        function ouvirPresencas() {
+            database.ref('presencas').on('value', (snapshot) => {
+                const dados = snapshot.val() || {};
+                for (let key in codigosAgentes) {
+                    let elementId = codigosAgentes[key].id;
+                    let el = document.getElementById(elementId);
+                    if (dados[elementId] === "ATIVO") { el.innerText = "ATIVO"; el.className = "status-box status-online"; }
+                    else { el.innerText = "AUSENTE"; el.className = "status-box status-offline"; }
+                }
+            });
         }
 
-        function enviarNovaMissao() {
-            let criador = pegarUsuario();
-            if(criador !== "yelseik") return alert("Negado: Apenas yelseik pode lançar missões.");
-
-            let desc = document.getElementById("missaoDesc").value;
-            let setor = document.getElementById("missaoSetor").value || "Geral";
-
-            if(desc.trim() !== "") {
-                database.ref('tarefas').push({ desc, setor, status: "PENDENTE", relatorio: "Nenhum" });
-                document.getElementById("missaoDesc").value = "";
-                document.getElementById("missaoSetor").value = "";
+        function limparPresencas() {
+            let chave = prompt("CONFIRME A CHAVE DO CEO:");
+            if (chave === "yelseik99") {
+                database.ref('presencas').remove();
+                tocarSomSucesso();
+                adicionarLog("CEO executou wipe de presença global.");
+                alert("Presenças reinicializadas na nuvem.");
+            } else {
+                tocarSomErro();
+                adicionarLog("🚨 TENTATIVA VIOLENTA: Falha no wipe de presenças.", true);
+                alert("Ação negada.");
             }
         }
 
-        // Mostra as missões exatamente como antes
-        database.ref('tarefas').on('value', (snapshot) => {
-            const lista = document.getElementById("listaDeMissoes");
-            lista.innerHTML = "";
-            const dados = snapshot.val();
-            if(dados) {
-                Object.keys(dados).forEach(id => {
-                    let m = dados[id];
-                    lista.innerHTML += `<div class="item" onclick="concluirOperacao('${id}', '${m.status}')">
-                        <strong>${m.desc}</strong><br>
-                        <small style="color:#8b949e;">📍 Setor: ${m.setor} | Estado: ${m.status}</small><br>
-                        <small style="color:#58a6ff;">Relatório: ${m.relatorio}</small>
-                    </div>`;
-                });
+        function enviarMensagemChat() {
+            const txt = document.getElementById("chatInput").value;
+            if (!txt.trim()) return;
+            if (!agenteAutenticado) {
+                tocarSomErro();
+                adicionarLog("🚨 REJEITADO: Transmissão bloqueada sem chave autenticada.", true);
+                return alert("Erro: Deves autenticar a tua chave no QG primeiro!");
             }
-        });
+            database.ref('chat').push().set({ user: agenteAutenticado, msg: txt, time: new Date().toLocaleTimeString() });
+            document.getElementById("chatInput").value = "";
+        }
 
-        function concluirOperacao(id, statusAtual) {
-            if(!pegarUsuario()) return alert("Autentique-se primeiro.");
-            if(statusAtual === "CONCLUÍDO") return alert("Esta missão já está fechada.");
+        function ouvirChat() {
+            database.ref('chat').on('value', (snapshot) => {
+                const container = document.getElementById("chatContainer");
+                container.innerHTML = "";
+                const dados = snapshot.val();
+                if(dados) {
+                    Object.values(dados).forEach(m => {
+                        container.innerHTML += `<div class="chat-msg"><span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span></div>`;
+                    });
+                }
+                container.scrollTop = container.scrollHeight;
+            });
+        }
 
-            let relatorio = prompt("PROTOCOLO OBRIGATÓRIO: Escreva o relatório de encerramento:");
-            if(!relatorio) return alert("Cancelado. O relatório é obrigatório para fechar a missão.");
+        function alternarCamposPainel() {
+            const tipo = document.getElementById("emissaoTipo").value;
+            const label = document.getElementById("labelDinamica");
+            const grupoAgente = document.getElementById("grupoAgente");
+            const grupoCoord = document.getElementById("grupoCoordenadas"); // Nova linha
+            const input = document.getElementById("panelDesc");
+            
+            if (tipo === "missao") { 
+                label.innerText = "Descrição da Missão:"; 
+                input.placeholder = "Ex: Monitorizar tráfego externo..."; 
+                grupoAgente.style.display = "block"; 
+                grupoCoord.style.display = "block"; // Mostra coordenadas
+            } else { 
+                label.innerText = "Resumo da Reunião (Ata):"; 
+                input.placeholder = "Ex: Decisões tomadas no briefing..."; 
+                grupoAgente.style.display = "none"; 
+                grupoCoord.style.display = "none"; // Oculta coordenadas
+            }
+        }
 
-            database.ref('tarefas/' + id).update({ status: "CONCLUÍDO", relatorio: relatorio });
+        function executarAcaoPainel() {
+            const tipo = document.getElementById("emissaoTipo").value;
+            const desc = document.getElementById("panelDesc").value;
+            
+            if (!desc.trim()) return alert("Preencha a descrição.");
+            let chave = prompt("CHAVE DO CEO PARA CONFIRMAÇÃO:");
+            if (chave !== "yelseik99") {
+                tocarSomErro();
+                adicionarLog("🚨 IMPEDIDO: Tentativa de usurpação de ordens do comando.", true);
+                return alert("Erro: Privilégios de Criador Supremo necessários.");
+            }
+            tocarSomSucesso();
+            
+            if (tipo === "missao") {
+                const agente = document.getElementById("taskAgent").value;
+                const coord = document.getElementById("panelCoord").value || "QG CENTRAL"; // Capta a coordenada
+                database.ref('tarefas').push().set({ desc: desc, agente: agente, coord: coord, status: "pending", timestamp: Date.now() });
+                adicionarLog(`DIRETRIZ: Emitida nova missão para ${agente} no setor: ${coord}.`);
+            } else {
+                database.ref('atas').push().set({ resumo: desc, data: new Date().toLocaleDateString(), timestamp: Date.now() });
+                adicionarLog(`ARQUIVO: Nova Ata registada na base de dados.`);
+            }
+            document.getElementById("panelDesc").value = "";
+            document.getElementById("panelCoord").value = "";
+        }
+
+        function ouvirTarefas() {
+            database.ref('tarefas').on('value', (snapshot) => {
+                const container = document.getElementById("taskContainer");
+                container.innerHTML = "";
+                const dados = snapshot.val();
+                if (dados) {
+                    Object.keys(dados).forEach(id => {
+                        let t = dados[id];
+                        let statusTxt = t.status === "done" ? "CONCLUÍDO" : (t.status === "process" ? "EM CURSO" : "PENDENTE");
+                        let statusColor = t.status === "done" ? "#00ff66" : (t.status === "process" ? "#ffcc00" : "#ff3333");
+                        let doneClass = t.status === "done" ? "task-item done" : "task-item";
+                        let coordLocal = t.coord ? t.coord : "NÃO DEFINIDO"; // Prevenção para missões antigas
+                        
+                        container.innerHTML += `<div class="${doneClass}" onclick="alternarStatusTarefa('${id}', '${t.status}')">
+                            <div style="font-weight:bold; color:#fff;">${t.desc}</div>
+                            <div style="color: #00ffaa; font-size: 0.75rem; margin-top: 5px; border-bottom: 1px dashed #004411; padding-bottom: 4px;">📍 LOCAL: ${coordLocal}</div>
+                            <div class="task-meta"><span>AGENTE: ${t.agente}</span><span style="color: ${statusColor}; font-weight:bold;">${statusTxt}</span></div>
+                        </div>`;
+                    });
+                }
+            });
+        }
+
+        function alternarStatusTarefa(id, statusAtual) {
+            if (agenteAutenticado !== "yelseik") {
+                tocarSomErro();
+                alert("🚨 ACESSO NEGADO: Apenas o Comandante (yelseik) pode alterar o estado das missões.");
+                return;
+            }
+            let novoStatus = "pending";
+            if (statusAtual === "pending") novoStatus = "process";
+            else if (statusAtual === "process") novoStatus = "done";
+            tocarSomSucesso();
+            database.ref('tarefas/' + id).update({ status: novoStatus });
+        }
+
+        function ouvirAtas() {
+            database.ref('atas').on('value', (snapshot) => {
+                const container = document.getElementById("ataContainer");
+                container.innerHTML = "";
+                const dados = snapshot.val();
+                if (dados) {
+                    let index = 1;
+                    Object.values(dados).forEach(a => {
+                        container.innerHTML += `<div class="task-item" style="border-left-color: #00ffaa;"><div style="font-weight: bold; color: #fff;">Ata Oficial #${index}</div><div style="margin-top: 5px; font-size: 0.8rem; color: #bbb;">${a.resumo}</div><div class="task-meta"><span>REGISTADO EM: ${a.data}</span></div></div>`;
+                        index++;
+                    });
+                }
+            });
         }
     </script>
 </body>
