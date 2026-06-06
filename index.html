@@ -6,23 +6,27 @@
     <title>SISTEMA CENTRAL - ÁREA 51 VIRTUAL</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: #0a0a0c; color: #00ff66; padding: 20px; }
+        body { background-color: #050705; color: #00ff66; padding: 20px; position: relative; }
+        
+        /* Efeito de Monitor Antigo (CRT) */
+        body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 9999; background-size: 100% 4px, 6px 100%; pointer-events: none; }
+        
         header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px #00ff66; }
-        .status-badge { background: #112211; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
+        h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #00ff66; }
+        .status-badge { background: #0b1d0b; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
         
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: #0f1115; border: 1px solid #223322; padding: 15px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
-        .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; }
+        .card { background: #0a0c0a; border: 1px solid #004411; padding: 15px; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,102,0.1); }
+        .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; text-shadow: 0 0 3px #fff; }
         
         /* Lista de Presença */
         .presence-list { list-style: none; margin-bottom: 15px; }
-        .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #141814; }
+        .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #002205; }
         .membro-nome { font-weight: bold; color: #00ff66; }
         .membro-cargo { color: #888; font-size: 0.75rem; display: block; margin-top: 2px; }
         .status-box { float: right; font-size: 0.8rem; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
-        .status-online { background: #113311; color: #00ff66; border: 1px solid #00ff66; }
-        .status-offline { background: #331111; color: #ff3333; border: 1px solid #ff3333; }
+        .status-online { background: #003311; color: #00ff66; border: 1px solid #00ff66; box-shadow: 0 0 5px #00ff66; }
+        .status-offline { background: #330000; color: #ff3333; border: 1px solid #ff3333; }
         
         .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
         .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
@@ -32,20 +36,25 @@
         /* Inputs */
         .input-group { margin-bottom: 10px; }
         .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #888; }
-        .input-field { width: 100%; background: #141820; border: 1px solid #223322; padding: 8px; color: #00ff66; font-family: inherit; }
-        .input-field:focus { border-color: #00ff66; outline: none; }
+        .input-field { width: 100%; background: #001100; border: 1px solid #004411; padding: 8px; color: #00ff66; font-family: inherit; }
+        .input-field:focus { border-color: #00ff66; outline: none; box-shadow: 0 0 5px #00ff66; }
         
         /* Quadro de Tarefas */
-        .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
-        .task-item { background: #141820; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; position: relative; }
+        .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; }
+        .task-item { background: #001100; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; }
         .task-item.done { border-left-color: #00ff66; opacity: 0.5; text-decoration: line-through; }
         .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
         
+        /* Chat Confidencial (Opção 1) */
+        .chat-box { background: #020502; border: 1px solid #00ff66; height: 180px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .chat-msg { border-bottom: 1px dashed #002205; padding-bottom: 4px; }
+        .chat-user { color: #fff; font-weight: bold; }
+        .chat-meta { color: #ffcc00; font-size: 0.7rem; }
+
         /* Consola de Logs */
-        .log-panel { margin-top: 20px; background: #050507; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; border-radius: 4px; }
+        .log-panel { margin-top: 20px; background: #020202; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; border-radius: 4px; box-shadow: 0 0 10px rgba(255,51,51,0.1); }
         .log-title { color: #ff3333; font-weight: bold; margin-bottom: 5px; }
-        .log-content { max-height: 120px; overflow-y: auto; color: #aaa; list-style: none; }
-        .log-content li { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
+        .log-content { max-height: 100px; overflow-y: auto; color: #aaa; list-style: none; }
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
@@ -53,8 +62,8 @@
 <body>
 
     <header>
-        <h1>ÁREA 51 // OPERAÇÕES DIGITAIS</h1>
-        <div class="status-badge">SISTEMA ATIVO</div>
+        <h1>ÁREA 51 // OPERAÇÕES CORPORATIVAS</h1>
+        <div class="status-badge">SISTEMA MILITARIZADO</div>
     </header>
 
     <div class="grid-container">
@@ -62,47 +71,37 @@
         <div class="card">
             <h2>CONTROLO DE PRESENÇA</h2>
             <ul class="presence-list">
-                <li>
-                    <span class="membro-nome">[CEO] yelseik</span>
-                    <span class="status-box status-offline" id="status-yelseik">AUSENTE</span>
-                    <span class="membro-cargo">Líder Supremo da Organização</span>
-                </li>
-                <li>
-                    <span class="membro-nome">[ASSISTENTE] aihosj</span>
-                    <span class="status-box status-offline" id="status-aihosj">AUSENTE</span>
-                    <span class="membro-cargo">Assistente Direto do CEO</span>
-                </li>
-                <li>
-                    <span class="membro-nome">[CONSELHEIRO] Rengaw</span>
-                    <span class="status-box status-offline" id="status-rengaw">AUSENTE</span>
-                    <span class="membro-cargo">Segurança Pessoal e Conselheiro do CEO</span>
-                </li>
-                <li>
-                    <span class="membro-nome">[S. CHEFE] innavoeg</span>
-                    <span class="status-box status-offline" id="status-innavoeg">AUSENTE</span>
-                    <span class="membro-cargo">Chefe do Esquadrão de Segurança</span>
-                </li>
-                <li>
-                    <span class="membro-nome">[SEGURANÇA] onaitsirc</span>
-                    <span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span>
-                    <span class="membro-cargo">Segurança Tático da Base</span>
-                </li>
+                <li><span class="membro-nome">[CEO] yelseik</span><span class="status-box status-offline" id="status-yelseik">AUSENTE</span><span class="membro-cargo">Líder Supremo da Organização</span></li>
+                <li><span class="membro-nome">[ASSISTENTE] aihosj</span><span class="status-box status-offline" id="status-aihosj">AUSENTE</span><span class="membro-cargo">Assistente Direto do CEO</span></li>
+                <li><span class="membro-nome">[CONSELHEIRO] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo">Segurança Pessoal e Conselheiro do CEO</span></li>
+                <li><span class="membro-nome">[S. CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo">Chefe do Esquadrão de Segurança</span></li>
+                <li><span class="membro-nome">[SEGURANÇA] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo">Segurança Tático da Base</span></li>
             </ul>
             <button class="btn-action" onclick="autenticarAgente()">Autenticar Chave no QG</button>
             <button class="btn-action btn-danger" onclick="limparPresencas()">Reset de Presenças (CEO)</button>
         </div>
 
         <div class="card">
+            <h2>COMUNICAÇÕES INTERNAS (CIPHER)</h2>
+            <div class="chat-box" id="chatContainer">
+                </div>
+            <div class="input-group">
+                <input type="text" id="chatInput" class="input-field" placeholder="Escreve uma mensagem na rede encriptada..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
+            </div>
+            <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
+        </div>
+
+        <div class="card">
             <h2>MISSÕES OPERACIONAIS</h2>
-            <p style="font-size: 0.75rem; color: #888; margin-bottom: 10px;">* Clique numa missão para avançar o estado (Pendente -> Em Curso -> Concluído).</p>
+            <p style="font-size: 0.72rem; color: #888; margin-bottom: 10px;">* Clique para alternar: Pendente -> Em Curso -> Concluído.</p>
             <div class="task-list" id="taskContainer"></div>
         </div>
 
         <div class="card">
-            <h2>DESIGNAR DEVERES</h2>
+            <h2>DESIGNAR DEVERES (RESTRITO)</h2>
             <div class="input-group">
                 <label>Descrição da Diretriz:</label>
-                <input type="text" id="taskDesc" class="input-field" placeholder="Ex: Patrulhar portas de rede">
+                <input type="text" id="taskDesc" class="input-field" placeholder="Ex: Monitorizar tráfego externo">
             </div>
             <div class="input-group">
                 <label>Agente Encarregue:</label>
@@ -120,7 +119,7 @@
     </div>
 
     <div class="log-panel">
-        <div class="log-title">LOGS DE SEGURANÇA INTERNOS:</div>
+        <div class="log-title">LOGS DE INCIDENTES INTERNOS:</div>
         <ul class="log-content" id="logContainer"></ul>
     </div>
 
@@ -133,17 +132,21 @@
             "onaitsirc04": { id: "status-onaitsirc", nome: "onaitsirc" }
         };
 
+        let agenteAutenticado ATIVO = null;
         let listaTarefas = JSON.parse(localStorage.getItem("matanga_tasks")) || [
             { id: 1, desc: "Refinar os scripts de automação da base", agente: "yelseik", status: "process" },
             { id: 2, desc: "Mapear o perímetro tático do território virtual", agente: "innavoeg", status: "pending" }
         ];
-
         let presencasSalvas = JSON.parse(localStorage.getItem("matanga_presence")) || {};
+        let historicoChat = JSON.parse(localStorage.getItem("matanga_chat")) || [
+            { user: "SISTEMA", msg: "Canal encriptado de comunicação estabelecido.", time: "00:00:00" }
+        ];
 
         window.onload = function() {
             renderizarTarefas();
             aplicarPresencas();
-            adicionarLog("Terminal tático reinicializado. Encriptação ponta-a-ponta.");
+            renderizarChat();
+            adicionarLog("Terminal tático ativo. Modo CRT detetado.");
         };
 
         function adicionarLog(mensagem) {
@@ -153,19 +156,20 @@
         }
 
         function autenticarAgente() {
-            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO:");
+            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
             if (!chave) return;
 
             if (chave in codigosAgentes) {
                 let agente = codigosAgentes[chave];
+                agenteAutenticado ATIVO = agente.nome;
                 presencasSalvas[agente.id] = true;
                 localStorage.setItem("matanga_presence", JSON.stringify(presencasSalvas));
                 aplicarPresencas();
-                adicionarLog(`ACESSO AUTORIZADO: Agente ${agente.nome} está ATIVO na base.`);
-                alert(`Identidade verificada. Bem-vindo ao QG, ${agente.nome}.`);
+                adicionarLog(`SINAL: Agente ${agente.nome} autenticado no chat.`);
+                alert(`Identidade validada. Canal de chat aberto para ${agente.nome}.`);
             } else {
-                adicionarLog(`🚨 ALERTA: Tentativa de quebra de protocolo com a chave inválida: "${chave}"`);
-                alert("🚨 ACESSO NEGADO!");
+                adicionarLog(`🚨 ALERTA: Tentativa ilegal de login com a chave: "${chave}"`);
+                alert("🚨 CHAVE INVÁLIDA!");
             }
         }
 
@@ -184,22 +188,69 @@
         }
 
         function limparPresencas() {
-            let chave = prompt("CONFIRME A CHAVE DE CONTROLO DO CEO:");
+            let chave = prompt("CONFIRME A CHAVE DO CEO:");
             if (chave === "yelseik99") {
                 presencasSalvas = {};
                 localStorage.setItem("matanga_presence", JSON.stringify(presencasSalvas));
                 aplicarPresencas();
-                adicionarLog("Comandante Supremo reinicializou a lista de presenças diárias.");
-                alert("Todas as presenças foram limpas.");
+                adicionarLog("CEO realizou o wipe de presença do servidor.");
+                alert("Presenças reinicializadas.");
             } else {
-                alert("Ação não autorizada.");
+                alert("Não autorizado.");
             }
         }
 
+        /* Funções do Chat (Opção 1) */
+        function renderizarChat() {
+            const container = document.getElementById("chatContainer");
+            container.innerHTML = "";
+            historicoChat.forEach(m => {
+                container.innerHTML += `
+                    <div class="chat-msg">
+                        <span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span>
+                    </div>
+                `;
+            });
+            container.scrollTop = container.scrollHeight;
+            localStorage.setItem("matanga_chat", JSON.stringify(historicoChat));
+        }
+
+        function enviarMensagemChat() {
+            const txt = document.getElementById("chatInput").value;
+            if (!txt.trim()) return;
+
+            if (!agenteAutenticado ATIVO) {
+                alert("🚨 PROTOCOLO EXPULSÃO: Deves autenticar a tua chave primeiro para usar as comunicações!");
+                return;
+            }
+
+            let novaMsg = {
+                user: agenteAutenticado ATIVO,
+                msg: txt,
+                time: new Date().toLocaleTimeString()
+            };
+
+            historicoChat.push(novaMsg);
+            document.getElementById("chatInput").value = "";
+            renderizarChat();
+
+            // Resposta Automática Simulada do Sistema para dar dinâmica
+            setTimeout(() => {
+                if(txt.toLowerCase().includes("ajuda") || txt.toLowerCase().includes("status")) {
+                    historicoChat.push({
+                        user: "SISTEMA_AI",
+                        msg: `Agente ${agenteAutenticado ATIVO}, a rede está estável. Sem intrusões detetadas nas últimas 24h.`,
+                        time: new Date().toLocaleTimeString()
+                    });
+                    renderizarChat();
+                }
+            }, 1000);
+        }
+
+        /* Funções das Tarefas */
         function renderizarTarefas() {
             const container = document.getElementById("taskContainer");
             container.innerHTML = "";
-
             listaTarefas.forEach(t => {
                 let statusTxt = t.status === "done" ? "CONCLUÍDO" : (t.status === "process" ? "EM CURSO" : "PENDENTE");
                 let statusColor = t.status === "done" ? "#00ff66" : (t.status === "process" ? "#ffcc00" : "#ff3333");
@@ -221,20 +272,15 @@
         function criarNovaTarefa() {
             const desc = document.getElementById("taskDesc").value;
             const agente = document.getElementById("taskAgent").value;
+            if (!desc.trim()) return alert("Insira os dados.");
 
-            if (!desc.trim()) return alert("Descreva a missão.");
+            let chave = prompt("CHAVE DE CONTROLO DO CEO REQUERIDA:");
+            if (chave !== "yelseik99") return alert("Apenas o CEO pode ditar novas missões corporativas.");
 
-            let chave = prompt("AUTENTIQUE COMO CEO PARA LANÇAR DIRETRIZES:");
-            if (chave !== "yelseik99") {
-                adicionarLog(`🚨 FALHA: Tentativa não autorizada de criação de missões.`);
-                return alert("Erro de privilégios. Apenas o CEO pode lançar deveres.");
-            }
-
-            let nova = { id: Date.now(), desc: desc, agente: agente, status: "pending" };
-            listaTarefas.unshift(nova);
+            listaTarefas.unshift({ id: Date.now(), desc: desc, agente: agente, status: "pending" });
             document.getElementById("taskDesc").value = "";
             renderizarTarefas();
-            adicionarLog(`Nova diretriz lançada para ${agente}: "${desc}"`);
+            adicionarLog(`DIRETRIZ: Nova missão atribuída a ${agente}.`);
         }
 
         function alternarStatusTarefa(id) {
@@ -243,7 +289,7 @@
                     if (t.status === "pending") t.status = "process";
                     else if (t.status === "process") t.status = "done";
                     else t.status = "pending";
-                    adicionarLog(`Missão ID [${id}] alterada pelo operador.`);
+                    adicionarLog(`Logs: Missão ID [${id}] atualizada.`);
                 }
                 return t;
             });
