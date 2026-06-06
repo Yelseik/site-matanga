@@ -1,3 +1,4 @@
+cat > index.html << 'AREA51EOF1'
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
@@ -7,10 +8,14 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
         body { background-color: #050705; color: #00ff66; padding: 20px; position: relative; transition: background-color 0.3s; }
-        body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 9999; background-size: 100% 4px, 6px 100%; pointer-events: none; }
-        header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%), linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06)); z-index: 9999; background-size: 100% 4px, 6px 100%; pointer-events: none; }
+        header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #00ff66; }
+        .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .status-badge { background: #0b1d0b; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
+        .btn-notif { background: transparent; border: 1px solid #ffcc00; color: #ffcc00; padding: 5px 10px; font-size: 0.75rem; cursor: pointer; font-family: inherit; text-transform: uppercase; transition: 0.3s; }
+        .btn-notif:hover { background: #ffcc00; color: #000; }
+        .btn-notif.active { background: #332b00; border-color: #00ff66; color: #00ff66; }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .card { background: #0a0c0a; border: 1px solid #004411; padding: 15px; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,102,0.1); }
         .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; text-shadow: 0 0 3px #fff; }
@@ -21,41 +26,71 @@
         .status-box { float: right; font-size: 0.8rem; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
         .status-online { background: #003311; color: #00ff66; border: 1px solid #00ff66; box-shadow: 0 0 5px #00ff66; }
         .status-offline { background: #330000; color: #ff3333; border: 1px solid #ff3333; }
-        .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
+        .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; font-family: inherit; }
         .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
         .btn-danger { border-color: #ff3333; color: #ff3333; }
         .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 10px #ff3333; }
+        .btn-warn { border-color: #ffcc00; color: #ffcc00; }
+        .btn-warn:hover { background: #ffcc00; color: #000; box-shadow: 0 0 10px #ffcc00; }
         .input-group { margin-bottom: 10px; }
         .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #888; }
         .input-field { width: 100%; background: #001100; border: 1px solid #004411; padding: 8px; color: #00ff66; font-family: inherit; }
         .input-field:focus { border-color: #00ff66; outline: none; box-shadow: 0 0 5px #00ff66; }
-        .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; }
+        .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; }
         .task-item { background: #001100; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; transition: 0.3s; }
         .task-item:hover { background: #002200; }
         .task-item.done { border-left-color: #00ff66; opacity: 0.5; text-decoration: line-through; }
-        .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
+        .task-item.prio-critica { border-left-color: #ff3333; }
+        .task-item.prio-alta { border-left-color: #ff8800; }
+        .task-item.prio-normal { border-left-color: #ffcc00; }
+        .prio-badge { display: inline-block; font-size: 0.7rem; padding: 1px 5px; border-radius: 2px; margin-left: 6px; font-weight: bold; }
+        .prio-badge.critica { background: #330000; color: #ff3333; border: 1px solid #ff3333; }
+        .prio-badge.alta { background: #331a00; color: #ff8800; border: 1px solid #ff8800; }
+        .prio-badge.normal { background: #332b00; color: #ffcc00; border: 1px solid #ffcc00; }
+        .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
         .chat-box { background: #020502; border: 1px solid #00ff66; height: 150px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
         .chat-msg { border-bottom: 1px dashed #002205; padding-bottom: 4px; }
         .chat-user { color: #fff; font-weight: bold; }
         .chat-meta { color: #ffcc00; font-size: 0.7rem; }
         .radar-container { display: flex; align-items: center; gap: 15px; background: #020502; border: 1px solid #004411; padding: 10px; margin-top: 10px; }
-        .radar { width: 60px; height: 60px; border: 2px solid #004411; border-radius: 50%; position: relative; background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, rgba(0,0,0,1) 80%); overflow: hidden; }
+        .radar { width: 60px; height: 60px; border: 2px solid #004411; border-radius: 50%; position: relative; background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, rgba(0,0,0,1) 80%); overflow: hidden; flex-shrink: 0; }
         .radar::after { content: ""; position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,255,102,0.4) 0%, rgba(0,0,0,0) 50%); top: 0; left: 0; transform-origin: center; animation: radar-sweep 3s linear infinite; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .stat-item { background: #020502; border: 1px solid #004411; padding: 12px 8px; text-align: center; border-radius: 3px; transition: 0.3s; }
+        .stat-item:hover { border-color: #00ff66; box-shadow: 0 0 8px rgba(0,255,102,0.2); }
+        .stat-num { font-size: 1.8rem; font-weight: bold; color: #00ff66; text-shadow: 0 0 8px #00ff66; display: block; line-height: 1; animation: countUp 0.4s ease-out; }
+        .stat-num.danger { color: #ff3333; text-shadow: 0 0 8px #ff3333; }
+        .stat-num.warn { color: #ffcc00; text-shadow: 0 0 8px #ffcc00; }
+        .stat-label { font-size: 0.65rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; display: block; }
+        .history-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .history-item { background: #010d01; border: 1px solid #002205; padding: 7px 10px; font-size: 0.78rem; display: flex; justify-content: space-between; align-items: center; border-radius: 2px; }
+        .history-entrada { border-left: 3px solid #00ff66; }
+        .history-saida { border-left: 3px solid #ff3333; }
+        .history-agente { color: #00ff66; font-weight: bold; }
+        .history-saida .history-agente { color: #ff5555; }
+        .history-hora { color: #555; font-size: 0.7rem; }
+        .history-acao { font-size: 0.7rem; padding: 1px 5px; border-radius: 2px; }
+        .history-entrada .history-acao { background: #003311; color: #00ff66; }
+        .history-saida .history-acao { background: #330000; color: #ff3333; }
         .log-panel { margin-top: 20px; background: #020202; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; border-radius: 4px; }
         .log-title { color: #ff3333; font-weight: bold; margin-bottom: 5px; }
         .log-content { max-height: 150px; overflow-y: auto; color: #aaa; list-style: none; }
         .log-erro { color: #ff3333; font-weight: bold; animation: blink 1s infinite; }
-        
-        @keyframes alert-flash { 0%, 100% { box-shadow: inset 0 0 0px transparent; } 50% { box-shadow: inset 0 0 100px rgba(255,0,0,0.8); background-color: #220000; } }
+        @keyframes alert-flash { 0%,100%{box-shadow:inset 0 0 0 transparent;} 50%{box-shadow:inset 0 0 100px rgba(255,0,0,0.8);background-color:#220000;} }
         .siren-active { animation: alert-flash 0.5s 6; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+        @keyframes radar-sweep { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+        @keyframes countUp { from{opacity:0;transform:scale(0.8);} to{opacity:1;transform:scale(1);} }
     </style>
+AREA51EOF1cat >> index.html << 'AREA51EOF2'
 </head>
 <body>
     <header>
         <h1>ÁREA 51 // OPERAÇÕES EM TEMPO REAL</h1>
-        <div class="status-badge">REDE SINCRONIZADA</div>
+        <div class="header-right">
+            <button class="btn-notif" id="btnNotif" onclick="pedirPermissaoNotificacoes()">ATIVAR ALERTAS</button>
+            <div class="status-badge">REDE SINCRONIZADA</div>
+        </div>
     </header>
     <div class="grid-container">
         <div class="card">
@@ -63,11 +98,12 @@
             <ul class="presence-list">
                 <li><span class="membro-nome">[CEO] yelseik</span><span class="status-box status-offline" id="status-yelseik">AUSENTE</span><span class="membro-cargo">Líder Supremo da Organização</span></li>
                 <li><span class="membro-nome">[ASSISTENTE] aihosj</span><span class="status-box status-offline" id="status-aihosj">AUSENTE</span><span class="membro-cargo">Assistente Direto do CEO</span></li>
-                <li><span class="membro-nome">[CONSELHEIRO] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo">Segurança Pessoal e Conselheiro do CEO</span></li>
+                <li><span class="membro-nome">[CONSELHEIRO] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo">Segurança Pessoal e Conselheiro</span></li>
                 <li><span class="membro-nome">[S. CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo">Chefe do Esquadrão de Segurança</span></li>
                 <li><span class="membro-nome">[SEGURANÇA] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo">Segurança Tático da Base</span></li>
             </ul>
             <button class="btn-action" onclick="autenticarAgente()">Autenticar Chave no QG</button>
+            <button class="btn-action btn-warn" onclick="sairDaRede()">Sair da Rede</button>
             <button class="btn-action btn-danger" onclick="limparPresencas()">Reset de Presenças (CEO)</button>
         </div>
         <div class="card">
@@ -79,16 +115,47 @@
             <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
             <div class="radar-container">
                 <div class="radar"></div>
-                <div style="font-size: 0.75rem; color: #888;">SCANNER DE PERÍMETRO:<br><span style="color: #00ff66; animation: blink 1s infinite;">PROCURANDO INTRUSOS...</span></div>
+                <div style="font-size:0.75rem;color:#888;">SCANNER DE PERÍMETRO:<br><span style="color:#00ff66;animation:blink 1s infinite;">PROCURANDO INTRUSOS...</span></div>
             </div>
         </div>
         <div class="card">
+            <h2>ESTATÍSTICAS EM TEMPO REAL</h2>
+            <div class="stats-grid">
+                <div class="stat-item"><span class="stat-num" id="stat-online">0</span><span class="stat-label">Agentes Online</span></div>
+                <div class="stat-item"><span class="stat-num" id="stat-missoes">0</span><span class="stat-label">Total Missoes</span></div>
+                <div class="stat-item"><span class="stat-num" id="stat-concluidas">0</span><span class="stat-label">Concluidas</span></div>
+                <div class="stat-item"><span class="stat-num warn" id="stat-pendentes">0</span><span class="stat-label">Pendentes</span></div>
+                <div class="stat-item"><span class="stat-num danger" id="stat-criticas">0</span><span class="stat-label">Criticas</span></div>
+                <div class="stat-item"><span class="stat-num" id="stat-mensagens">0</span><span class="stat-label">Mensagens</span></div>
+            </div>
+            <div style="margin-top:14px;background:#010d01;border:1px solid #004411;padding:10px;font-size:0.75rem;">
+                <div style="color:#888;margin-bottom:6px;">TAXA DE CONCLUSÃO:</div>
+                <div style="background:#002205;border-radius:2px;height:8px;overflow:hidden;">
+                    <div id="progresso-bar" style="background:#00ff66;height:100%;width:0%;transition:width 0.5s;box-shadow:0 0 6px #00ff66;"></div>
+                </div>
+                <div style="margin-top:5px;color:#00ff66;" id="progresso-pct">0%</div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>HISTÓRICO DE PRESENÇAS</h2>
+            <div class="history-list" id="historyContainer">
+                <div style="color:#555;font-size:0.8rem;text-align:center;padding:20px;">Sem registos ainda...</div>
+            </div>
+            <button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparHistorico()">Limpar Histórico (CEO)</button>
+        </div>
+        <div class="card">
             <h2>ARQUIVO DE BRIEFINGS (ATAS)</h2>
-            <p style="font-size: 0.72rem; color: #888; margin-bottom: 10px;">* Registos permanentes das reuniões do conselho supremo.</p>
+            <p style="font-size:0.72rem;color:#888;margin-bottom:10px;">* Registos permanentes das reuniões do conselho supremo.</p>
             <div class="task-list" id="ataContainer"></div>
         </div>
         <div class="card">
             <h2>MISSÕES OPERACIONAIS</h2>
+            <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;" onclick="filtrarMissoes('todas')">TODAS</button>
+                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;border-color:#ff3333;color:#ff3333;" onclick="filtrarMissoes('critica')">CRITICAS</button>
+                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;border-color:#ff8800;color:#ff8800;" onclick="filtrarMissoes('alta')">ALTAS</button>
+                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;" onclick="filtrarMissoes('pendente')">PENDENTES</button>
+            </div>
             <div class="task-list" id="taskContainer"></div>
         </div>
         <div class="card">
@@ -104,12 +171,10 @@
                 <label id="labelDinamica">Descrição da Missão:</label>
                 <input type="text" id="panelDesc" class="input-field" placeholder="Digite os detalhes...">
             </div>
-            
             <div class="input-group" id="grupoCoordenadas">
                 <label>Coordenadas / Setor:</label>
                 <input type="text" id="panelCoord" class="input-field" placeholder="Ex: Setor Sul, Grupo X...">
             </div>
-
             <div class="input-group" id="grupoAgente">
                 <label>Agente Encarregue:</label>
                 <select id="taskAgent" class="input-field">
@@ -120,6 +185,14 @@
                     <option value="onaitsirc">onaitsirc</option>
                 </select>
             </div>
+            <div class="input-group" id="grupoPrioridade">
+                <label>Nível de Prioridade:</label>
+                <select id="taskPrioridade" class="input-field">
+                    <option value="normal">NORMAL</option>
+                    <option value="alta">ALTA</option>
+                    <option value="critica">CRITICA</option>
+                </select>
+            </div>
             <button class="btn-action" onclick="executarAcaoPainel()">Executar Diretriz</button>
         </div>
     </div>
@@ -127,15 +200,12 @@
         <div class="log-title">LOGS DE INCIDENTES (GRAVADOS NA NUVEM):</div>
         <ul class="log-content" id="logContainer"></ul>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    
-    <script src="script.js"></script>
-</body>
-</html>
+AREA51EOF2cat >> index.html << 'AREA51EOF3'
+    <script>
 const firebaseConfig = {
-    apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...", 
+    apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...",
     authDomain: "area51-matanga.firebaseapp.com",
     databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
     projectId: "area51-matanga",
@@ -143,58 +213,67 @@ const firebaseConfig = {
     messagingSenderId: "8932975266",
     appId: "1:8932975266:web:50532f72a8c73b42"
 };
-
-// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-const codigosAgentes = {
-    "yelseik99": { id: "status-yelseik", nome: "yelseik" },
-    "aihosj01": { id: "status-aihosj", nome: "aihosj" },
-    "rengaw02": { id: "status-rengaw", nome: "Rengaw" },
-    "innavoeg03": { id: "status-innavoeg", nome: "innavoeg" },
-    "onaitsirc04": { id: "status-onaitsirc", nome: "onaitsirc" }
+const agentesHashMap = {
+    "67993a83803219a7bba295f9b545faef45f895010f93c4fd3a3dc176e09374fa": { id: "status-yelseik", nome: "yelseik", isCEO: true },
+    "8049d1b098ef84344c6f06cd9186522e032f73aab90f566ec2c1eba2332e6420": { id: "status-aihosj", nome: "aihosj", isCEO: false },
+    "5d3239271b70a1fb91db55527e8fbb5b2a010b4efcdd7c744d389851a81a2e46": { id: "status-rengaw", nome: "Rengaw", isCEO: false },
+    "302ec32bbf83415548e0f4b5708130b0308cd8ab68da43d94ba88093135a7b50": { id: "status-innavoeg", nome: "innavoeg", isCEO: false },
+    "d90f655c13d71f09ab61995a8ae620dc86e1a16100c7e6077ca2d912d940bd15": { id: "status-onaitsirc", nome: "onaitsirc", isCEO: false }
 };
+const CEO_HASH = "67993a83803219a7bba295f9b545faef45f895010f93c4fd3a3dc176e09374fa";
+let agenteAutenticado = null, agenteId = null, isCEO = false;
+let tentativasFalhadas = 0, bloqueioAte = 0, filtroAtivo = "todas";
+let primeiraCargaTarefas = true, primeiraCargaChat = true, todasTarefas = {};
 
-let agenteAutenticado = localStorage.getItem("matanga_agente_logado") || null;
-let primeiraCargaTarefas = true; 
+async function sha256(texto) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(texto.trim());
+    const buffer = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
 
 window.onload = function() {
-    ouvirPresencas();
-    ouvirChat();
-    ouvirTarefas();
-    ouvirAtas();
-    ouvirLogs();
-    adicionarLog("Terminal operacional conectado à Nuvem Realtime.");
-    
-    setTimeout(() => { primeiraCargaTarefas = false; }, 3000); 
-    ouvirAlarmeMissoes();
+    ouvirPresencas(); ouvirChat(); ouvirTarefas(); ouvirAtas();
+    ouvirLogs(); ouvirEstatisticas(); ouvirHistoricoPresencas();
+    ouvirAlarmeMissoes(); verificarSessaoGuardada();
+    adicionarLog("Terminal operacional conectado.");
+    setTimeout(() => { primeiraCargaTarefas = false; primeiraCargaChat = false; }, 3000);
+    window.addEventListener("beforeunload", () => {
+        if (agenteAutenticado && agenteId) {
+            registarHistoricoPresenca(agenteAutenticado, "SAIDA");
+            database.ref("presencas/" + agenteId).remove();
+        }
+    });
 };
 
+function verificarSessaoGuardada() {
+    const dados = localStorage.getItem("matanga_sessao");
+    if (dados) {
+        try {
+            const s = JSON.parse(dados);
+            agenteAutenticado = s.nome; agenteId = s.id; isCEO = s.isCEO;
+            database.ref("presencas/" + agenteId).set("ATIVO");
+        } catch(e) { localStorage.removeItem("matanga_sessao"); }
+    }
+}
+
 function adicionarLog(mensagem, erro = false) {
-    database.ref('logs').push().set({ msg: mensagem, erro: erro, timestamp: Date.now(), hora: new Date().toLocaleTimeString() });
+    database.ref("logs").push().set({ msg: mensagem, erro: erro, timestamp: Date.now(), hora: new Date().toLocaleTimeString() });
 }
 
 function ouvirLogs() {
-    database.ref('logs').limitToLast(50).on('value', (snapshot) => {
+    database.ref("logs").limitToLast(50).on("value", (snapshot) => {
         const container = document.getElementById("logContainer");
         container.innerHTML = "";
         const logs = snapshot.val();
         if (logs) {
             Object.values(logs).reverse().forEach(l => {
-                let classe = l.erro ? "class='log-erro'" : "";
-                container.innerHTML += `<li ${classe}>[${l.hora}] - ${l.msg}</li>`;
+                const classe = l.erro ? "class='log-erro'" : "";
+                container.innerHTML += "<li " + classe + ">[" + l.hora + "] - " + l.msg + "</li>";
             });
-        }
-    });
-}
-
-function ouvirAlarmeMissoes() {
-    database.ref('tarefas').on('child_added', (snapshot) => {
-        if (!primeiraCargaTarefas && agenteAutenticado !== "yelseik") {
-            document.body.classList.add("siren-active");
-            tocarSomErro(); 
-            setTimeout(() => { document.body.classList.remove("siren-active"); }, 3000);
         }
     });
 }
@@ -202,199 +281,299 @@ function ouvirAlarmeMissoes() {
 function tocarSomErro() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc1 = ctx.createOscillator(); const gain1 = ctx.createGain();
-        osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(120, ctx.currentTime); osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.4);
-        const osc2 = ctx.createOscillator(); const gain2 = ctx.createGain();
-        osc2.type = 'sine'; osc2.frequency.setValueAtTime(800, ctx.currentTime);
+        const osc1 = ctx.createOscillator(), gain1 = ctx.createGain();
+        osc1.type = "sawtooth"; osc1.frequency.setValueAtTime(120, ctx.currentTime);
+        osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.4);
         gain1.gain.setValueAtTime(0.3, ctx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-        gain2.gain.setValueAtTime(0.15, ctx.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-        osc1.connect(gain1); gain1.connect(ctx.destination); osc2.connect(gain2); gain2.connect(ctx.destination);
-        osc1.start(); osc2.start(); osc1.stop(ctx.currentTime + 0.4); osc2.stop(ctx.currentTime + 0.4);
+        osc1.connect(gain1); gain1.connect(ctx.destination); osc1.start(); osc1.stop(ctx.currentTime + 0.4);
     } catch(e) {}
 }
 
 function tocarSomSucesso() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator(); const gain = ctx.createGain();
-        osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
+        const osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.type = "sine"; osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
         gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
         osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.2);
     } catch(e) {}
 }
 
-function autenticarAgente() {
-    let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
-    if (!chave) return;
-    if (chave in codigosAgentes) {
-        let agente = codigosAgentes[chave];
-        agenteAutenticado = agente.nome;
-        localStorage.setItem("matanga_agente_logado", agente.nome);
-        database.ref('presencas/' + agente.id).set("ATIVO");
-        adicionarLog(`SINAL: Agente ${agente.nome} entrou na rede.`);
-        tocarSomSucesso();
-        alert(`Identidade validada. Canal ativo para ${agente.nome}.`);
-    } else {
-        tocarSomErro();
-        adicionarLog(`🚨 ALERTA BREACH: Tentativa ilegal com chave: "${chave}"`, true);
-        alert("🚨 CHAVE INVÁLIDA! INCIDENTE REGISTADO.");
+function tocarAlertaMissaoCritica() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [0, 0.15, 0.3].forEach(delay => {
+            const osc = ctx.createOscillator(), gain = ctx.createGain();
+            osc.type = "square"; osc.frequency.setValueAtTime(440, ctx.currentTime + delay);
+            gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delay + 0.12);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + delay); osc.stop(ctx.currentTime + delay + 0.12);
+        });
+    } catch(e) {}
+}
+
+function pedirPermissaoNotificacoes() {
+    if (!("Notification" in window)) return alert("Este navegador nao suporta notificacoes.");
+    if (Notification.permission === "granted") {
+        document.getElementById("btnNotif").classList.add("active");
+        document.getElementById("btnNotif").textContent = "ALERTAS ATIVOS"; return;
+    }
+    Notification.requestPermission().then(permission => {
+        const btn = document.getElementById("btnNotif");
+        if (permission === "granted") {
+            btn.classList.add("active"); btn.textContent = "ALERTAS ATIVOS";
+            adicionarLog("Notificacoes push ativadas.");
+            enviarNotificacaoPush("AREA 51 ATIVO", "Alertas ativados com sucesso.");
+        } else { btn.textContent = "ALERTAS NEGADOS"; }
+    });
+}
+
+function enviarNotificacaoPush(titulo, corpo) {
+    if ("Notification" in window && Notification.permission === "granted" && !document.hasFocus()) {
+        new Notification(titulo, { body: corpo });
     }
 }
 
+async function autenticarAgente() {
+    if (Date.now() < bloqueioAte) {
+        return alert("Acesso bloqueado. Aguarda " + Math.ceil((bloqueioAte - Date.now()) / 1000) + "s.");
+    }
+    const chave = prompt("INSIRA A SUA CHAVE DE ACESSO:");
+    if (!chave) return;
+    const hashInput = await sha256(chave);
+    if (agentesHashMap[hashInput]) {
+        const agente = agentesHashMap[hashInput];
+        agenteAutenticado = agente.nome; agenteId = agente.id; isCEO = agente.isCEO || false;
+        tentativasFalhadas = 0;
+        localStorage.setItem("matanga_sessao", JSON.stringify({ nome: agente.nome, id: agente.id, isCEO: isCEO }));
+        database.ref("presencas/" + agente.id).set("ATIVO");
+        registarHistoricoPresenca(agente.nome, "ENTRADA");
+        adicionarLog("SINAL: Agente " + agente.nome + " entrou na rede.");
+        tocarSomSucesso();
+        alert("Identidade validada. Canal ativo para " + agente.nome + ".");
+    } else {
+        tentativasFalhadas++;
+        tocarSomErro();
+        if (tentativasFalhadas >= 3) {
+            bloqueioAte = Date.now() + 30000; tentativasFalhadas = 0;
+            adicionarLog("BREACH: Demasiadas tentativas. Bloqueado 30s.", true);
+            alert("MULTIPLAS TENTATIVAS! Bloqueado por 30 segundos.");
+        } else {
+            adicionarLog("ALERTA: Chave invalida [TENTATIVA " + tentativasFalhadas + "/3]", true);
+            alert("CHAVE INVALIDA! (" + tentativasFalhadas + "/3)");
+        }
+    }
+}
+
+function sairDaRede() {
+    if (!agenteAutenticado) return alert("Nao estas autenticado.");
+    if (!confirm("Confirmar saida para " + agenteAutenticado + "?")) return;
+    database.ref("presencas/" + agenteId).remove();
+    registarHistoricoPresenca(agenteAutenticado, "SAIDA");
+    adicionarLog("Agente " + agenteAutenticado + " saiu da rede.");
+    tocarSomSucesso();
+    agenteAutenticado = null; agenteId = null; isCEO = false;
+    localStorage.removeItem("matanga_sessao");
+    alert("Sessao encerrada.");
+}
+
 function ouvirPresencas() {
-    database.ref('presencas').on('value', (snapshot) => {
+    database.ref("presencas").on("value", (snapshot) => {
         const dados = snapshot.val() || {};
-        for (let key in codigosAgentes) {
-            let elementId = codigosAgentes[key].id;
-            let el = document.getElementById(elementId);
+        for (const hash in agentesHashMap) {
+            const elementId = agentesHashMap[hash].id;
+            const el = document.getElementById(elementId);
+            if (!el) continue;
             if (dados[elementId] === "ATIVO") { el.innerText = "ATIVO"; el.className = "status-box status-online"; }
             else { el.innerText = "AUSENTE"; el.className = "status-box status-offline"; }
         }
     });
 }
 
-function limparPresencas() {
-    let chave = prompt("CONFIRME A CHAVE DO CEO:");
-    if (chave === "yelseik99") {
-        database.ref('presencas').remove();
-        tocarSomSucesso();
-        adicionarLog("CEO executou wipe de presença global.");
-        alert("Presenças reinicializadas na nuvem.");
-    } else {
-        tocarSomErro();
-        adicionarLog("🚨 TENTATIVA VIOLENTA: Falha no wipe de presenças.", true);
-        alert("Ação negada.");
-    }
+async function limparPresencas() {
+    const chave = prompt("CONFIRME A CHAVE DO CEO:");
+    if (!chave) return;
+    if (await sha256(chave) === CEO_HASH) {
+        database.ref("presencas").remove();
+        tocarSomSucesso(); adicionarLog("CEO executou wipe de presenca global.");
+        alert("Presencas reinicializadas.");
+    } else { tocarSomErro(); adicionarLog("TENTATIVA VIOLENTA: Falha no wipe.", true); alert("Acao negada."); }
+}
+
+function registarHistoricoPresenca(nomeAgente, acao) {
+    database.ref("historico_presencas").push().set({ agente: nomeAgente, acao: acao, hora: new Date().toLocaleTimeString(), timestamp: Date.now() });
+}
+
+function ouvirHistoricoPresencas() {
+    database.ref("historico_presencas").limitToLast(30).on("value", (snapshot) => {
+        const container = document.getElementById("historyContainer");
+        container.innerHTML = "";
+        const dados = snapshot.val();
+        if (!dados) { container.innerHTML = "<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem registos ainda...</div>"; return; }
+        Object.values(dados).reverse().forEach(h => {
+            const classe = h.acao === "ENTRADA" ? "history-entrada" : "history-saida";
+            const icone = h.acao === "ENTRADA" ? ">" : "=";
+            container.innerHTML += "<div class='history-item " + classe + "'><div><span class='history-agente'>" + icone + " " + h.agente + "</span> <span class='history-acao'>" + h.acao + "</span></div><span class='history-hora'>" + h.hora + "</span></div>";
+        });
+    });
+}
+
+async function limparHistorico() {
+    const chave = prompt("CHAVE DO CEO PARA LIMPEZA:");
+    if (!chave) return;
+    if (await sha256(chave) === CEO_HASH) {
+        database.ref("historico_presencas").remove();
+        adicionarLog("CEO limpou historico."); tocarSomSucesso();
+    } else { tocarSomErro(); alert("Chave incorreta."); }
 }
 
 function enviarMensagemChat() {
     const txt = document.getElementById("chatInput").value;
     if (!txt.trim()) return;
-    if (!agenteAutenticado) {
-        tocarSomErro();
-        adicionarLog("🚨 REJEITADO: Transmissão bloqueada sem chave autenticada.", true);
-        return alert("Erro: Deves autenticar a tua chave no QG primeiro!");
-    }
-    database.ref('chat').push().set({ user: agenteAutenticado, msg: txt, time: new Date().toLocaleTimeString() });
+    if (!agenteAutenticado) { tocarSomErro(); adicionarLog("REJEITADO: Sem autenticacao.", true); return alert("Autentica a tua chave primeiro!"); }
+    database.ref("chat").push().set({ user: agenteAutenticado, msg: txt, time: new Date().toLocaleTimeString() });
     document.getElementById("chatInput").value = "";
 }
 
 function ouvirChat() {
-    database.ref('chat').on('value', (snapshot) => {
+    database.ref("chat").on("value", (snapshot) => {
         const container = document.getElementById("chatContainer");
-        container.innerHTML = "";
         const dados = snapshot.val();
-        if(dados) {
+        container.innerHTML = "";
+        if (dados) {
             Object.values(dados).forEach(m => {
-                container.innerHTML += `<div class="chat-msg"><span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span></div>`;
+                container.innerHTML += "<div class='chat-msg'><span class='chat-meta'>[" + m.time + "]</span> <span class='chat-user'>" + m.user + ":</span> <span>" + m.msg + "</span></div>";
             });
+            if (!primeiraCargaChat) {
+                const ultima = Object.values(dados).slice(-1)[0];
+                if (ultima && ultima.user !== agenteAutenticado) { enviarNotificacaoPush("Mensagem de " + ultima.user, ultima.msg); }
+            }
         }
         container.scrollTop = container.scrollHeight;
     });
 }
 
-function alternarCamposPainel() {
-    const tipo = document.getElementById("emissaoTipo").value;
-    const label = document.getElementById("labelDinamica");
-    const grupoAgente = document.getElementById("grupoAgente");
-    const grupoCoord = document.getElementById("grupoCoordenadas"); 
-    const input = document.getElementById("panelDesc");
-    
-    if (tipo === "missao") { 
-        label.innerText = "Descrição da Missão:"; 
-        input.placeholder = "Ex: Monitorizar tráfego externo..."; 
-        grupoAgente.style.display = "block"; 
-        grupoCoord.style.display = "block"; 
-    } else { 
-        label.innerText = "Resumo da Reunião (Ata):"; 
-        input.placeholder = "Ex: Decisões tomadas no briefing..."; 
-        grupoAgente.style.display = "none"; 
-        grupoCoord.style.display = "none"; 
-    }
-}
-
-function executarAcaoPainel() {
-    const tipo = document.getElementById("emissaoTipo").value;
-    const desc = document.getElementById("panelDesc").value;
-    
-    if (!desc.trim()) return alert("Preencha a descrição.");
-    let chave = prompt("CHAVE DO CEO PARA CONFIRMAÇÃO:");
-    if (chave !== "yelseik99") {
-        tocarSomErro();
-        adicionarLog("🚨 IMPEDIDO: Tentativa de usurpação de ordens do comando.", true);
-        return alert("Erro: Privilégios de Criador Supremo necessários.");
-    }
-    tocarSomSucesso();
-    
-    if (tipo === "missao") {
-        const coord = document.getElementById("panelCoord").value;
-        const agente = document.getElementById("taskAgent").value;
-        if (!coord.trim()) return alert("Preencha as coordenadas.");
-        
-        database.ref('tarefas').push().set({
-            desc: desc,
-            coord: coord,
-            agente: agente,
-            done: false,
-            timestamp: Date.now()
-        });
-        adicionarLog(`Nova missão lançada para ${agente}: ${desc}`);
-    } else {
-        database.ref('atas').push().set({
-            desc: desc,
-            hora: new Date().toLocaleTimeString(),
-            timestamp: Date.now()
-        });
-        adicionarLog(`Nova ata de reunião arquivada: ${desc}`);
-    }
-    
-    document.getElementById("panelDesc").value = "";
-    document.getElementById("panelCoord").value = "";
-}
-
-function ouvirTarefas() {
-    database.ref('tarefas').on('value', (snapshot) => {
-        const container = document.getElementById("taskContainer");
-        container.innerHTML = "";
-        const dados = snapshot.val();
-        if (dados) {
-            Object.keys(dados).forEach(key => {
-                const t = dados[key];
-                let classe = t.done ? "task-item done" : "task-item";
-                container.innerHTML += `
-                    <div class="${classe}" onclick="alternarStatusTarefa('${key}', ${t.done})">
-                        <div><b>[${t.agente.toUpperCase()}]</b> ${t.desc}</div>
-                        <div class="task-meta"><span>📍 ${t.coord}</span> <span>${t.done ? '✓ FINALIZADA' : '⚡ EM CURSO'}</span></div>
-                    </div>`;
-            });
+function ouvirAlarmeMissoes() {
+    database.ref("tarefas").on("child_added", (snapshot) => {
+        if (!primeiraCargaTarefas) {
+            const t = snapshot.val();
+            document.body.classList.add("siren-active");
+            setTimeout(() => document.body.classList.remove("siren-active"), 3000);
+            if (t.prioridade === "critica") { tocarAlertaMissaoCritica(); } else { tocarSomErro(); }
+            const prio = t.prioridade ? t.prioridade.toUpperCase() : "NORMAL";
+            enviarNotificacaoPush("NOVA MISSAO [" + prio + "]", t.agente.toUpperCase() + ": " + t.desc);
         }
     });
 }
 
-function alternarStatusTarefa(key, statusAtual) {
-    if (!agenteAutenticado) {
-        tocarSomErro();
-        return alert("Erro: Deves autenticar a tua chave no QG primeiro.");
+function filtrarMissoes(filtro) { filtroAtivo = filtro; renderizarTarefas(todasTarefas); }
+
+function renderizarTarefas(dados) {
+    const container = document.getElementById("taskContainer");
+    container.innerHTML = "";
+    if (!dados || Object.keys(dados).length === 0) {
+        container.innerHTML = "<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem missoes registadas.</div>"; return;
     }
-    database.ref('tarefas/' + key).update({ done: !statusAtual });
+    Object.keys(dados).forEach(key => {
+        const t = dados[key], prio = t.prioridade || "normal";
+        if (filtroAtivo === "critica" && prio !== "critica") return;
+        if (filtroAtivo === "alta" && prio !== "alta") return;
+        if (filtroAtivo === "pendente" && t.done) return;
+        const classDone = t.done ? "done" : "";
+        const badgePrio = prio.charAt(0).toUpperCase() + prio.slice(1);
+        const estado = t.done ? "FINALIZADA" : "EM CURSO";
+        container.innerHTML += "<div class='task-item prio-" + prio + " " + classDone + "' onclick='alternarStatusTarefa(\"" + key + "\", " + t.done + ")'><div><b>[" + t.agente.toUpperCase() + "]</b> " + t.desc + " <span class='prio-badge " + prio + "'>" + badgePrio + "</span></div><div class='task-meta'><span>" + t.coord + "</span><span>" + estado + "</span></div></div>";
+    });
+}
+
+function ouvirTarefas() {
+    database.ref("tarefas").on("value", (snapshot) => { todasTarefas = snapshot.val() || {}; renderizarTarefas(todasTarefas); });
+}
+
+function alternarStatusTarefa(key, statusAtual) {
+    if (!agenteAutenticado) { tocarSomErro(); return alert("Autentica a tua chave primeiro."); }
+    database.ref("tarefas/" + key).update({ done: !statusAtual });
     tocarSomSucesso();
-    adicionarLog(`Missão atualizada por ${agenteAutenticado}.`);
+    adicionarLog("Missao atualizada por " + agenteAutenticado + ".");
 }
 
 function ouvirAtas() {
-    database.ref('atas').on('value', (snapshot) => {
+    database.ref("atas").on("value", (snapshot) => {
         const container = document.getElementById("ataContainer");
         container.innerHTML = "";
         const dados = snapshot.val();
         if (dados) {
             Object.values(dados).reverse().forEach(a => {
-                container.innerHTML += `
-                    <div class="task-item done" style="border-left-color: #00ff66;">
-                        <div>${a.desc}</div>
-                        <div class="task-meta"><span>📅 ${a.hora}</span></div>
-                    </div>`;
-                });
-            }
-        });
-    }
+                container.innerHTML += "<div class='task-item done' style='border-left-color:#00ff66;cursor:default;'><div>" + a.desc + "</div><div class='task-meta'><span>" + a.hora + "</span></div></div>";
+            });
+        }
+    });
+}
 
+function ouvirEstatisticas() {
+    database.ref("presencas").on("value", (snapshot) => {
+        atualizarStat("stat-online", Object.values(snapshot.val() || {}).filter(v => v === "ATIVO").length);
+    });
+    database.ref("tarefas").on("value", (snapshot) => {
+        const dados = snapshot.val() || {};
+        const total = Object.keys(dados).length;
+        const concluidas = Object.values(dados).filter(t => t.done).length;
+        const criticas = Object.values(dados).filter(t => !t.done && t.prioridade === "critica").length;
+        const pct = total > 0 ? Math.round((concluidas / total) * 100) : 0;
+        atualizarStat("stat-missoes", total); atualizarStat("stat-concluidas", concluidas);
+        atualizarStat("stat-pendentes", total - concluidas); atualizarStat("stat-criticas", criticas);
+        const bar = document.getElementById("progresso-bar"), pctEl = document.getElementById("progresso-pct");
+        if (bar) bar.style.width = pct + "%";
+        if (pctEl) pctEl.textContent = pct + "% concluido";
+    });
+    database.ref("chat").on("value", (snapshot) => {
+        atualizarStat("stat-mensagens", Object.keys(snapshot.val() || {}).length);
+    });
+}
+
+function atualizarStat(id, valor) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = valor; el.style.animation = "none"; el.offsetHeight; el.style.animation = "countUp 0.4s ease-out"; }
+}
+
+function alternarCamposPainel() {
+    const tipo = document.getElementById("emissaoTipo").value;
+    const isMissao = tipo === "missao";
+    document.getElementById("labelDinamica").innerText = isMissao ? "Descricao da Missao:" : "Resumo da Reuniao (Ata):";
+    document.getElementById("panelDesc").placeholder = isMissao ? "Ex: Monitorizar trafego externo..." : "Ex: Decisoes tomadas no briefing...";
+    document.getElementById("grupoAgente").style.display = isMissao ? "block" : "none";
+    document.getElementById("grupoCoordenadas").style.display = isMissao ? "block" : "none";
+    document.getElementById("grupoPrioridade").style.display = isMissao ? "block" : "none";
+}
+
+async function executarAcaoPainel() {
+    const tipo = document.getElementById("emissaoTipo").value;
+    const desc = document.getElementById("panelDesc").value;
+    if (!desc.trim()) return alert("Preencha a descricao.");
+    const chave = prompt("CHAVE DO CEO PARA CONFIRMACAO:");
+    if (!chave) return;
+    if (await sha256(chave) !== CEO_HASH) {
+        tocarSomErro(); adicionarLog("IMPEDIDO: Tentativa de usurpacao.", true);
+        return alert("Erro: Privilegios do CEO necessarios.");
+    }
+    tocarSomSucesso();
+    if (tipo === "missao") {
+        const coord = document.getElementById("panelCoord").value;
+        const agente = document.getElementById("taskAgent").value;
+        const prio = document.getElementById("taskPrioridade").value;
+        if (!coord.trim()) return alert("Preencha as coordenadas.");
+        database.ref("tarefas").push().set({ desc: desc, coord: coord, agente: agente, prioridade: prio, done: false, timestamp: Date.now() });
+        adicionarLog("Nova missao [" + prio.toUpperCase() + "] para " + agente + ": " + desc);
+    } else {
+        database.ref("atas").push().set({ desc: desc, hora: new Date().toLocaleTimeString(), timestamp: Date.now() });
+        adicionarLog("Nova ata arquivada: " + desc);
+    }
+    document.getElementById("panelDesc").value = "";
+    const coord = document.getElementById("panelCoord");
+    if (coord) coord.value = "";
+}
+    </script>
+</body>
+</html>
+AREA51EOF3
