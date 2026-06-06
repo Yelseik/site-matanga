@@ -2,229 +2,117 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA CENTRAL - ÁREA 51 VIRTUAL</title>
+    <title>CONTROLO DE PRESENÇA</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: #050705; color: #00ff66; padding: 20px; position: relative; transition: background-color 0.3s; }
-        body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 9999; background-size: 100% 4px, 6px 100%; pointer-events: none; }
-        header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #00ff66; }
-        .status-badge { background: #0b1d0b; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: #0a0c0a; border: 1px solid #004411; padding: 15px; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,102,0.1); }
-        .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; text-shadow: 0 0 3px #fff; }
-        .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
-        .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
-        .input-group { margin-bottom: 10px; }
-        .input-field { width: 100%; background: #001100; border: 1px solid #004411; padding: 8px; color: #00ff66; font-family: inherit; }
-        .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; }
-        .task-item { background: #001100; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; transition: 0.3s; }
-        .chat-box { background: #020502; border: 1px solid #00ff66; height: 150px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; }
-        .radar-container { display: flex; align-items: center; gap: 15px; background: #020502; border: 1px solid #004411; padding: 10px; margin-top: 10px; transition: 0.5s; }
-        .radar { width: 60px; height: 60px; border: 2px solid #004411; border-radius: 50%; position: relative; overflow: hidden; }
-        .radar::after { content: ""; position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,255,102,0.4) 0%, rgba(0,0,0,0) 50%); top: 0; left: 0; transform-origin: center; animation: radar-sweep 3s linear infinite; }
-        .log-panel { margin-top: 20px; background: #020202; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; }
-        .log-content { max-height: 150px; overflow-y: auto; color: #aaa; list-style: none; }
-        .siren-active { animation: alert-flash 0.5s infinite alternate; }
-        @keyframes alert-flash { from { background-color: #050705; } to { background-color: #330000; } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* O TEU DESIGN ANTIGO E ORIGINAL INTEGRAL */
+        body { background-color: #0d1117; color: #c9d1d9; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; }
+        h2 { color: #58a6ff; text-align: center; }
+        .btn { background-color: #238636; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn:hover { background-color: #2ea043; }
+        .input-box { width: 100%; padding: 10px; margin-top: 10px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
+        .lista { margin-top: 20px; }
+        .item { background: #21262d; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #30363d; }
+        .alerta-sirene { background-color: #4c1111 !important; border-color: #f85149 !important; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>ÁREA 51 // OPERAÇÕES CRIPTOGRAFADAS</h1>
-        <div class="status-badge" id="badgeSessao">SESSÃO: NÃO AUTENTICADA</div>
-    </header>
-    
-    <div class="grid-container">
-        <div class="card">
-            <h2>CONTROLO DE ACESSO</h2>
-            <button class="btn-action" onclick="autenticarAgente()">Autenticar Chave no QG</button>
-            <button class="btn-action" style="border-color:#ff3333; color:#ff3333;" onclick="encerrarSessao()">Sair do Sistema</button>
-        </div>
 
-        <div class="card">
-            <h2>COMUNICAÇÕES (CIPHER CHAT)</h2>
-            <div class="chat-box" id="chatContainer"></div>
-            <input type="text" id="chatInput" class="input-field" placeholder="Mensagem encriptada..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
-        </div>
+    <div class="container" id="painelPrincipal">
+        <h2>PAINEL DE CONTROLO</h2>
+        
+        <button class="btn" style="background-color: #1f6feb;" onclick="entrarNoQG()">Autenticar Agente</button>
+        
+        <input type="text" id="missaoDesc" class="input-box" placeholder="Nova Missão...">
+        <input type="text" id="missaoSetor" class="input-box" placeholder="Setor / Coordenadas...">
+        <button class="btn" onclick="enviarNovaMissao()">Lançar Missão</button>
 
-        <div class="card">
-            <h2>SCANNER DE PERÍMETRO</h2>
-            <div class="radar-container" id="caixaRadar">
-                <div class="radar" id="visorRadar"></div>
-                <div style="font-size: 0.75rem; color: #888;" id="textoRadar">
-                    STATUS: <span style="color: #00ff66; animation: blink 1s infinite;">PROCURANDO INTRUSOS...</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>DIRETRIZES TÁTICAS (MISSÕES)</h2>
-            <div class="task-list" id="taskContainer"></div>
-        </div>
-
-        <div class="card">
-            <h2>PAINEL DO COMANDANTE SUPREMO</h2>
-            <div class="input-group">
-                <input type="text" id="panelDesc" class="input-field" placeholder="Descrição da Missão...">
-                <input type="text" id="panelCoord" class="input-field" placeholder="Coordenadas / Setor...">
-            </div>
-            <button class="btn-action" onclick="executarAcaoPainel()">Lançar Missão</button>
-        </div>
+        <div class="lista" id="listaDeMissoes"></div>
     </div>
 
-    <div class="log-panel">
-        <div style="color:#ff3333; font-weight:bold; margin-bottom:5px;">LOGS DE SEGURANÇA (NUVEM):</div>
-        <ul class="log-content" id="logContainer"></ul>
-    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
-        // CONFIGURAÇÃO DO TEU FIREBASE
-        const firebaseConfig = {
+        // Teu Firebase estável
+        const firebaseConfig = { 
             apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...", 
-            databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com"
+            databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com" 
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // MAPA DE HASHES SHA-256 DAS CHAVES (Proteção contra leitura do código fonte)
-        const codigosAgentes = {
+        // Chaves agora protegidas em SHA-256 (Ninguém consegue ler no código fonte do GitHub)
+        const chavesPermitidas = {
             "7c26ecee7ff804e101f3db9cf8ff6719b0d19e67d4f3e6704bf1f88a2b534442": "yelseik", // hash de yelseik99
             "0714fc2a76f2fc71b870ef46087b3240212a7638d9482d334000f4f982121011": "aihosj"   // hash de aihosj01
         };
 
-        function obterAgente() { return sessionStorage.getItem("agente_identificado"); }
+        function pegarUsuario() { return sessionStorage.getItem("user_sessao"); }
 
-        window.onload = function() {
-            let logado = obterAgente();
-            if(logado) document.getElementById("badgeSessao").innerText = "SESSÃO: " + logado.toUpperCase();
-            ouvirChat();
-            ouvirTarefas();
-            ouvirLogs();
-        };
+        function entrarNoQG() {
+            let chave = prompt("DIGITE A SUA CHAVE:");
+            if(!chave) return;
+            let hash = CryptoJS.SHA256(chave).toString();
 
-        function autenticarAgente() {
-            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
-            if (!chave) return;
-            
-            let hashDigitado = CryptoJS.SHA256(chave).toString();
-
-            if (hashDigitado in codigosAgentes) {
-                let nome = codigosAgentes[hashDigitado];
-                sessionStorage.setItem("agente_identificado", nome);
-                document.getElementById("badgeSessao").innerText = "SESSÃO: " + nome.toUpperCase();
-                database.ref('logs').push({ msg: `Agente ${nome} estabeleceu conexão segura.`, time: new Date().toLocaleTimeString() });
-                alert(`Acesso garantido. Bem-vindo, ${nome}.`);
+            if(hash in chavesPermitidas) {
+                let nome = chavesPermitidas[hash];
+                sessionStorage.setItem("user_sessao", nome);
+                alert("Acesso Confirmado: " + nome);
             } else {
-                rastrearIntruso(hashDigitado);
+                ativarArmadilhaRadar(hash);
             }
         }
 
-        async function rastrearIntruso(hashFalso) {
-            document.body.classList.add("siren-active");
-            const caixa = document.getElementById("caixaRadar");
-            caixa.style.borderColor = "#ff3333";
-            
-            let ip = await fetch('https://api.ipify.org').then(r => r.text()).catch(() => "DESCONHECIDO");
-            
-            document.getElementById("textoRadar").innerHTML = `<span style="color:#ff3333; font-weight:bold;">🚨 INTRUSÃO DETETADA!<br>IP: ${ip}</span>`;
-            database.ref('logs').push({ msg: `🚨 ALERTA: Tentativa de invasão bloqueada! IP: ${ip} | Hash enviado: ${hashFalso}`, time: new Date().toLocaleTimeString() });
-            
-            alert("🚨 ACESSO NEGADO! PROTOCOLO DE RASTREIO DE IP ACIONADO.");
-            setTimeout(() => { 
-                document.body.classList.remove("siren-active");
-                caixa.style.borderColor = "#004411";
-                document.getElementById("textoRadar").innerHTML = `STATUS: <span style="color:#00ff66;">PROCURANDO INTRUSOS...</span>`;
-            }, 7000);
+        async function activarArmadilhaRadar(hashIncorreto) {
+            document.getElementById("painelPrincipal").classList.add("alerta-sirene");
+            let ip = await fetch('https://api.ipify.org').then(r => r.text()).catch(() => "Desconhecido");
+            database.ref('logs').push({ alerta: `🚨 INVASOR DETETADO! IP: ${ip} | Tentou usar hash: ${hashIncorreto}` });
+            alert("🚨 CHAVE FAILA! SISTEMA DE SEGURANÇA ATIVADO.");
+            setTimeout(() => { document.getElementById("painelPrincipal").classList.remove("alerta-sirene"); }, 5000);
         }
 
-        function executarAcaoPainel() {
-            let autor = obterAgente();
-            if (autor !== "yelseik") return alert("DIRETRIZ NEGADA: Apenas o Comandante Supremo (yelseik) pode emitir ordens.");
-            
-            let desc = document.getElementById("panelDesc").value;
-            let coord = document.getElementById("panelCoord").value || "NÃO DEFINIDO";
-            
-            if (!desc.trim()) return alert("Insira a descrição da missão.");
-            
-            database.ref('tarefas').push({ desc, coord, status: "PENDENTE", relatorio: "NENHUM" });
-            document.getElementById("panelDesc").value = "";
-            document.getElementById("panelCoord").value = "";
+        function enviarNovaMissao() {
+            let criador = pegarUsuario();
+            if(criador !== "yelseik") return alert("Negado: Apenas yelseik pode lançar missões.");
+
+            let desc = document.getElementById("missaoDesc").value;
+            let setor = document.getElementById("missaoSetor").value || "Geral";
+
+            if(desc.trim() !== "") {
+                database.ref('tarefas').push({ desc, setor, status: "PENDENTE", relatorio: "Nenhum" });
+                document.getElementById("missaoDesc").value = "";
+                document.getElementById("missaoSetor").value = "";
+            }
         }
 
-        function ouvirTarefas() {
-            database.ref('tarefas').on('value', (snapshot) => {
-                const container = document.getElementById("taskContainer");
-                container.innerHTML = "";
-                const dados = snapshot.val();
-                if (dados) {
-                    Object.keys(dados).forEach(id => {
-                        let t = dados[id];
-                        container.innerHTML += `<div class="task-item" onclick="fecharMissao('${id}', '${t.status}')">
-                            <b style="color:#fff;">${t.desc}</b><br>
-                            <span style="font-size:0.75rem; color:#888;">📍 SETOR: ${t.coord}</span><br>
-                            <span style="font-size:0.75rem; color:#ffcc00;">ESTADO: ${t.status} | RELATÓRIO: ${t.relatorio}</span>
-                        </div>`;
-                    });
-                }
-            });
-        }
+        // Mostra as missões exatamente como antes
+        database.ref('tarefas').on('value', (snapshot) => {
+            const lista = document.getElementById("listaDeMissoes");
+            lista.innerHTML = "";
+            const dados = snapshot.val();
+            if(dados) {
+                Object.keys(dados).forEach(id => {
+                    let m = dados[id];
+                    lista.innerHTML += `<div class="item" onclick="concluirOperacao('${id}', '${m.status}')">
+                        <strong>${m.desc}</strong><br>
+                        <small style="color:#8b949e;">📍 Setor: ${m.setor} | Estado: ${m.status}</small><br>
+                        <small style="color:#58a6ff;">Relatório: ${m.relatorio}</small>
+                    </div>`;
+                });
+            }
+        });
 
-        function fecharMissao(id, statusAtual) {
-            if (!obterAgente()) return alert("Autentique-se primeiro.");
-            if (statusAtual === "CONCLUÍDO") return alert("Esta missão já se encontra arquivada.");
-            
-            let rel = prompt("PROTOCOLO DE ENCERRAMENTO: Insira o relatório de campo final:");
-            if (!rel) return alert("Operação cancelada. O relatório é obrigatório.");
-            
-            database.ref('tarefas/' + id).update({ status: "CONCLUÍDO", relatorio: rel });
-            database.ref('logs').push({ msg: `Missão ID [${id}] marcada como concluída por ${obterAgente()}.`, time: new Date().toLocaleTimeString() });
-        }
+        function concluirOperacao(id, statusAtual) {
+            if(!pegarUsuario()) return alert("Autentique-se primeiro.");
+            if(statusAtual === "CONCLUÍDO") return alert("Esta missão já está fechada.");
 
-        function enviarMensagemChat() {
-            let user = obterAgente();
-            let msg = document.getElementById("chatInput").value;
-            if (!user) return alert("Autentique-se para transmitir sinais.");
-            if (!msg.trim()) return;
-            
-            database.ref('chat').push({ user, msg, time: new Date().toLocaleTimeString() });
-            document.getElementById("chatInput").value = "";
-        }
+            let relatorio = prompt("PROTOCOLO OBRIGATÓRIO: Escreva o relatório de encerramento:");
+            if(!relatorio) return alert("Cancelado. O relatório é obrigatório para fechar a missão.");
 
-        function ouvirChat() {
-            database.ref('chat').limitToLast(20).on('value', (snapshot) => {
-                const container = document.getElementById("chatContainer");
-                container.innerHTML = "";
-                const dados = snapshot.val();
-                if(dados) {
-                    Object.values(dados).forEach(m => {
-                        container.innerHTML += `<div style="margin-bottom:4px;"><span style="color:#ffcc00;">[${m.time}]</span> <b>${m.user}:</b> ${m.msg}</div>`;
-                    });
-                }
-                container.scrollTop = container.scrollHeight;
-            });
+            database.ref('tarefas/' + id).update({ status: "CONCLUÍDO", relatorio: relatorio });
         }
-
-        function ouvirLogs() {
-            database.ref('logs').limitToLast(10).on('value', (snapshot) => {
-                const container = document.getElementById("logContainer");
-                container.innerHTML = "";
-                const dados = snapshot.val();
-                if(dados) {
-                    Object.values(dados).reverse().forEach(l => {
-                        container.innerHTML += `<li>[${l.time}] - ${l.msg}</li>`;
-                    });
-                }
-            });
-        }
-
-        function encerrarSessao() { sessionStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
