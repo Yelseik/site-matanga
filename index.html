@@ -1,146 +1,91 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Termux - A Matanga Oficial</title>
+    <title>SISTEMA CENTRAL - ÁREA 51 VIRTUAL</title>
     <style>
-        body {
-            background-color: #000000;
-            color: #00ff00;
-            font-family: 'Courier New', Courier, monospace;
-            padding: 15px;
-            margin: 0;
-        }
-        .terminal {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .header {
-            color: #ffffff;
-            text-align: center;
-            border-bottom: 2px dashed #ff0000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .status {
-            color: #ffff00;
-            font-size: 0.9em;
-            margin-bottom: 15px;
-        }
-        .menu-item {
-            background: none;
-            border: none;
-            color: #00ff00;
-            font-family: inherit;
-            font-size: 16px;
-            text-align: left;
-            display: block;
-            width: 100%;
-            padding: 8px 0;
-            cursor: pointer;
-        }
-        .menu-item:hover {
-            color: #ffffff;
-            background-color: #222222;
-        }
-        .output-box {
-            border: 1px solid #00ff00;
-            padding: 10px;
-            margin-top: 20px;
-            display: none;
-            color: #ffffff;
-            background-color: #111111;
-        }
-        .alert-danger {
-            color: #ff3333;
-            font-weight: bold;
-        }
-        .btn-voltar {
-            background-color: #333333;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-            padding: 5px 10px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #0a0a0c; color: #00ff66; padding: 20px; }
+        header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px #00ff66; }
+        .status-badge { background: #112211; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #0f1115; border: 1px solid #223322; padding: 15px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+        .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; }
+        
+        /* Lista de Presença */
+        .presence-list { list-style: none; margin-bottom: 15px; }
+        .presence-list li { padding: 5px 0; font-size: 0.9rem; display: flex; justify-content: space-between; }
+        .status-online { color: #00ff66; }
+        .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 8px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
+        
+        /* Quadro de Tarefas */
+        .task-list { display: flex; flex-direction: column; gap: 10px; }
+        .task-item { background: #141820; border-left: 3px solid #ffcc00; padding: 8px; font-size: 0.85rem; }
+        .task-item.done { border-left-color: #00ff66; opacity: 0.7; }
+        .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-<div class="terminal">
-    <div class="header">
-        <pre>
- 🔥 PAINEL SUPREMO - A MATANGA OFICIAL 🔥 
-==========================================</pre>
+    <header>
+        <h1>ÁREA 51 // OPERAÇÕES</h1>
+        <div class="status-badge">SISTEMA ONLINE</div>
+    </header>
+
+    <div class="grid-container">
+        
+        <div class="card">
+            <h2>CONTROLO DE PRESENÇA DIÁRIA</h2>
+            <ul class="presence-list">
+                <li><span>[AGENTE] Comandante</span> <span class="status-online">ATIVO</span></li>
+                <li><span>[AGENTE] Wagner</span> <span style="color: #ff3333;">AUSENTE</span></li>
+                <li><span>[AGENTE] Operador</span> <span class="status-online">ATIVO</span></li>
+            </ul>
+            <button class="btn-action" onclick="baterPonto()">Registar Presença no QG</button>
+        </div>
+
+        <div class="card">
+            <h2>MISSÕES & DIRETRIZES</h2>
+            <div class="task-list">
+                <div class="task-item">
+                    <div>Configurar script automatizado no Termux</div>
+                    <div class="task-meta"><span>DEVER: Infraestrutura</span> <span style="color: #ffcc00;">EM CURSO</span></div>
+                </div>
+                <div class="task-item done">
+                    <div>Aprovação do servidor de hospedagem pública</div>
+                    <div class="task-meta"><span>DEVER: Sistemas</span> <span style="color: #00ff66;">CONCLUÍDO</span></div>
+                </div>
+                <div class="task-item">
+                    <div>Definir regras de segurança do território virtual</div>
+                    <div class="task-meta"><span>DEVER: Segurança</span> <span style="color: #ff3333;">PENDENTE</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>SALA DE BRIEFING (REUNIÕES)</h2>
+            <div style="font-size: 0.85rem; line-height: 1.6;">
+                <p style="color: #ffcc00; margin-bottom: 10px;">⚠️ PRÓXIMA REUNIÃO AGENDADA:</p>
+                <p><strong>Pauta:</strong> Distribuição de tarefas semanais e alinhamento do bot.</p>
+                <p><strong>Canal:</strong> Sala Privada de Voz</p>
+                <br>
+                <p style="color: #888;">* Nota: A presença é obrigatória para validação de patentes no grupo.</p>
+            </div>
+        </div>
+
     </div>
-    
-    <div class="status">STATUS: OPERACIONAL | LOCAL: KILAMBA, LUANDA</div>
 
-    <div id="menu-principal">
-        <p>Escolha uma opção para executar no terminal:</p>
-        <button class="menu-item" onclick="mostrarFolha()">[1] Consultar Cargos e Folha de Pagamentos</button>
-        <button class="menu-item" onclick="mostrarProtocolo()">[2] Ativar Protocolo de Emergência</button>
-        <button class="menu-item" onclick="mostrarTribunal()">[3] Instaurar Tribunal Disciplinar</button>
-    </div>
-
-    <div id="tela-folha" class="output-box">
-        <h3>💰 MATRIZ SALARIAL RECALIBRADA</h3>
-        <p>1. Yelseik (Kiesley) [CEO] -> 500 kz</p>
-        <p>2. Rengaw (Wagner) [Conselheiro] -> 420 kz</p>
-        <p>3. innavoeg (Geovanni) [Chefe Seg.] -> 300 kz</p>
-        <p>4. aihosj (Joshua) [Assistente] -> 250 kz</p>
-        <p>5. onaitsirc (Cris) [Segurança] -> 150 kz</p>
-        <button class="btn-voltar" onclick="voltarMenu()">[0] Voltar ao Menu</button>
-    </div>
-
-    <div id="tela-protocolo" class="output-box">
-        <h3 class="alert-danger">⚠️ ALERTA DE EMERGÊNCIA TÁTICA</h3>
-        <p><strong>[CÓDIGO VERMELHO ATIVADO]</strong></p>
-        <p>👉 <b>Rengaw e aihosj:</b> Blindagem corporal e extração do CEO imediata!</p>
-        <p>👉 <b>innavoeg e onaitsirc:</b> Fiquem no sítio e caiam à pancada para travar o inimigo!</p>
-        <button class="btn-voltar" onclick="voltarMenu()">[0] Desativar Alarme</button>
-    </div>
-
-    <div id="tela-tribunal" class="output-box">
-        <h3 style="color: #ffff00;">⚖️ TRIBUNAL DA MATANGA</h3>
-        <p class="alert-danger">SENTENÇA DECRETADA:</p>
-        <p><b>ALVO:</b> Membro Insubordinado</p>
-        <p><b>CRIME:</b> Quebra de Sigilo ou Cobardia na briga</p>
-        <p><b>PUNIÇÃO:</b> Capturar no Kilamba, aplicar surra disciplinar organizada e banimento permanente.</p>
-        <button class="btn-voltar" onclick="voltarMenu()">[0] Arquivar Caso</button>
-    </div>
-</div>
-
-<script>
-    function esconderTodas() {
-        document.getElementById('menu-principal').style.display = 'none';
-        document.getElementById('tela-folha').style.display = 'none';
-        document.getElementById('tela-protocolo').style.display = 'none';
-        document.getElementById('tela-tribunal').style.display = 'none';
-    }
-
-    function mostrarFolha() {
-        esconderTodas();
-        document.getElementById('tela-folha').style.display = 'block';
-    }
-
-    function mostrarProtocolo() {
-        esconderTodas();
-        document.getElementById('tela-protocolo').style.display = 'block';
-    }
-
-    function mostrarTribunal() {
-        esconderTodas();
-        document.getElementById('tela-tribunal').style.display = 'block';
-    }
-
-    function voltarMenu() {
-        esconderTodas();
-        document.getElementById('menu-principal').style.display = 'block';
-    }
-</script>
-
+    <script>
+        function baterPonto() {
+            alert("Identidade confirmada! Presença registada nos logs do servidor principal.");
+        }
+    </script>
 </body>
 </html>
 
