@@ -7,19 +7,13 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
         body { background-color: #050705; color: #00ff66; padding: 20px; position: relative; }
-        
-        /* Efeito de Monitor Antigo (CRT) */
         body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 9999; background-size: 100% 4px, 6px 100%; pointer-events: none; }
-        
         header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
         h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 5px #00ff66; }
         .status-badge { background: #0b1d0b; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
-        
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .card { background: #0a0c0a; border: 1px solid #004411; padding: 15px; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,102,0.1); }
         .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; text-shadow: 0 0 3px #fff; }
-        
-        /* Lista de Presença */
         .presence-list { list-style: none; margin-bottom: 15px; }
         .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #002205; }
         .membro-nome { font-weight: bold; color: #00ff66; }
@@ -27,53 +21,39 @@
         .status-box { float: right; font-size: 0.8rem; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
         .status-online { background: #003311; color: #00ff66; border: 1px solid #00ff66; box-shadow: 0 0 5px #00ff66; }
         .status-offline { background: #330000; color: #ff3333; border: 1px solid #ff3333; }
-        
         .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
         .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
         .btn-danger { border-color: #ff3333; color: #ff3333; }
         .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 10px #ff3333; }
-        
-        /* Inputs */
         .input-group { margin-bottom: 10px; }
         .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #888; }
         .input-field { width: 100%; background: #001100; border: 1px solid #004411; padding: 8px; color: #00ff66; font-family: inherit; }
         .input-field:focus { border-color: #00ff66; outline: none; box-shadow: 0 0 5px #00ff66; }
-        
-        /* Listas */
         .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; }
         .task-item { background: #001100; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; }
         .task-item.done { border-left-color: #00ff66; opacity: 0.5; text-decoration: line-through; }
         .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
-        
-        /* Chat Confidencial */
         .chat-box { background: #020502; border: 1px solid #00ff66; height: 150px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
         .chat-msg { border-bottom: 1px dashed #002205; padding-bottom: 4px; }
         .chat-user { color: #fff; font-weight: bold; }
-        .chat-meta { color: #ffcc00; font-size: 0.7rem; }
-        
-        /* Radar Elemento Visual */
+        .chat-meta { color: #ffcc00; font-size: 0.7 her; }
         .radar-container { display: flex; align-items: center; gap: 15px; background: #020502; border: 1px solid #004411; padding: 10px; margin-top: 10px; }
         .radar { width: 60px; height: 60px; border: 2px solid #004411; border-radius: 50%; position: relative; background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, rgba(0,0,0,1) 80%); overflow: hidden; }
         .radar::after { content: ""; position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,255,102,0.4) 0%, rgba(0,0,0,0) 50%); top: 0; left: 0; transform-origin: center; animation: radar-sweep 3s linear infinite; }
-        
-        /* Consola de Logs */
         .log-panel { margin-top: 20px; background: #020202; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; border-radius: 4px; }
         .log-title { color: #ff3333; font-weight: bold; margin-bottom: 5px; }
         .log-content { max-height: 100px; overflow-y: auto; color: #aaa; list-style: none; }
-
+        .log-erro { color: #ff3333; font-weight: bold; animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-
     <header>
         <h1>ÁREA 51 // OPERAÇÕES EM TEMPO REAL</h1>
         <div class="status-badge">REDE SINCRONIZADA</div>
     </header>
-
     <div class="grid-container">
-        
         <div class="card">
             <h2>CONTROLO DE PRESENÇA</h2>
             <ul class="presence-list">
@@ -86,7 +66,6 @@
             <button class="btn-action" onclick="autenticarAgente()">Autenticar Chave no QG</button>
             <button class="btn-action btn-danger" onclick="limparPresencas()">Reset de Presenças (CEO)</button>
         </div>
-
         <div class="card">
             <h2>COMUNICAÇÕES INTERNAS (CIPHER)</h2>
             <div class="chat-box" id="chatContainer"></div>
@@ -94,24 +73,20 @@
                 <input type="text" id="chatInput" class="input-field" placeholder="Mensagem encriptada na rede..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
             </div>
             <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
-            
             <div class="radar-container">
                 <div class="radar"></div>
                 <div style="font-size: 0.75rem; color: #888;">SCANNER DE PERÍMETRO:<br><span style="color: #00ff66; animation: blink 1s infinite;">PROCURANDO INTRUSOS...</span></div>
             </div>
         </div>
-
         <div class="card">
             <h2>ARQUIVO DE BRIEFINGS (ATAS)</h2>
             <p style="font-size: 0.72rem; color: #888; margin-bottom: 10px;">* Registos permanentes das reuniões do conselho supremo.</p>
             <div class="task-list" id="ataContainer"></div>
         </div>
-
         <div class="card">
             <h2>MISSÕES OPERACIONAIS</h2>
             <div class="task-list" id="taskContainer"></div>
         </div>
-
         <div class="card">
             <h2>PAINEL DO COMANDANTE SUPREMO</h2>
             <div class="input-group">
@@ -137,19 +112,15 @@
             </div>
             <button class="btn-action" onclick="executarAcaoPainel()">Executar Diretriz</button>
         </div>
-
     </div>
-
     <div class="log-panel">
         <div class="log-title">LOGS DE INCIDENTES INTERNOS:</div>
         <ul class="log-content" id="logContainer"></ul>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
-        // Configuração exata retirada do teu console do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...", 
             authDomain: "area51-matanga.firebaseapp.com",
@@ -179,18 +150,56 @@
             ouvirTarefas();
             ouvirAtas();
             adicionarLog("Terminal operacional conectado à Nuvem Realtime.");
-            if(agenteAutenticado) {
-                adicionarLog(`Sessão ativa restaurada para: ${agenteAutenticado}`);
-            }
         };
 
-        function adicionarLog(mensagem) {
+        function adicionarLog(mensagem, erro = false) {
             const container = document.getElementById("logContainer");
             const hora = new Date().toLocaleTimeString();
-            container.innerHTML = `<li>[${hora}] - ${mensagem}</li>` + container.innerHTML;
+            let classe = erro ? "class='log-erro'" : "";
+            container.innerHTML = `<li ${classe}>[${hora}] - ${mensagem}</li>` + container.innerHTML;
         }
 
-        /* 1. AUTENTICAÇÃO E PRESENÇA REALTIME */
+        function tocarSomErro() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(120, ctx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.4);
+                
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(800, ctx.currentTime);
+                
+                gain1.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                gain2.gain.setValueAtTime(0.15, ctx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+
+                osc1.connect(gain1); gain1.connect(ctx.destination);
+                osc2.connect(gain2); gain2.connect(ctx.destination);
+                osc1.start(); osc2.start();
+                osc1.stop(ctx.currentTime + 0.4); osc2.stop(ctx.currentTime + 0.4);
+            } catch(e) {}
+        }
+
+        function tocarSomSucesso() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                osc.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime + 0.2);
+            } catch(e) {}
+        }
+
         function autenticarAgente() {
             let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
             if (!chave) return;
@@ -199,14 +208,14 @@
                 let agente = codigosAgentes[chave];
                 agenteAutenticado = agente.nome;
                 localStorage.setItem("matanga_agente_logado", agente.nome);
-                
-                // Grava no Firebase o status ativo
                 database.ref('presencas/' + agente.id).set("ATIVO");
                 adicionarLog(`SINAL: Agente ${agente.nome} entrou na rede.`);
+                tocarSomSucesso();
                 alert(`Identidade validada. Canal ativo para ${agente.nome}.`);
             } else {
-                adicionarLog(`🚨 ALERTA: Tentativa ilegal de quebra com chave inválida.`);
-                alert("🚨 CHAVE INVÁLIDA!");
+                tocarSomErro();
+                adicionarLog(`🚨 ALERTA BREACH: Tentativa ilegal com chave: "${chave}"`, true);
+                alert("🚨 CHAVE INVÁLIDA! INCIDENTE REGISTADO.");
             }
         }
 
@@ -231,26 +240,29 @@
             let chave = prompt("CONFIRME A CHAVE DO CEO:");
             if (chave === "yelseik99") {
                 database.ref('presencas').remove();
+                tocarSomSucesso();
                 adicionarLog("CEO executou wipe de presença global.");
                 alert("Presenças reinicializadas na nuvem.");
             } else {
+                tocarSomErro();
+                adicionarLog("🚨 TENTATIVA VIOLENTA: Falha no wipe de presenças.", true);
                 alert("Ação negada.");
             }
         }
 
-        /* 2. CHAT EM TEMPO REAL */
         function enviarMensagemChat() {
             const txt = document.getElementById("chatInput").value;
             if (!txt.trim()) return;
-            if (!agenteAutenticado) return alert("Erro: Deves autenticar a tua chave no QG primeiro!");
-
-            const novaMsgRef = database.ref('chat').push();
-            novaMsgRef.set({
+            if (!agenteAutenticado) {
+                tocarSomErro();
+                adicionarLog("🚨 REJEITADO: Transmissão bloqueada sem chave autenticada.", true);
+                return alert("Erro: Deves autenticar a tua chave no QG primeiro!");
+            }
+            database.ref('chat').push().set({
                 user: agenteAutenticado,
                 msg: txt,
                 time: new Date().toLocaleTimeString()
             });
-
             document.getElementById("chatInput").value = "";
         }
 
@@ -261,24 +273,18 @@
                 const dados = snapshot.val();
                 if(dados) {
                     Object.values(dados).forEach(m => {
-                        container.innerHTML += `
-                            <div class="chat-msg">
-                                <span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span>
-                            </div>
-                        `;
+                        container.innerHTML += `<div class="chat-msg"><span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span></div>`;
                     });
                 }
                 container.scrollTop = container.scrollHeight;
             });
         }
 
-        /* 3. MISSÕES E ATAS DINÂMICAS */
         function alternarCamposPainel() {
             const tipo = document.getElementById("emissaoTipo").value;
             const label = document.getElementById("labelDinamica");
             const grupoAgente = document.getElementById("grupoAgente");
             const input = document.getElementById("panelDesc");
-
             if (tipo === "missao") {
                 label.innerText = "Descrição da Missão:";
                 input.placeholder = "Ex: Monitorizar tráfego externo...";
@@ -294,18 +300,19 @@
             const tipo = document.getElementById("emissaoTipo").value;
             const desc = document.getElementById("panelDesc").value;
             if (!desc.trim()) return alert("Preencha a descrição.");
-
             let chave = prompt("CHAVE DO CEO PARA CONFIRMAÇÃO:");
-            if (chave !== "yelseik99") return alert("Ação restrita ao Criador Supremo.");
-
+            if (chave !== "yelseik99") {
+                tocarSomErro();
+                adicionarLog("🚨 IMPEDIDO: Tentativa de usurpação de ordens do comando.", true);
+                return alert("Erro: Privilégios de Criador Supremo necessários.");
+            }
+            tocarSomSucesso();
             if (tipo === "missao") {
                 const agente = document.getElementById("taskAgent").value;
-                const novaTarefaRef = database.ref('tarefas').push();
-                novaTarefaRef.set({ desc: desc, agente: agente, status: "pending", timestamp: Date.now() });
+                database.ref('tarefas').push().set({ desc: desc, agente: agente, status: "pending", timestamp: Date.now() });
                 adicionarLog(`DIRETRIZ: Emitida nova missão para ${agente}.`);
             } else {
-                const novaAtaRef = database.ref('atas').push();
-                novaAtaRef.set({ resumo: desc, data: new Date().toLocaleDateString(), timestamp: Date.now() });
+                database.ref('atas').push().set({ resumo: desc, data: new Date().toLocaleDateString(), timestamp: Date.now() });
                 adicionarLog(`ARQUIVO: Nova Ata registada na base de dados.`);
             }
             document.getElementById("panelDesc").value = "";
@@ -322,16 +329,7 @@
                         let statusTxt = t.status === "done" ? "CONCLUÍDO" : (t.status === "process" ? "EM CURSO" : "PENDENTE");
                         let statusColor = t.status === "done" ? "#00ff66" : (t.status === "process" ? "#ffcc00" : "#ff3333");
                         let doneClass = t.status === "done" ? "task-item done" : "task-item";
-
-                        container.innerHTML += `
-                            <div class="${doneClass}" onclick="alternarStatusTarefa('${id}', '${t.status}')">
-                                <div>${t.desc}</div>
-                                <div class="task-meta">
-                                    <span>RESPONSÁVEL: ${t.agente}</span>
-                                    <span style="color: ${statusColor};">${statusTxt}</span>
-                                </div>
-                            </div>
-                        `;
+                        container.innerHTML += `<div class="${doneClass}" onclick="alternarStatusTarefa('${id}', '${t.status}')"><div>${t.desc}</div><div class="task-meta"><span>RESPONSÁVEL: ${t.agente}</span><span style="color: ${statusColor};">${statusTxt}</span></div></div>`;
                     });
                 }
             });
@@ -341,7 +339,7 @@
             let novoStatus = "pending";
             if (statusAtual === "pending") novoStatus = "process";
             else if (statusAtual === "process") novoStatus = "done";
-            
+            tocarSomSucesso();
             database.ref('tarefas/' + id).update({ status: novoStatus });
         }
 
@@ -353,13 +351,7 @@
                 if (dados) {
                     let index = 1;
                     Object.values(dados).forEach(a => {
-                        container.innerHTML += `
-                            <div class="task-item" style="border-left-color: #00ffaa;">
-                                <div style="font-weight: bold; color: #fff;">Ata Oficial #${index}</div>
-                                <div style="margin-top: 5px; font-size: 0.8rem; color: #bbb;">${a.resumo}</div>
-                                <div class="task-meta"><span>REGISTADO EM: ${a.data}</span></div>
-                            </div>
-                        `;
+                        container.innerHTML += `<div class="task-item" style="border-left-color: #00ffaa;"><div style="font-weight: bold; color: #fff;">Ata Oficial #${index}</div><div style="margin-top: 5px; font-size: 0.8rem; color: #bbb;">${a.resumo}</div><div class="task-meta"><span>REGISTADO EM: ${a.data}</span></div></div>`;
                         index++;
                     });
                 }
