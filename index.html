@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termux - A Matanga Oficial</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            margin: 0;
+        }
+        .terminal {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            color: #ffffff;
+            text-align: center;
+            border-bottom: 2px dashed #ff0000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .status {
+            color: #ffff00;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .menu-item {
+            background: none;
+            border: none;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: 16px;
+            text-align: left;
+            display: block;
+            width: 100%;
+            padding: 8px 0;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            color: #ffffff;
+            background-color: #222222;
+        }
+        .output-box {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin-top: 20px;
+            display: none;
+            color: #ffffff;
+            background-color: #111111;
+        }
+        .alert-danger {
+            color: #ff3333;
+            font-weight: bold;
+        }
+        .btn-voltar {
+            background-color: #333333;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="terminal">
+    <div class="header">
+        <pre>
+ 🔥 PAINEL SUPREMO - A MATANGA OFICIAL 🔥 
+==========================================</pre>
+    </div>
+    
+    <div class="status">STATUS: OPERACIONAL | LOCAL: KILAMBA, LUANDA</div>
+
+    <div id="menu-principal">
+        <p>Escolha uma opção para executar no terminal:</p>
+        <button class="menu-item" onclick="mostrarFolha()">[1] Consultar Cargos e Folha de Pagamentos</button>
+        <button class="menu-item" onclick="mostrarProtocolo()">[2] Ativar Protocolo de Emergência</button>
+        <button class="menu-item" onclick="mostrarTribunal()">[3] Instaurar Tribunal Disciplinar</button>
+    </div>
+
+    <div id="tela-folha" class="output-box">
+        <h3>💰 MATRIZ SALARIAL RECALIBRADA</h3>
+        <p>1. Yelseik (Kiesley) [CEO] -> 500 kz</p>
+        <p>2. Rengaw (Wagner) [Conselheiro] -> 420 kz</p>
+        <p>3. innavoeg (Geovanni) [Chefe Seg.] -> 300 kz</p>
+        <p>4. aihosj (Joshua) [Assistente] -> 250 kz</p>
+        <p>5. onaitsirc (Cris) [Segurança] -> 150 kz</p>
+        <button class="btn-voltar" onclick="voltarMenu()">[0] Voltar ao Menu</button>
+    </div>
+
+    <div id="tela-protocolo" class="output-box">
+        <h3 class="alert-danger">⚠️ ALERTA DE EMERGÊNCIA TÁTICA</h3>
+        <p><strong>[CÓDIGO VERMELHO ATIVADO]</strong></p>
+        <p>👉 <b>Rengaw e aihosj:</b> Blindagem corporal e extração do CEO imediata!</p>
+        <p>👉 <b>innavoeg e onaitsirc:</b> Fiquem no sítio e caiam à pancada para travar o inimigo!</p>
+        <button class="btn-voltar" onclick="voltarMenu()">[0] Desativar Alarme</button>
+    </div>
+
+    <div id="tela-tribunal" class="output-box">
+        <h3 style="color: #ffff00;">⚖️ TRIBUNAL DA MATANGA</h3>
+        <p class="alert-danger">SENTENÇA DECRETADA:</p>
+        <p><b>ALVO:</b> Membro Insubordinado</p>
+        <p><b>CRIME:</b> Quebra de Sigilo ou Cobardia na briga</p>
+        <p><b>PUNIÇÃO:</b> Capturar no Kilamba, aplicar surra disciplinar organizada e banimento permanente.</p>
+        <button class="btn-voltar" onclick="voltarMenu()">[0] Arquivar Caso</button>
+    </div>
+</div>
+
+<script>
+    function esconderTodas() {
+        document.getElementById('menu-principal').style.display = 'none';
+        document.getElementById('tela-folha').style.display = 'none';
+        document.getElementById('tela-protocolo').style.display = 'none';
+        document.getElementById('tela-tribunal').style.display = 'none';
+    }
+
+    function mostrarFolha() {
+        esconderTodas();
+        document.getElementById('tela-folha').style.display = 'block';
+    }
+
+    function mostrarProtocolo() {
+        esconderTodas();
+        document.getElementById('tela-protocolo').style.display = 'block';
+    }
+
+    function mostrarTribunal() {
+        esconderTodas();
+        document.getElementById('tela-tribunal').style.display = 'block';
+    }
+
+    function voltarMenu() {
+        esconderTodas();
+        document.getElementById('menu-principal').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
+
