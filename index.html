@@ -8,7 +8,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
         body { background-color: #0a0a0c; color: #00ff66; padding: 20px; }
         header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px #00ff66; }
+        h1 { font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px #00ff66; }
         .status-badge { background: #112211; border: 1px solid #00ff66; padding: 5px 10px; font-size: 0.8rem; animation: blink 2s infinite; }
         
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -17,22 +17,35 @@
         
         /* Lista de Presença */
         .presence-list { list-style: none; margin-bottom: 15px; }
-        .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #141914; }
-        .presence-list li:last-child { border-bottom: none; }
+        .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #141814; }
         .membro-nome { font-weight: bold; color: #00ff66; }
         .membro-cargo { color: #888; font-size: 0.75rem; display: block; margin-top: 2px; }
-        .status-box { float: right; font-size: 0.8rem; padding: 2px 6px; border-radius: 2px; }
+        .status-box { float: right; font-size: 0.8rem; padding: 2px 6px; border-radius: 2px; font-weight: bold; }
         .status-online { background: #113311; color: #00ff66; border: 1px solid #00ff66; }
         .status-offline { background: #331111; color: #ff3333; border: 1px solid #ff3333; }
         
         .btn-action { background: transparent; border: 1px solid #00ff66; color: #00ff66; padding: 10px 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; margin-top: 10px; }
         .btn-action:hover { background: #00ff66; color: #000; box-shadow: 0 0 10px #00ff66; }
+        .btn-danger { border-color: #ff3333; color: #ff3333; }
+        .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 10px #ff3333; }
+        
+        /* Inputs */
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #888; }
+        .input-field { width: 100%; background: #141820; border: 1px solid #223322; padding: 8px; color: #00ff66; font-family: inherit; }
+        .input-field:focus { border-color: #00ff66; outline: none; }
         
         /* Quadro de Tarefas */
-        .task-list { display: flex; flex-direction: column; gap: 10px; }
-        .task-item { background: #141820; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; }
-        .task-item.done { border-left-color: #00ff66; opacity: 0.6; }
+        .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
+        .task-item { background: #141820; border-left: 3px solid #ffcc00; padding: 10px; font-size: 0.85rem; cursor: pointer; position: relative; }
+        .task-item.done { border-left-color: #00ff66; opacity: 0.5; text-decoration: line-through; }
         .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; }
+        
+        /* Consola de Logs */
+        .log-panel { margin-top: 20px; background: #050507; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; border-radius: 4px; }
+        .log-title { color: #ff3333; font-weight: bold; margin-bottom: 5px; }
+        .log-content { max-height: 120px; overflow-y: auto; color: #aaa; list-style: none; }
+        .log-content li { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
 
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
@@ -40,18 +53,18 @@
 <body>
 
     <header>
-        <h1>ÁREA 51 // QG MATANGA</h1>
-        <div class="status-badge">SISTEMA PROTEGIDO</div>
+        <h1>ÁREA 51 // OPERAÇÕES DIGITAIS</h1>
+        <div class="status-badge">SISTEMA ATIVO</div>
     </header>
 
     <div class="grid-container">
         
         <div class="card">
-            <h2>CONTROLO DE ACESSO & PRESENÇA</h2>
+            <h2>CONTROLO DE PRESENÇA</h2>
             <ul class="presence-list">
                 <li>
                     <span class="membro-nome">[CEO] yelseik</span>
-                    <span class="status-box status-online" id="status-yelseik">ATIVO</span>
+                    <span class="status-box status-offline" id="status-yelseik">AUSENTE</span>
                     <span class="membro-cargo">Líder Supremo da Organização</span>
                 </li>
                 <li>
@@ -75,70 +88,166 @@
                     <span class="membro-cargo">Segurança Tático da Base</span>
                 </li>
             </ul>
-            <button class="btn-action" onclick="autenticarAgente()">Autenticar Identidade no QG</button>
+            <button class="btn-action" onclick="autenticarAgente()">Autenticar Chave no QG</button>
+            <button class="btn-action btn-danger" onclick="limparPresencas()">Reset de Presenças (CEO)</button>
         </div>
 
         <div class="card">
-            <h2>DIRETRIZES & TAREFAS DIÁRIAS</h2>
-            <div class="task-list">
-                <div class="task-item">
-                    <div>Mapear o perímetro tático do território virtual</div>
-                    <div class="task-meta"><span>RESPONSÁVEL: innavoeg</span> <span style="color: #ff3333;">PENDENTE</span></div>
-                </div>
-                <div class="task-item">
-                    <div>Refinar os scripts de automação e integração da base</div>
-                    <div class="task-meta"><span>RESPONSÁVEL: yelseik</span> <span style="color: #ffcc00;">EM CURSO</span></div>
-                </div>
-                <div class="task-item">
-                    <div>Preparar ata do próximo briefing organizacional</div>
-                    <div class="task-meta"><span>RESPONSÁVEL: aihosj</span> <span style="color: #ff3333;">PENDENTE</span></div>
-                </div>
-                <div class="task-item done">
-                    <div>Hospedar o servidor central seguro (GitHub Pages)</div>
-                    <div class="task-meta"><span>RESPONSÁVEL: yelseik</span> <span style="color: #00ff66;">CONCLUÍDO</span></div>
-                </div>
-            </div>
+            <h2>MISSÕES OPERACIONAIS</h2>
+            <p style="font-size: 0.75rem; color: #888; margin-bottom: 10px;">* Clique numa missão para avançar o estado (Pendente -> Em Curso -> Concluído).</p>
+            <div class="task-list" id="taskContainer"></div>
         </div>
 
         <div class="card">
-            <h2>SALA DE BRIEFING & REUNIÕES</h2>
-            <div style="font-size: 0.85rem; line-height: 1.6;">
-                <p style="color: #ffcc00; margin-bottom: 10px;">⚠️ NOTA DO COMANDANTE SUPREMO:</p>
-                <p>Todas as tarefas diárias devem ser reportadas diretamente ao canal de comunicações assim que concluídas.</p>
-                <br>
-                <p><strong>Próxima Reunião:</strong> Alinhamento tático de cargos e controle de metas.</p>
-                <p><strong>Acesso:</strong> Canal de Voz Encriptado</p>
-                <br>
-                <p style="color: #ff3333; font-weight: bold;">* QUEBRA DE PROTOCOLO GERARÁ DESLIGAMENTO DA BASE.</p>
+            <h2>DESIGNAR DEVERES</h2>
+            <div class="input-group">
+                <label>Descrição da Diretriz:</label>
+                <input type="text" id="taskDesc" class="input-field" placeholder="Ex: Patrulhar portas de rede">
             </div>
+            <div class="input-group">
+                <label>Agente Encarregue:</label>
+                <select id="taskAgent" class="input-field">
+                    <option value="yelseik">yelseik</option>
+                    <option value="aihosj">aihosj</option>
+                    <option value="Rengaw">Rengaw</option>
+                    <option value="innavoeg">innavoeg</option>
+                    <option value="onaitsirc">onaitsirc</option>
+                </select>
+            </div>
+            <button class="btn-action" onclick="criarNovaTarefa()">Lançar Diretriz</button>
         </div>
 
     </div>
 
+    <div class="log-panel">
+        <div class="log-title">LOGS DE SEGURANÇA INTERNOS:</div>
+        <ul class="log-content" id="logContainer"></ul>
+    </div>
+
     <script>
-        // Sistema de chaves de acesso para os agentes
         const codigosAgentes = {
-            "yelseik99": "status-yelseik",
-            "aihosj01": "status-aihosj",
-            "rengaw02": "status-rengaw",
-            "innavoeg03": "status-innavoeg",
-            "onaitsirc04": "status-onaitsirc"
+            "yelseik99": { id: "status-yelseik", nome: "yelseik" },
+            "aihosj01": { id: "status-aihosj", nome: "aihosj" },
+            "rengaw02": { id: "status-rengaw", nome: "Rengaw" },
+            "innavoeg03": { id: "status-innavoeg", nome: "innavoeg" },
+            "onaitsirc04": { id: "status-onaitsirc", nome: "onaitsirc" }
         };
 
+        let listaTarefas = JSON.parse(localStorage.getItem("matanga_tasks")) || [
+            { id: 1, desc: "Refinar os scripts de automação da base", agente: "yelseik", status: "process" },
+            { id: 2, desc: "Mapear o perímetro tático do território virtual", agente: "innavoeg", status: "pending" }
+        ];
+
+        let presencasSalvas = JSON.parse(localStorage.getItem("matanga_presence")) || {};
+
+        window.onload = function() {
+            renderizarTarefas();
+            aplicarPresencas();
+            adicionarLog("Terminal tático reinicializado. Encriptação ponta-a-ponta.");
+        };
+
+        function adicionarLog(mensagem) {
+            const container = document.getElementById("logContainer");
+            const hora = new Date().toLocaleTimeString();
+            container.innerHTML = `<li>[${hora}] - ${mensagem}</li>` + container.innerHTML;
+        }
+
         function autenticarAgente() {
-            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
-            
+            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO:");
+            if (!chave) return;
+
             if (chave in codigosAgentes) {
-                let idStatus = codigosAgentes[chave];
-                let elemento = document.getElementById(idStatus);
-                
-                elemento.innerText = "ATIVO";
-                elemento.className = "status-box status-online";
-                
-                alert("ACESSO CONCEDIDO. Identidade confirmada e presença registada no servidor central.");
+                let agente = codigosAgentes[chave];
+                presencasSalvas[agente.id] = true;
+                localStorage.setItem("matanga_presence", JSON.stringify(presencasSalvas));
+                aplicarPresencas();
+                adicionarLog(`ACESSO AUTORIZADO: Agente ${agente.nome} está ATIVO na base.`);
+                alert(`Identidade verificada. Bem-vindo ao QG, ${agente.nome}.`);
             } else {
-                alert("🚨 ACESSO NEGADO! Chave de autenticação inválida. Tentativa registada nos logs de segurança.");
+                adicionarLog(`🚨 ALERTA: Tentativa de quebra de protocolo com a chave inválida: "${chave}"`);
+                alert("🚨 ACESSO NEGADO!");
             }
+        }
+
+        function aplicarPresencas() {
+            for (let id in codigosAgentes) {
+                let elementId = codigosAgentes[id].id;
+                let el = document.getElementById(elementId);
+                if (presencasSalvas[elementId]) {
+                    el.innerText = "ATIVO";
+                    el.className = "status-box status-online";
+                } else {
+                    el.innerText = "AUSENTE";
+                    el.className = "status-box status-offline";
+                }
+            }
+        }
+
+        function limparPresencas() {
+            let chave = prompt("CONFIRME A CHAVE DE CONTROLO DO CEO:");
+            if (chave === "yelseik99") {
+                presencasSalvas = {};
+                localStorage.setItem("matanga_presence", JSON.stringify(presencasSalvas));
+                aplicarPresencas();
+                adicionarLog("Comandante Supremo reinicializou a lista de presenças diárias.");
+                alert("Todas as presenças foram limpas.");
+            } else {
+                alert("Ação não autorizada.");
+            }
+        }
+
+        function renderizarTarefas() {
+            const container = document.getElementById("taskContainer");
+            container.innerHTML = "";
+
+            listaTarefas.forEach(t => {
+                let statusTxt = t.status === "done" ? "CONCLUÍDO" : (t.status === "process" ? "EM CURSO" : "PENDENTE");
+                let statusColor = t.status === "done" ? "#00ff66" : (t.status === "process" ? "#ffcc00" : "#ff3333");
+                let doneClass = t.status === "done" ? "task-item done" : "task-item";
+
+                container.innerHTML += `
+                    <div class="${doneClass}" onclick="alternarStatusTarefa(${t.id})">
+                        <div>${t.desc}</div>
+                        <div class="task-meta">
+                            <span>RESPONSÁVEL: ${t.agente}</span>
+                            <span style="color: ${statusColor};">${statusTxt}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            localStorage.setItem("matanga_tasks", JSON.stringify(listaTarefas));
+        }
+
+        function criarNovaTarefa() {
+            const desc = document.getElementById("taskDesc").value;
+            const agente = document.getElementById("taskAgent").value;
+
+            if (!desc.trim()) return alert("Descreva a missão.");
+
+            let chave = prompt("AUTENTIQUE COMO CEO PARA LANÇAR DIRETRIZES:");
+            if (chave !== "yelseik99") {
+                adicionarLog(`🚨 FALHA: Tentativa não autorizada de criação de missões.`);
+                return alert("Erro de privilégios. Apenas o CEO pode lançar deveres.");
+            }
+
+            let nova = { id: Date.now(), desc: desc, agente: agente, status: "pending" };
+            listaTarefas.unshift(nova);
+            document.getElementById("taskDesc").value = "";
+            renderizarTarefas();
+            adicionarLog(`Nova diretriz lançada para ${agente}: "${desc}"`);
+        }
+
+        function alternarStatusTarefa(id) {
+            listaTarefas = listaTarefas.map(t => {
+                if (t.id === id) {
+                    if (t.status === "pending") t.status = "process";
+                    else if (t.status === "process") t.status = "done";
+                    else t.status = "pending";
+                    adicionarLog(`Missão ID [${id}] alterada pelo operador.`);
+                }
+                return t;
+            });
+            renderizarTarefas();
         }
     </script>
 </body>
