@@ -46,10 +46,8 @@
         .log-content { max-height: 150px; overflow-y: auto; color: #aaa; list-style: none; }
         .log-erro { color: #ff3333; font-weight: bold; animation: blink 1s infinite; }
         
-        /* ANIMAÇÃO DE SIRENE PARA NOVAS MISSÕES */
         @keyframes alert-flash { 0%, 100% { box-shadow: inset 0 0 0px transparent; } 50% { box-shadow: inset 0 0 100px rgba(255,0,0,0.8); background-color: #220000; } }
         .siren-active { animation: alert-flash 0.5s 6; }
-        
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
@@ -129,267 +127,274 @@
         <div class="log-title">LOGS DE INCIDENTES (GRAVADOS NA NUVEM):</div>
         <ul class="log-content" id="logContainer"></ul>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...", 
-            authDomain: "area51-matanga.firebaseapp.com",
-            databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
-            projectId: "area51-matanga",
-            storageBucket: "area51-matanga.firebasestorage.app",
-            messagingSenderId: "8932975266",
-            appId: "1:8932975266:web:50532f72a8c73b42"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        const codigosAgentes = {
-            "yelseik99": { id: "status-yelseik", nome: "yelseik" },
-            "aihosj01": { id: "status-aihosj", nome: "aihosj" },
-            "rengaw02": { id: "status-rengaw", nome: "Rengaw" },
-            "innavoeg03": { id: "status-innavoeg", nome: "innavoeg" },
-            "onaitsirc04": { id: "status-onaitsirc", nome: "onaitsirc" }
-        };
-
-        let agenteAutenticado = localStorage.getItem("matanga_agente_logado") || null;
-        let primeiraCargaTarefas = true; // Variável para controlar a sirene inicial
-
-        window.onload = function() {
-            ouvirPresencas();
-            ouvirChat();
-            ouvirTarefas();
-            ouvirAtas();
-            ouvirLogs();
-            adicionarLog("Terminal operacional conectado à Nuvem Realtime.");
-            
-            // Ativa o detetor de sirene para novas missões
-            setTimeout(() => { primeiraCargaTarefas = false; }, 3000); 
-            ouvirAlarmeMissoes();
-        };
-
-        function adicionarLog(mensagem, erro = false) {
-            database.ref('logs').push().set({ msg: mensagem, erro: erro, timestamp: Date.now(), hora: new Date().toLocaleTimeString() });
-        }
-
-        function ouvirLogs() {
-            database.ref('logs').limitToLast(50).on('value', (snapshot) => {
-                const container = document.getElementById("logContainer");
-                container.innerHTML = "";
-                const logs = snapshot.val();
-                if (logs) {
-                    Object.values(logs).reverse().forEach(l => {
-                        let classe = l.erro ? "class='log-erro'" : "";
-                        container.innerHTML += `<li ${classe}>[${l.hora}] - ${l.msg}</li>`;
-                    });
-                }
-            });
-        }
-
-        // NOVA FUNÇÃO: Dispara a sirene visual e sonora se for uma missão nova
-        function ouvirAlarmeMissoes() {
-            database.ref('tarefas').on('child_added', (snapshot) => {
-                if (!primeiraCargaTarefas && agenteAutenticado !== "yelseik") {
-                    document.body.classList.add("siren-active");
-                    tocarSomErro(); // Reutiliza o som agudo
-                    setTimeout(() => { document.body.classList.remove("siren-active"); }, 3000);
-                }
-            });
-        }
-
-        function tocarSomErro() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc1 = ctx.createOscillator(); const gain1 = ctx.createGain();
-                osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(120, ctx.currentTime); osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.4);
-                const osc2 = ctx.createOscillator(); const gain2 = ctx.createGain();
-                osc2.type = 'sine'; osc2.frequency.setValueAtTime(800, ctx.currentTime);
-                gain1.gain.setValueAtTime(0.3, ctx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                gain2.gain.setValueAtTime(0.15, ctx.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-                osc1.connect(gain1); gain1.connect(ctx.destination); osc2.connect(gain2); gain2.connect(ctx.destination);
-                osc1.start(); osc2.start(); osc1.stop(ctx.currentTime + 0.4); osc2.stop(ctx.currentTime + 0.4);
-            } catch(e) {}
-        }
-
-        function tocarSomSucesso() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-                osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.2);
-            } catch(e) {}
-        }
-
-        function autenticarAgente() {
-            let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
-            if (!chave) return;
-            if (chave in codigosAgentes) {
-                let agente = codigosAgentes[chave];
-                agenteAutenticado = agente.nome;
-                localStorage.setItem("matanga_agente_logado", agente.nome);
-                database.ref('presencas/' + agente.id).set("ATIVO");
-                adicionarLog(`SINAL: Agente ${agente.nome} entrou na rede.`);
-                tocarSomSucesso();
-                alert(`Identidade validada. Canal ativo para ${agente.nome}.`);
-            } else {
-                tocarSomErro();
-                adicionarLog(`🚨 ALERTA BREACH: Tentativa ilegal com chave: "${chave}"`, true);
-                alert("🚨 CHAVE INVÁLIDA! INCIDENTE REGISTADO.");
-            }
-        }
-
-        function ouvirPresencas() {
-            database.ref('presencas').on('value', (snapshot) => {
-                const dados = snapshot.val() || {};
-                for (let key in codigosAgentes) {
-                    let elementId = codigosAgentes[key].id;
-                    let el = document.getElementById(elementId);
-                    if (dados[elementId] === "ATIVO") { el.innerText = "ATIVO"; el.className = "status-box status-online"; }
-                    else { el.innerText = "AUSENTE"; el.className = "status-box status-offline"; }
-                }
-            });
-        }
-
-        function limparPresencas() {
-            let chave = prompt("CONFIRME A CHAVE DO CEO:");
-            if (chave === "yelseik99") {
-                database.ref('presencas').remove();
-                tocarSomSucesso();
-                adicionarLog("CEO executou wipe de presença global.");
-                alert("Presenças reinicializadas na nuvem.");
-            } else {
-                tocarSomErro();
-                adicionarLog("🚨 TENTATIVA VIOLENTA: Falha no wipe de presenças.", true);
-                alert("Ação negada.");
-            }
-        }
-
-        function enviarMensagemChat() {
-            const txt = document.getElementById("chatInput").value;
-            if (!txt.trim()) return;
-            if (!agenteAutenticado) {
-                tocarSomErro();
-                adicionarLog("🚨 REJEITADO: Transmissão bloqueada sem chave autenticada.", true);
-                return alert("Erro: Deves autenticar a tua chave no QG primeiro!");
-            }
-            database.ref('chat').push().set({ user: agenteAutenticado, msg: txt, time: new Date().toLocaleTimeString() });
-            document.getElementById("chatInput").value = "";
-        }
-
-        function ouvirChat() {
-            database.ref('chat').on('value', (snapshot) => {
-                const container = document.getElementById("chatContainer");
-                container.innerHTML = "";
-                const dados = snapshot.val();
-                if(dados) {
-                    Object.values(dados).forEach(m => {
-                        container.innerHTML += `<div class="chat-msg"><span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span></div>`;
-                    });
-                }
-                container.scrollTop = container.scrollHeight;
-            });
-        }
-
-        function alternarCamposPainel() {
-            const tipo = document.getElementById("emissaoTipo").value;
-            const label = document.getElementById("labelDinamica");
-            const grupoAgente = document.getElementById("grupoAgente");
-            const grupoCoord = document.getElementById("grupoCoordenadas"); // Nova linha
-            const input = document.getElementById("panelDesc");
-            
-            if (tipo === "missao") { 
-                label.innerText = "Descrição da Missão:"; 
-                input.placeholder = "Ex: Monitorizar tráfego externo..."; 
-                grupoAgente.style.display = "block"; 
-                grupoCoord.style.display = "block"; // Mostra coordenadas
-            } else { 
-                label.innerText = "Resumo da Reunião (Ata):"; 
-                input.placeholder = "Ex: Decisões tomadas no briefing..."; 
-                grupoAgente.style.display = "none"; 
-                grupoCoord.style.display = "none"; // Oculta coordenadas
-            }
-        }
-
-        function executarAcaoPainel() {
-            const tipo = document.getElementById("emissaoTipo").value;
-            const desc = document.getElementById("panelDesc").value;
-            
-            if (!desc.trim()) return alert("Preencha a descrição.");
-            let chave = prompt("CHAVE DO CEO PARA CONFIRMAÇÃO:");
-            if (chave !== "yelseik99") {
-                tocarSomErro();
-                adicionarLog("🚨 IMPEDIDO: Tentativa de usurpação de ordens do comando.", true);
-                return alert("Erro: Privilégios de Criador Supremo necessários.");
-            }
-            tocarSomSucesso();
-            
-            if (tipo === "missao") {
-                const agente = document.getElementById("taskAgent").value;
-                const coord = document.getElementById("panelCoord").value || "QG CENTRAL"; // Capta a coordenada
-                database.ref('tarefas').push().set({ desc: desc, agente: agente, coord: coord, status: "pending", timestamp: Date.now() });
-                adicionarLog(`DIRETRIZ: Emitida nova missão para ${agente} no setor: ${coord}.`);
-            } else {
-                database.ref('atas').push().set({ resumo: desc, data: new Date().toLocaleDateString(), timestamp: Date.now() });
-                adicionarLog(`ARQUIVO: Nova Ata registada na base de dados.`);
-            }
-            document.getElementById("panelDesc").value = "";
-            document.getElementById("panelCoord").value = "";
-        }
-
-        function ouvirTarefas() {
-            database.ref('tarefas').on('value', (snapshot) => {
-                const container = document.getElementById("taskContainer");
-                container.innerHTML = "";
-                const dados = snapshot.val();
-                if (dados) {
-                    Object.keys(dados).forEach(id => {
-                        let t = dados[id];
-                        let statusTxt = t.status === "done" ? "CONCLUÍDO" : (t.status === "process" ? "EM CURSO" : "PENDENTE");
-                        let statusColor = t.status === "done" ? "#00ff66" : (t.status === "process" ? "#ffcc00" : "#ff3333");
-                        let doneClass = t.status === "done" ? "task-item done" : "task-item";
-                        let coordLocal = t.coord ? t.coord : "NÃO DEFINIDO"; // Prevenção para missões antigas
-                        
-                        container.innerHTML += `<div class="${doneClass}" onclick="alternarStatusTarefa('${id}', '${t.status}')">
-                            <div style="font-weight:bold; color:#fff;">${t.desc}</div>
-                            <div style="color: #00ffaa; font-size: 0.75rem; margin-top: 5px; border-bottom: 1px dashed #004411; padding-bottom: 4px;">📍 LOCAL: ${coordLocal}</div>
-                            <div class="task-meta"><span>AGENTE: ${t.agente}</span><span style="color: ${statusColor}; font-weight:bold;">${statusTxt}</span></div>
-                        </div>`;
-                    });
-                }
-            });
-        }
-
-        function alternarStatusTarefa(id, statusAtual) {
-            if (agenteAutenticado !== "yelseik") {
-                tocarSomErro();
-                alert("🚨 ACESSO NEGADO: Apenas o Comandante (yelseik) pode alterar o estado das missões.");
-                return;
-            }
-            let novoStatus = "pending";
-            if (statusAtual === "pending") novoStatus = "process";
-            else if (statusAtual === "process") novoStatus = "done";
-            tocarSomSucesso();
-            database.ref('tarefas/' + id).update({ status: novoStatus });
-        }
-
-        function ouvirAtas() {
-            database.ref('atas').on('value', (snapshot) => {
-                const container = document.getElementById("ataContainer");
-                container.innerHTML = "";
-                const dados = snapshot.val();
-                if (dados) {
-                    let index = 1;
-                    Object.values(dados).forEach(a => {
-                        container.innerHTML += `<div class="task-item" style="border-left-color: #00ffaa;"><div style="font-weight: bold; color: #fff;">Ata Oficial #${index}</div><div style="margin-top: 5px; font-size: 0.8rem; color: #bbb;">${a.resumo}</div><div class="task-meta"><span>REGISTADO EM: ${a.data}</span></div></div>`;
-                        index++;
-                    });
-                }
-            });
-        }
-    </script>
+    
+    <script src="script.js"></script>
 </body>
 </html>
+const firebaseConfig = {
+    apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...", 
+    authDomain: "area51-matanga.firebaseapp.com",
+    databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
+    projectId: "area51-matanga",
+    storageBucket: "area51-matanga.firebasestorage.app",
+    messagingSenderId: "8932975266",
+    appId: "1:8932975266:web:50532f72a8c73b42"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+const codigosAgentes = {
+    "yelseik99": { id: "status-yelseik", nome: "yelseik" },
+    "aihosj01": { id: "status-aihosj", nome: "aihosj" },
+    "rengaw02": { id: "status-rengaw", nome: "Rengaw" },
+    "innavoeg03": { id: "status-innavoeg", nome: "innavoeg" },
+    "onaitsirc04": { id: "status-onaitsirc", nome: "onaitsirc" }
+};
+
+let agenteAutenticado = localStorage.getItem("matanga_agente_logado") || null;
+let primeiraCargaTarefas = true; 
+
+window.onload = function() {
+    ouvirPresencas();
+    ouvirChat();
+    ouvirTarefas();
+    ouvirAtas();
+    ouvirLogs();
+    adicionarLog("Terminal operacional conectado à Nuvem Realtime.");
+    
+    setTimeout(() => { primeiraCargaTarefas = false; }, 3000); 
+    ouvirAlarmeMissoes();
+};
+
+function adicionarLog(mensagem, erro = false) {
+    database.ref('logs').push().set({ msg: mensagem, erro: erro, timestamp: Date.now(), hora: new Date().toLocaleTimeString() });
+}
+
+function ouvirLogs() {
+    database.ref('logs').limitToLast(50).on('value', (snapshot) => {
+        const container = document.getElementById("logContainer");
+        container.innerHTML = "";
+        const logs = snapshot.val();
+        if (logs) {
+            Object.values(logs).reverse().forEach(l => {
+                let classe = l.erro ? "class='log-erro'" : "";
+                container.innerHTML += `<li ${classe}>[${l.hora}] - ${l.msg}</li>`;
+            });
+        }
+    });
+}
+
+function ouvirAlarmeMissoes() {
+    database.ref('tarefas').on('child_added', (snapshot) => {
+        if (!primeiraCargaTarefas && agenteAutenticado !== "yelseik") {
+            document.body.classList.add("siren-active");
+            tocarSomErro(); 
+            setTimeout(() => { document.body.classList.remove("siren-active"); }, 3000);
+        }
+    });
+}
+
+function tocarSomErro() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc1 = ctx.createOscillator(); const gain1 = ctx.createGain();
+        osc1.type = 'sawtooth'; osc1.frequency.setValueAtTime(120, ctx.currentTime); osc1.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.4);
+        const osc2 = ctx.createOscillator(); const gain2 = ctx.createGain();
+        osc2.type = 'sine'; osc2.frequency.setValueAtTime(800, ctx.currentTime);
+        gain1.gain.setValueAtTime(0.3, ctx.currentTime); gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        gain2.gain.setValueAtTime(0.15, ctx.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc1.connect(gain1); gain1.connect(ctx.destination); osc2.connect(gain2); gain2.connect(ctx.destination);
+        osc1.start(); osc2.start(); osc1.stop(ctx.currentTime + 0.4); osc2.stop(ctx.currentTime + 0.4);
+    } catch(e) {}
+}
+
+function tocarSomSucesso() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.2);
+    } catch(e) {}
+}
+
+function autenticarAgente() {
+    let chave = prompt("INSIRA A SUA CHAVE DE ACESSO ALFANUMÉRICA:");
+    if (!chave) return;
+    if (chave in codigosAgentes) {
+        let agente = codigosAgentes[chave];
+        agenteAutenticado = agente.nome;
+        localStorage.setItem("matanga_agente_logado", agente.nome);
+        database.ref('presencas/' + agente.id).set("ATIVO");
+        adicionarLog(`SINAL: Agente ${agente.nome} entrou na rede.`);
+        tocarSomSucesso();
+        alert(`Identidade validada. Canal ativo para ${agente.nome}.`);
+    } else {
+        tocarSomErro();
+        adicionarLog(`🚨 ALERTA BREACH: Tentativa ilegal com chave: "${chave}"`, true);
+        alert("🚨 CHAVE INVÁLIDA! INCIDENTE REGISTADO.");
+    }
+}
+
+function ouvirPresencas() {
+    database.ref('presencas').on('value', (snapshot) => {
+        const dados = snapshot.val() || {};
+        for (let key in codigosAgentes) {
+            let elementId = codigosAgentes[key].id;
+            let el = document.getElementById(elementId);
+            if (dados[elementId] === "ATIVO") { el.innerText = "ATIVO"; el.className = "status-box status-online"; }
+            else { el.innerText = "AUSENTE"; el.className = "status-box status-offline"; }
+        }
+    });
+}
+
+function limparPresencas() {
+    let chave = prompt("CONFIRME A CHAVE DO CEO:");
+    if (chave === "yelseik99") {
+        database.ref('presencas').remove();
+        tocarSomSucesso();
+        adicionarLog("CEO executou wipe de presença global.");
+        alert("Presenças reinicializadas na nuvem.");
+    } else {
+        tocarSomErro();
+        adicionarLog("🚨 TENTATIVA VIOLENTA: Falha no wipe de presenças.", true);
+        alert("Ação negada.");
+    }
+}
+
+function enviarMensagemChat() {
+    const txt = document.getElementById("chatInput").value;
+    if (!txt.trim()) return;
+    if (!agenteAutenticado) {
+        tocarSomErro();
+        adicionarLog("🚨 REJEITADO: Transmissão bloqueada sem chave autenticada.", true);
+        return alert("Erro: Deves autenticar a tua chave no QG primeiro!");
+    }
+    database.ref('chat').push().set({ user: agenteAutenticado, msg: txt, time: new Date().toLocaleTimeString() });
+    document.getElementById("chatInput").value = "";
+}
+
+function ouvirChat() {
+    database.ref('chat').on('value', (snapshot) => {
+        const container = document.getElementById("chatContainer");
+        container.innerHTML = "";
+        const dados = snapshot.val();
+        if(dados) {
+            Object.values(dados).forEach(m => {
+                container.innerHTML += `<div class="chat-msg"><span class="chat-meta">[${m.time}]</span> <span class="chat-user">${m.user}:</span> <span>${m.msg}</span></div>`;
+            });
+        }
+        container.scrollTop = container.scrollHeight;
+    });
+}
+
+function alternarCamposPainel() {
+    const tipo = document.getElementById("emissaoTipo").value;
+    const label = document.getElementById("labelDinamica");
+    const grupoAgente = document.getElementById("grupoAgente");
+    const grupoCoord = document.getElementById("grupoCoordenadas"); 
+    const input = document.getElementById("panelDesc");
+    
+    if (tipo === "missao") { 
+        label.innerText = "Descrição da Missão:"; 
+        input.placeholder = "Ex: Monitorizar tráfego externo..."; 
+        grupoAgente.style.display = "block"; 
+        grupoCoord.style.display = "block"; 
+    } else { 
+        label.innerText = "Resumo da Reunião (Ata):"; 
+        input.placeholder = "Ex: Decisões tomadas no briefing..."; 
+        grupoAgente.style.display = "none"; 
+        grupoCoord.style.display = "none"; 
+    }
+}
+
+function executarAcaoPainel() {
+    const tipo = document.getElementById("emissaoTipo").value;
+    const desc = document.getElementById("panelDesc").value;
+    
+    if (!desc.trim()) return alert("Preencha a descrição.");
+    let chave = prompt("CHAVE DO CEO PARA CONFIRMAÇÃO:");
+    if (chave !== "yelseik99") {
+        tocarSomErro();
+        adicionarLog("🚨 IMPEDIDO: Tentativa de usurpação de ordens do comando.", true);
+        return alert("Erro: Privilégios de Criador Supremo necessários.");
+    }
+    tocarSomSucesso();
+    
+    if (tipo === "missao") {
+        const coord = document.getElementById("panelCoord").value;
+        const agente = document.getElementById("taskAgent").value;
+        if (!coord.trim()) return alert("Preencha as coordenadas.");
+        
+        database.ref('tarefas').push().set({
+            desc: desc,
+            coord: coord,
+            agente: agente,
+            done: false,
+            timestamp: Date.now()
+        });
+        adicionarLog(`Nova missão lançada para ${agente}: ${desc}`);
+    } else {
+        database.ref('atas').push().set({
+            desc: desc,
+            hora: new Date().toLocaleTimeString(),
+            timestamp: Date.now()
+        });
+        adicionarLog(`Nova ata de reunião arquivada: ${desc}`);
+    }
+    
+    document.getElementById("panelDesc").value = "";
+    document.getElementById("panelCoord").value = "";
+}
+
+function ouvirTarefas() {
+    database.ref('tarefas').on('value', (snapshot) => {
+        const container = document.getElementById("taskContainer");
+        container.innerHTML = "";
+        const dados = snapshot.val();
+        if (dados) {
+            Object.keys(dados).forEach(key => {
+                const t = dados[key];
+                let classe = t.done ? "task-item done" : "task-item";
+                container.innerHTML += `
+                    <div class="${classe}" onclick="alternarStatusTarefa('${key}', ${t.done})">
+                        <div><b>[${t.agente.toUpperCase()}]</b> ${t.desc}</div>
+                        <div class="task-meta"><span>📍 ${t.coord}</span> <span>${t.done ? '✓ FINALIZADA' : '⚡ EM CURSO'}</span></div>
+                    </div>`;
+            });
+        }
+    });
+}
+
+function alternarStatusTarefa(key, statusAtual) {
+    if (!agenteAutenticado) {
+        tocarSomErro();
+        return alert("Erro: Deves autenticar a tua chave no QG primeiro.");
+    }
+    database.ref('tarefas/' + key).update({ done: !statusAtual });
+    tocarSomSucesso();
+    adicionarLog(`Missão atualizada por ${agenteAutenticado}.`);
+}
+
+function ouvirAtas() {
+    database.ref('atas').on('value', (snapshot) => {
+        const container = document.getElementById("ataContainer");
+        container.innerHTML = "";
+        const dados = snapshot.val();
+        if (dados) {
+            Object.values(dados).reverse().forEach(a => {
+                container.innerHTML += `
+                    <div class="task-item done" style="border-left-color: #00ff66;">
+                        <div>${a.desc}</div>
+                        <div class="task-meta"><span>📅 ${a.hora}</span></div>
+                    </div>`;
+                });
+            }
+        });
+    }
 
