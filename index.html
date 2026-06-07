@@ -1,3 +1,4 @@
+cat > index.html << 'AREA51EOF1'
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
@@ -21,6 +22,8 @@
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .card { background: #0a0c0a; border: 1px solid #004411; padding: 15px; border-radius: 4px; box-shadow: 0 0 15px rgba(0,255,102,0.1); }
         .card h2 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 1px dashed #00ff66; padding-bottom: 5px; color: #fff; text-shadow: 0 0 3px #fff; }
+        .card.private-card { border-color: #003366; box-shadow: 0 0 15px rgba(0,136,255,0.1); }
+        .card.private-card h2 { border-bottom-color: #0088ff; color: #66bbff; text-shadow: 0 0 3px #0055aa; }
         .presence-list { list-style: none; margin-bottom: 15px; }
         .presence-list li { padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #002205; }
         .membro-nome { font-weight: bold; color: #00ff66; }
@@ -34,6 +37,8 @@
         .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 10px #ff3333; }
         .btn-warn { border-color: #ffcc00; color: #ffcc00; }
         .btn-warn:hover { background: #ffcc00; color: #000; }
+        .btn-blue { border-color: #0088ff; color: #0088ff; }
+        .btn-blue:hover { background: #0088ff; color: #000; box-shadow: 0 0 10px #0088ff; }
         .input-group { margin-bottom: 10px; }
         .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #888; }
         .input-field { width: 100%; background: #001100; border: 1px solid #004411; padding: 8px; color: #00ff66; font-family: inherit; }
@@ -50,10 +55,23 @@
         .prio-badge.alta { background: #331a00; color: #ff8800; border: 1px solid #ff8800; }
         .prio-badge.normal { background: #332b00; color: #ffcc00; border: 1px solid #ffcc00; }
         .task-meta { font-size: 0.75rem; color: #888; margin-top: 5px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
+        .chat-input-wrap { position: relative; }
         .chat-box { background: #020502; border: 1px solid #00ff66; height: 150px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
-        .chat-msg { border-bottom: 1px dashed #002205; padding-bottom: 4px; }
+        .chat-msg { border-bottom: 1px dashed #002205; padding-bottom: 4px; line-height: 1.5; }
         .chat-user { color: #fff; font-weight: bold; }
         .chat-meta { color: #ffcc00; font-size: 0.7rem; }
+        .mention { color: #ffcc00; font-weight: bold; }
+        .mention.me { color: #ff8800; background: #1a1000; padding: 0 3px; border-radius: 2px; border: 1px solid #332200; }
+        .msg-timer { display: inline-block; font-size: 0.65rem; padding: 1px 5px; border: 1px solid #ff3333; color: #ff3333; border-radius: 2px; margin-left: 5px; }
+        .mention-autocomplete { position: absolute; background: #001500; border: 1px solid #00ff66; z-index: 200; bottom: 38px; left: 0; right: 0; max-height: 120px; overflow-y: auto; box-shadow: 0 0 10px rgba(0,255,102,0.2); }
+        .mention-option { padding: 7px 10px; cursor: pointer; font-size: 0.8rem; border-bottom: 1px solid #002205; color: #00ff66; }
+        .mention-option:hover { background: #003311; }
+        .private-chat-box { background: #020208; border: 1px solid #0088ff; height: 160px; overflow-y: auto; padding: 10px; font-size: 0.8rem; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .priv-msg { border-bottom: 1px dashed #001133; padding-bottom: 4px; line-height: 1.5; }
+        .priv-msg .priv-user { color: #0088ff; font-weight: bold; }
+        .priv-msg.mine .priv-user { color: #00ff66; }
+        .priv-msg.mine { text-align: right; }
+        .priv-destruct { display: inline-block; font-size: 0.62rem; padding: 1px 4px; border: 1px solid #ff3333; color: #ff3333; border-radius: 2px; margin-left: 4px; }
         .radar-container { display: flex; align-items: center; gap: 15px; background: #020502; border: 1px solid #004411; padding: 10px; margin-top: 10px; }
         .radar { width: 60px; height: 60px; border: 2px solid #004411; border-radius: 50%; position: relative; background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, rgba(0,0,0,1) 80%); overflow: hidden; flex-shrink: 0; }
         .radar::after { content: ""; position: absolute; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,255,102,0.4) 0%, rgba(0,0,0,0) 50%); top: 0; left: 0; transform-origin: center; animation: radar-sweep 3s linear infinite; }
@@ -89,14 +107,13 @@
         .pin-dot.filled { background: #00ff66; border-color: #00ff66; box-shadow: 0 0 10px #00ff66; }
         .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
         .pin-btn { background: #001a00; border: 1px solid #004411; color: #00ff66; padding: 14px; font-size: 1.1rem; font-family: inherit; font-weight: bold; cursor: pointer; border-radius: 3px; transition: 0.2s; }
-        .pin-btn:hover { background: #003311; border-color: #00ff66; box-shadow: 0 0 8px rgba(0,255,102,0.3); }
+        .pin-btn:hover { background: #003311; border-color: #00ff66; }
         .pin-btn:active { background: #00ff66; color: #000; }
         .pin-btn.del { color: #ff3333; border-color: #330000; font-size: 0.85rem; }
         .pin-btn.del:hover { background: #220000; border-color: #ff3333; }
         .pin-btn.ok { color: #ffcc00; border-color: #332b00; font-size: 0.85rem; }
         .pin-btn.ok:hover { background: #221a00; border-color: #ffcc00; }
-        .pin-error { color: #ff3333; text-align: center; font-size: 0.8rem; margin-top: 10px; font-weight: bold; display: none; animation: blink 0.5s 3; }
-        .pin-step { }
+        .pin-error { color: #ff3333; text-align: center; font-size: 0.8rem; margin-top: 10px; font-weight: bold; display: none; }
         .log-panel { margin-top: 20px; background: #020202; border: 1px solid #ff3333; padding: 10px; font-size: 0.8rem; border-radius: 4px; }
         .log-title { color: #ff3333; font-weight: bold; margin-bottom: 5px; }
         .log-content { max-height: 150px; overflow-y: auto; color: #aaa; list-style: none; }
@@ -109,16 +126,15 @@
         @keyframes pinShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
         .pin-shake { animation: pinShake 0.4s ease; }
     </style>
+AREA51EOF1cat >> index.html << 'AREA51EOF2'
 </head>
 <body>
     <div id="timeoutWarning" class="timeout-bar"></div>
-
-    <!-- MODAL PIN -->
     <div id="pinModal" class="pin-modal-overlay">
         <div class="pin-box" id="pinBox">
             <div class="pin-title">AUTENTICACAO SEGURA</div>
             <div class="pin-subtitle">AREA 51 // ACESSO RESTRITO</div>
-            <div id="pinStep1" class="pin-step">
+            <div id="pinStep1">
                 <div class="input-group">
                     <label>IDENTIFICADOR DO AGENTE:</label>
                     <select id="pinAgente" class="input-field">
@@ -133,17 +149,14 @@
                 <button class="btn-action" onclick="avancarParaPIN()">CONTINUAR</button>
                 <button class="btn-action btn-danger" onclick="fecharModalPIN()">CANCELAR</button>
             </div>
-            <div id="pinStep2" class="pin-step" style="display:none;">
+            <div id="pinStep2" style="display:none;">
                 <div style="text-align:center;font-size:0.8rem;color:#888;margin-bottom:5px;">AGENTE IDENTIFICADO:</div>
                 <div style="text-align:center;font-size:1rem;color:#00ff66;font-weight:bold;margin-bottom:10px;" id="pinNomeDisplay"></div>
-                <div style="text-align:center;font-size:0.75rem;color:#555;margin-bottom:5px;">INSIRA O PIN DE 6 DIGITOS:</div>
+                <div style="text-align:center;font-size:0.75rem;color:#555;">INSIRA O PIN DE 6 DIGITOS:</div>
                 <div class="pin-dots">
-                    <div class="pin-dot" id="pinDot0"></div>
-                    <div class="pin-dot" id="pinDot1"></div>
-                    <div class="pin-dot" id="pinDot2"></div>
-                    <div class="pin-dot" id="pinDot3"></div>
-                    <div class="pin-dot" id="pinDot4"></div>
-                    <div class="pin-dot" id="pinDot5"></div>
+                    <div class="pin-dot" id="pinDot0"></div><div class="pin-dot" id="pinDot1"></div>
+                    <div class="pin-dot" id="pinDot2"></div><div class="pin-dot" id="pinDot3"></div>
+                    <div class="pin-dot" id="pinDot4"></div><div class="pin-dot" id="pinDot5"></div>
                 </div>
                 <div class="pin-pad">
                     <button class="pin-btn" onclick="pinDigito('7')">7</button>
@@ -164,7 +177,6 @@
             </div>
         </div>
     </div>
-
     <header>
         <h1>AREA 51 // OPERACOES EM TEMPO REAL</h1>
         <div class="header-right">
@@ -173,16 +185,15 @@
             <div class="status-badge">REDE SINCRONIZADA</div>
         </div>
     </header>
-
     <div class="grid-container">
         <div class="card">
             <h2>CONTROLO DE PRESENCA</h2>
             <ul class="presence-list">
-                <li><span class="membro-nome">[CEO] yelseik</span><span class="status-box status-offline" id="status-yelseik">AUSENTE</span><span class="membro-cargo">Lider Supremo da Organizacao</span></li>
+                <li><span class="membro-nome">[CEO] yelseik</span><span class="status-box status-offline" id="status-yelseik">AUSENTE</span><span class="membro-cargo">Lider Supremo</span></li>
                 <li><span class="membro-nome">[ASSISTENTE] aihosj</span><span class="status-box status-offline" id="status-aihosj">AUSENTE</span><span class="membro-cargo">Assistente Direto do CEO</span></li>
-                <li><span class="membro-nome">[CONSELHEIRO] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo">Seguranca Pessoal e Conselheiro</span></li>
-                <li><span class="membro-nome">[S. CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo">Chefe do Esquadrao de Seguranca</span></li>
-                <li><span class="membro-nome">[SEGURANCA] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo">Seguranca Tatico da Base</span></li>
+                <li><span class="membro-nome">[CONSELHEIRO] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo">Seguranca e Conselheiro</span></li>
+                <li><span class="membro-nome">[S. CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo">Chefe de Seguranca</span></li>
+                <li><span class="membro-nome">[SEGURANCA] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo">Seguranca Tatico</span></li>
             </ul>
             <button class="btn-action" onclick="mostrarModalPIN()">Autenticar via PIN</button>
             <button class="btn-action btn-warn" onclick="sairDaRede()">Sair da Rede</button>
@@ -191,14 +202,56 @@
         <div class="card">
             <h2>COMUNICACOES INTERNAS (CIPHER)</h2>
             <div class="chat-box" id="chatContainer"></div>
-            <div class="input-group">
-                <input type="text" id="chatInput" class="input-field" placeholder="Mensagem encriptada..." onkeydown="if(event.key==='Enter') enviarMensagemChat()">
+            <div class="chat-input-wrap">
+                <div id="mentionDropdownChat" style="display:none;" class="mention-autocomplete"></div>
+                <input type="text" id="chatInput" class="input-field" placeholder="Mensagem... use @agente para mencionar" oninput="detetarMencao(this,'chat')" onkeydown="if(event.key==='Enter')enviarMensagemChat()">
+            </div>
+            <div class="input-group" style="margin-top:8px;">
+                <label>Autodestruicao:</label>
+                <select id="chatTimer" class="input-field">
+                    <option value="0">Sem timer</option>
+                    <option value="30">30 segundos</option>
+                    <option value="60">1 minuto</option>
+                    <option value="300">5 minutos</option>
+                </select>
             </div>
             <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
             <div class="radar-container">
                 <div class="radar"></div>
-                <div style="font-size:0.75rem;color:#888;">SCANNER DE PERIMETRO:<br><span style="color:#00ff66;animation:blink 1s infinite;">PROCURANDO INTRUSOS...</span></div>
+                <div style="font-size:0.75rem;color:#888;">SCANNER:<br><span style="color:#00ff66;animation:blink 1s infinite;">PROCURANDO...</span></div>
             </div>
+        </div>
+        <div class="card private-card">
+            <h2>CANAL PRIVADO (CIFRADO)</h2>
+            <div class="input-group">
+                <label>DESTINATARIO:</label>
+                <select id="privDestinatario" class="input-field" onchange="selecionarDestinatario(this.value)">
+                    <option value="">-- SELECIONAR AGENTE --</option>
+                    <option value="yelseik">yelseik [CEO]</option>
+                    <option value="aihosj">aihosj [ASSISTENTE]</option>
+                    <option value="Rengaw">Rengaw [CONSELHEIRO]</option>
+                    <option value="innavoeg">innavoeg [S.CHEFE]</option>
+                    <option value="onaitsirc">onaitsirc [SEGURANCA]</option>
+                </select>
+            </div>
+            <div class="private-chat-box" id="privChatBox">
+                <div style="color:#555;text-align:center;padding:20px;font-size:0.8rem;">Seleciona um agente para iniciar.</div>
+            </div>
+            <div class="chat-input-wrap">
+                <div id="mentionDropdownPriv" style="display:none;" class="mention-autocomplete"></div>
+                <input type="text" id="privInput" class="input-field" placeholder="Mensagem privada cifrada..." oninput="detetarMencao(this,'priv')" onkeydown="if(event.key==='Enter')enviarMensagemPrivada()">
+            </div>
+            <div class="input-group" style="margin-top:8px;">
+                <label>Autodestruicao:</label>
+                <select id="privTimer" class="input-field">
+                    <option value="0">Sem timer</option>
+                    <option value="30">30 segundos</option>
+                    <option value="60">1 minuto</option>
+                    <option value="300">5 minutos</option>
+                    <option value="600">10 minutos</option>
+                </select>
+            </div>
+            <button class="btn-action btn-blue" onclick="enviarMensagemPrivada()">Enviar Cifrado</button>
         </div>
         <div class="card">
             <h2>ESTATISTICAS EM TEMPO REAL</h2>
@@ -212,27 +265,23 @@
             </div>
             <div style="margin-top:14px;background:#010d01;border:1px solid #004411;padding:10px;font-size:0.75rem;">
                 <div style="color:#888;margin-bottom:6px;">TAXA DE CONCLUSAO:</div>
-                <div style="background:#002205;border-radius:2px;height:8px;overflow:hidden;"><div id="progresso-bar" style="background:#00ff66;height:100%;width:0%;transition:width 0.5s;box-shadow:0 0 6px #00ff66;"></div></div>
+                <div style="background:#002205;border-radius:2px;height:8px;overflow:hidden;"><div id="progresso-bar" style="background:#00ff66;height:100%;width:0%;transition:width 0.5s;"></div></div>
                 <div style="margin-top:5px;color:#00ff66;" id="progresso-pct">0%</div>
             </div>
         </div>
         <div class="card">
             <h2>REGISTO DE SEGURANCA</h2>
-            <div class="sec-log-list" id="secLogContainer">
-                <div style="color:#555;font-size:0.8rem;text-align:center;padding:15px;">Sem eventos registados.</div>
-            </div>
+            <div class="sec-log-list" id="secLogContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:15px;">Sem eventos.</div></div>
             <button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparSecLog()">Limpar Registo (CEO)</button>
         </div>
         <div class="card">
             <h2>HISTORICO DE PRESENCAS</h2>
-            <div class="history-list" id="historyContainer">
-                <div style="color:#555;font-size:0.8rem;text-align:center;padding:20px;">Sem registos ainda...</div>
-            </div>
+            <div class="history-list" id="historyContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:20px;">Sem registos.</div></div>
             <button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparHistorico()">Limpar Historico (CEO)</button>
         </div>
         <div class="card">
             <h2>ARQUIVO DE BRIEFINGS (ATAS)</h2>
-            <p style="font-size:0.72rem;color:#888;margin-bottom:10px;">* Registos permanentes das reunioes do conselho supremo.</p>
+            <p style="font-size:0.72rem;color:#888;margin-bottom:10px;">* Registos permanentes das reunioes.</p>
             <div class="task-list" id="ataContainer"></div>
         </div>
         <div class="card">
@@ -254,30 +303,20 @@
                     <option value="ata">Arquivar Ata de Reuniao</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label id="labelDinamica">Descricao da Missao:</label>
-                <input type="text" id="panelDesc" class="input-field" placeholder="Digite os detalhes...">
-            </div>
-            <div class="input-group" id="grupoCoordenadas">
-                <label>Coordenadas / Setor:</label>
-                <input type="text" id="panelCoord" class="input-field" placeholder="Ex: Setor Sul, Grupo X...">
-            </div>
+            <div class="input-group"><label id="labelDinamica">Descricao da Missao:</label><input type="text" id="panelDesc" class="input-field" placeholder="Digite os detalhes..."></div>
+            <div class="input-group" id="grupoCoordenadas"><label>Coordenadas / Setor:</label><input type="text" id="panelCoord" class="input-field" placeholder="Ex: Setor Sul..."></div>
             <div class="input-group" id="grupoAgente">
                 <label>Agente Encarregue:</label>
                 <select id="taskAgent" class="input-field">
-                    <option value="yelseik">yelseik</option>
-                    <option value="aihosj">aihosj</option>
-                    <option value="Rengaw">Rengaw</option>
-                    <option value="innavoeg">innavoeg</option>
+                    <option value="yelseik">yelseik</option><option value="aihosj">aihosj</option>
+                    <option value="Rengaw">Rengaw</option><option value="innavoeg">innavoeg</option>
                     <option value="onaitsirc">onaitsirc</option>
                 </select>
             </div>
             <div class="input-group" id="grupoPrioridade">
                 <label>Nivel de Prioridade:</label>
                 <select id="taskPrioridade" class="input-field">
-                    <option value="normal">NORMAL</option>
-                    <option value="alta">ALTA</option>
-                    <option value="critica">CRITICA</option>
+                    <option value="normal">NORMAL</option><option value="alta">ALTA</option><option value="critica">CRITICA</option>
                 </select>
             </div>
             <button class="btn-action" onclick="executarAcaoPainel()">Executar Diretriz</button>
@@ -289,6 +328,7 @@
     </div>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+AREA51EOF2cat >> index.html << 'AREA51EOF3A'
     <script>
 const firebaseConfig = {
     apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...",
@@ -303,462 +343,544 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 const agentesHashMap = {
-    "4ba06031fb4e25afc62a285e00b82db164ad080b5ef7e0baad15c928f7d387b5": { id: "status-yelseik",   nome: "yelseik",    isCEO: true  },
-    "fe2ca392b5fec350ceb36911e4dce95f75a58447031b0d189604902d7b123a9e": { id: "status-aihosj",   nome: "aihosj",     isCEO: false },
-    "ba5fb33efdc33b17f120cb66d8444ed59eccd4b7593227cd8a3f9514d11d5f5d": { id: "status-rengaw",   nome: "Rengaw",     isCEO: false },
-    "45a96860bfa03d80a4a39dad04cdd807d7bf94bd5940c07560dc7fce93c1c713": { id: "status-innavoeg", nome: "innavoeg",   isCEO: false },
-    "a72a84647d82ddcfdc3c06c024627ba01f112a2f93031528c09d4b76f5ab7e06": { id: "status-onaitsirc","nome": "onaitsirc", isCEO: false }
+    "4ba06031fb4e25afc62a285e00b82db164ad080b5ef7e0baad15c928f7d387b5": { id:"status-yelseik",   nome:"yelseik",    isCEO:true  },
+    "fe2ca392b5fec350ceb36911e4dce95f75a58447031b0d189604902d7b123a9e": { id:"status-aihosj",   nome:"aihosj",     isCEO:false },
+    "ba5fb33efdc33b17f120cb66d8444ed59eccd4b7593227cd8a3f9514d11d5f5d": { id:"status-rengaw",   nome:"Rengaw",     isCEO:false },
+    "45a96860bfa03d80a4a39dad04cdd807d7bf94bd5940c07560dc7fce93c1c713": { id:"status-innavoeg", nome:"innavoeg",   isCEO:false },
+    "a72a84647d82ddcfdc3c06c024627ba01f112a2f93031528c09d4b76f5ab7e06": { id:"status-onaitsirc",nome:"onaitsirc",  isCEO:false }
 };
 const CEO_HASH = "4ba06031fb4e25afc62a285e00b82db164ad080b5ef7e0baad15c928f7d387b5";
+const AGENTES_NOMES = ["yelseik","aihosj","Rengaw","innavoeg","onaitsirc"];
 
-let agenteAutenticado = null, agenteId = null, isCEO = false;
-let tentativasFalhadas = 0, bloqueioAte = 0, filtroAtivo = "todas";
-let primeiraCargaTarefas = true, primeiraCargaChat = true, todasTarefas = {};
-let pinAtual = "", pinAgenteEscolhido = "";
-let timeoutInterval = null, lastActivity = Date.now();
-const TIMEOUT_MS = 15 * 60 * 1000;
+let agenteAutenticado=null, agenteId=null, isCEO=false;
+let tentativasFalhadas=0, bloqueioAte=0, filtroAtivo="todas";
+let primeiraCargaTarefas=true, primeiraCargaChat=true, todasTarefas={};
+let pinAtual="", pinAgenteEscolhido="";
+let timeoutInterval=null, lastActivity=Date.now();
+let salaPrivadaAtual=null, privListener=null;
+const TIMEOUT_MS = 15*60*1000;
 
-async function sha256(texto) {
-    const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texto.trim()));
-    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, "0")).join("");
+async function sha256(t) {
+    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t.trim()));
+    return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
 window.onload = function() {
     ouvirPresencas(); ouvirChat(); ouvirTarefas(); ouvirAtas();
     ouvirLogs(); ouvirEstatisticas(); ouvirHistoricoPresencas();
     ouvirSecurityLog(); ouvirAlarmeMissoes(); verificarSessaoGuardada();
+    iniciarLimpezaAutomatica();
     adicionarLog("Terminal operacional conectado.");
-    setTimeout(() => { primeiraCargaTarefas = false; primeiraCargaChat = false; }, 3000);
-    window.addEventListener("beforeunload", () => {
+    setTimeout(()=>{ primeiraCargaTarefas=false; primeiraCargaChat=false; }, 3000);
+    window.addEventListener("beforeunload", ()=>{
         if (agenteAutenticado && agenteId) {
-            registarHistoricoPresenca(agenteAutenticado, "SAIDA");
-            database.ref("presencas/" + agenteId).remove();
+            registarHistoricoPresenca(agenteAutenticado,"SAIDA");
+            database.ref("presencas/"+agenteId).remove();
+        }
+    });
+    document.addEventListener("click", (e)=>{
+        if (!e.target.closest(".chat-input-wrap")) {
+            const d1=document.getElementById("mentionDropdownChat");
+            const d2=document.getElementById("mentionDropdownPriv");
+            if(d1) d1.style.display="none";
+            if(d2) d2.style.display="none";
         }
     });
 };
 
 function verificarSessaoGuardada() {
-    const dados = localStorage.getItem("matanga_sessao");
+    const dados=localStorage.getItem("matanga_sessao");
     if (dados) {
         try {
-            const s = JSON.parse(dados);
-            agenteAutenticado = s.nome; agenteId = s.id; isCEO = s.isCEO;
-            database.ref("presencas/" + agenteId).set("ATIVO");
+            const s=JSON.parse(dados);
+            agenteAutenticado=s.nome; agenteId=s.id; isCEO=s.isCEO;
+            database.ref("presencas/"+agenteId).set("ATIVO");
             iniciarTimeout();
         } catch(e) { localStorage.removeItem("matanga_sessao"); }
     }
 }
 
-function adicionarLog(msg, erro = false) {
-    database.ref("logs").push().set({ msg: msg, erro: erro, timestamp: Date.now(), hora: new Date().toLocaleTimeString() });
+function adicionarLog(msg, erro=false) {
+    database.ref("logs").push().set({msg,erro,timestamp:Date.now(),hora:new Date().toLocaleTimeString()});
 }
 function ouvirLogs() {
-    database.ref("logs").limitToLast(50).on("value", (snap) => {
-        const c = document.getElementById("logContainer"); c.innerHTML = "";
-        const logs = snap.val();
-        if (logs) Object.values(logs).reverse().forEach(l => {
-            c.innerHTML += "<li " + (l.erro ? "class='log-erro'" : "") + ">[" + l.hora + "] " + l.msg + "</li>";
+    database.ref("logs").limitToLast(50).on("value",(snap)=>{
+        const c=document.getElementById("logContainer"); c.innerHTML="";
+        const logs=snap.val();
+        if(logs) Object.values(logs).reverse().forEach(l=>{
+            c.innerHTML+="<li "+(l.erro?"class='log-erro'":"")+">["+l.hora+"] "+l.msg+"</li>";
         });
     });
 }
 
 function tocarSomErro() {
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.type = "sawtooth"; o.frequency.setValueAtTime(120, ctx.currentTime);
-        o.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.4);
-        g.gain.setValueAtTime(0.3, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.4);
-    } catch(e) {}
+        const ctx=new (window.AudioContext||window.webkitAudioContext)();
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type="sawtooth"; o.frequency.setValueAtTime(120,ctx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+0.4);
+        g.gain.setValueAtTime(0.3,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.4);
+        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.4);
+    } catch(e){}
 }
 function tocarSomSucesso() {
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.type = "sine"; o.frequency.setValueAtTime(600, ctx.currentTime); o.frequency.setValueAtTime(900, ctx.currentTime + 0.08);
-        g.gain.setValueAtTime(0.1, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.2);
-    } catch(e) {}
+        const ctx=new (window.AudioContext||window.webkitAudioContext)();
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type="sine"; o.frequency.setValueAtTime(600,ctx.currentTime); o.frequency.setValueAtTime(900,ctx.currentTime+0.08);
+        g.gain.setValueAtTime(0.1,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.2);
+        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.2);
+    } catch(e){}
 }
 function tocarAlertaCritico() {
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        [0, 0.15, 0.3].forEach(d => {
-            const o = ctx.createOscillator(), g = ctx.createGain();
-            o.type = "square"; o.frequency.setValueAtTime(440, ctx.currentTime + d);
-            g.gain.setValueAtTime(0.15, ctx.currentTime + d); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + d + 0.12);
-            o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime + d); o.stop(ctx.currentTime + d + 0.12);
+        const ctx=new (window.AudioContext||window.webkitAudioContext)();
+        [0,0.15,0.3].forEach(d=>{
+            const o=ctx.createOscillator(),g=ctx.createGain();
+            o.type="square"; o.frequency.setValueAtTime(440,ctx.currentTime+d);
+            g.gain.setValueAtTime(0.15,ctx.currentTime+d); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+d+0.12);
+            o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+d); o.stop(ctx.currentTime+d+0.12);
         });
-    } catch(e) {}
+    } catch(e){}
+}
+function tocarSomMencao() {
+    try {
+        const ctx=new (window.AudioContext||window.webkitAudioContext)();
+        [0,0.1].forEach((d,i)=>{
+            const o=ctx.createOscillator(),g=ctx.createGain();
+            o.type="sine"; o.frequency.setValueAtTime(i===0?700:1000,ctx.currentTime+d);
+            g.gain.setValueAtTime(0.12,ctx.currentTime+d); g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+d+0.15);
+            o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+d); o.stop(ctx.currentTime+d+0.15);
+        });
+    } catch(e){}
 }
 
 function mostrarModalPIN() {
-    if (Date.now() < bloqueioAte) {
-        return alert("Bloqueado. Aguarda " + Math.ceil((bloqueioAte - Date.now()) / 1000) + "s.");
-    }
-    pinAtual = ""; pinAgenteEscolhido = "";
-    document.getElementById("pinAgente").value = "";
-    document.getElementById("pinStep1").style.display = "block";
-    document.getElementById("pinStep2").style.display = "none";
-    document.getElementById("pinError").style.display = "none";
+    if (Date.now()<bloqueioAte) return alert("Bloqueado. Aguarda "+Math.ceil((bloqueioAte-Date.now())/1000)+"s.");
+    pinAtual=""; pinAgenteEscolhido="";
+    document.getElementById("pinAgente").value="";
+    document.getElementById("pinStep1").style.display="block";
+    document.getElementById("pinStep2").style.display="none";
+    document.getElementById("pinError").style.display="none";
     document.getElementById("pinModal").classList.add("show");
 }
-function fecharModalPIN() {
-    document.getElementById("pinModal").classList.remove("show");
-    pinAtual = "";
-}
+function fecharModalPIN() { document.getElementById("pinModal").classList.remove("show"); pinAtual=""; }
 function voltarStep1() {
-    pinAtual = ""; pinAgenteEscolhido = "";
-    document.getElementById("pinStep1").style.display = "block";
-    document.getElementById("pinStep2").style.display = "none";
-    document.getElementById("pinError").style.display = "none";
+    pinAtual=""; pinAgenteEscolhido="";
+    document.getElementById("pinStep1").style.display="block";
+    document.getElementById("pinStep2").style.display="none";
+    document.getElementById("pinError").style.display="none";
     atualizarDots();
 }
 function avancarParaPIN() {
-    const ag = document.getElementById("pinAgente").value;
-    if (!ag) return alert("Seleciona um agente.");
-    pinAgenteEscolhido = ag; pinAtual = "";
-    atualizarDots();
-    document.getElementById("pinNomeDisplay").textContent = ag.toUpperCase();
-    document.getElementById("pinStep1").style.display = "none";
-    document.getElementById("pinStep2").style.display = "block";
-    document.getElementById("pinError").style.display = "none";
+    const ag=document.getElementById("pinAgente").value;
+    if(!ag) return alert("Seleciona um agente.");
+    pinAgenteEscolhido=ag; pinAtual=""; atualizarDots();
+    document.getElementById("pinNomeDisplay").textContent=ag.toUpperCase();
+    document.getElementById("pinStep1").style.display="none";
+    document.getElementById("pinStep2").style.display="block";
+    document.getElementById("pinError").style.display="none";
 }
 function pinDigito(d) {
-    if (pinAtual.length >= 6) return;
-    pinAtual += d; atualizarDots();
-    if (pinAtual.length === 6) setTimeout(validarPIN, 200);
+    if(pinAtual.length>=6) return;
+    pinAtual+=d; atualizarDots();
+    if(pinAtual.length===6) setTimeout(validarPIN,200);
 }
-function pinDel() { pinAtual = pinAtual.slice(0, -1); atualizarDots(); }
+function pinDel() { pinAtual=pinAtual.slice(0,-1); atualizarDots(); }
 function atualizarDots() {
-    for (let i = 0; i < 6; i++) {
-        const dot = document.getElementById("pinDot" + i);
-        if (dot) dot.classList.toggle("filled", i < pinAtual.length);
+    for(let i=0;i<6;i++) {
+        const dot=document.getElementById("pinDot"+i);
+        if(dot) dot.classList.toggle("filled",i<pinAtual.length);
     }
 }
 async function validarPIN() {
-    const hashInput = await sha256(pinAgenteEscolhido + ":" + pinAtual);
-    if (agentesHashMap[hashInput]) {
-        const ag = agentesHashMap[hashInput];
-        if (ag.nome !== pinAgenteEscolhido && !(ag.nome.toLowerCase() === pinAgenteEscolhido.toLowerCase())) {
-            errarPIN(); return;
-        }
-        agenteAutenticado = ag.nome; agenteId = ag.id; isCEO = ag.isCEO;
-        tentativasFalhadas = 0;
-        localStorage.setItem("matanga_sessao", JSON.stringify({ nome: ag.nome, id: ag.id, isCEO: isCEO }));
-        database.ref("presencas/" + ag.id).set("ATIVO");
-        registarHistoricoPresenca(ag.nome, "ENTRADA");
-        registarSeguranca("ACESSO_CONCEDIDO", ag.nome, "Login via PIN");
-        adicionarLog("SINAL: Agente " + ag.nome + " entrou na rede.");
+    const h=await sha256(pinAgenteEscolhido+":"+pinAtual);
+    if(agentesHashMap[h] && agentesHashMap[h].nome.toLowerCase()===pinAgenteEscolhido.toLowerCase()) {
+        const ag=agentesHashMap[h];
+        agenteAutenticado=ag.nome; agenteId=ag.id; isCEO=ag.isCEO;
+        tentativasFalhadas=0;
+        localStorage.setItem("matanga_sessao",JSON.stringify({nome:ag.nome,id:ag.id,isCEO:isCEO}));
+        database.ref("presencas/"+ag.id).set("ATIVO");
+        registarHistoricoPresenca(ag.nome,"ENTRADA");
+        registarSeguranca("ACESSO_CONCEDIDO",ag.nome,"Login via PIN");
+        adicionarLog("SINAL: Agente "+ag.nome+" entrou na rede.");
         tocarSomSucesso(); fecharModalPIN(); iniciarTimeout();
-        alert("Identidade validada. Canal ativo para " + ag.nome + ".");
-    } else {
-        errarPIN();
-    }
+        alert("Identidade validada. Canal ativo para "+ag.nome+".");
+    } else { errarPIN(); }
 }
 function errarPIN() {
-    pinAtual = ""; atualizarDots(); tentativasFalhadas++;
-    const box = document.getElementById("pinBox");
-    box.classList.add("pin-shake"); setTimeout(() => box.classList.remove("pin-shake"), 400);
-    const err = document.getElementById("pinError");
-    err.style.display = "block"; err.textContent = "PIN INCORRETO [" + tentativasFalhadas + "/3]";
+    pinAtual=""; atualizarDots(); tentativasFalhadas++;
+    const box=document.getElementById("pinBox");
+    box.classList.add("pin-shake"); setTimeout(()=>box.classList.remove("pin-shake"),400);
+    const err=document.getElementById("pinError");
+    err.style.display="block"; err.textContent="PIN INCORRETO ["+tentativasFalhadas+"/3]";
     tocarSomErro();
-    if (tentativasFalhadas >= 3) {
-        bloqueioAte = Date.now() + 30000; tentativasFalhadas = 0;
-        fecharModalPIN();
-        registarSeguranca("BLOQUEIO", pinAgenteEscolhido, "3 falhas consecutivas");
-        adicionarLog("BREACH: 3 tentativas falhadas. Bloqueado 30s.", true);
+    if(tentativasFalhadas>=3) {
+        bloqueioAte=Date.now()+30000; tentativasFalhadas=0; fecharModalPIN();
+        registarSeguranca("BLOQUEIO",pinAgenteEscolhido,"3 falhas");
+        adicionarLog("BREACH: 3 tentativas. Bloqueado 30s.",true);
         alert("BLOQUEADO! Aguarda 30 segundos.");
     } else {
-        registarSeguranca("ACESSO_NEGADO", pinAgenteEscolhido, "Tentativa " + tentativasFalhadas + "/3");
-        adicionarLog("PIN incorreto para " + pinAgenteEscolhido + " [" + tentativasFalhadas + "/3]", true);
+        registarSeguranca("ACESSO_NEGADO",pinAgenteEscolhido,"Tentativa "+tentativasFalhadas+"/3");
+        adicionarLog("PIN incorreto para "+pinAgenteEscolhido+" ["+tentativasFalhadas+"/3]",true);
     }
 }
 
 function iniciarTimeout() {
-    lastActivity = Date.now();
-    if (timeoutInterval) clearInterval(timeoutInterval);
-    timeoutInterval = setInterval(verificarTimeout, 1000);
-    ["click","keypress","mousemove","touchstart","scroll"].forEach(e => {
-        document.addEventListener(e, resetarTimeout);
-    });
-    const td = document.getElementById("timeoutDisplay");
-    if (td) td.style.display = "block";
+    lastActivity=Date.now();
+    if(timeoutInterval) clearInterval(timeoutInterval);
+    timeoutInterval=setInterval(verificarTimeout,1000);
+    ["click","keypress","mousemove","touchstart","scroll"].forEach(e=>document.addEventListener(e,resetarTimeout));
+    const td=document.getElementById("timeoutDisplay"); if(td) td.style.display="block";
 }
-function resetarTimeout() { if (agenteAutenticado) lastActivity = Date.now(); }
+function resetarTimeout() { if(agenteAutenticado) lastActivity=Date.now(); }
 function verificarTimeout() {
-    if (!agenteAutenticado) { clearInterval(timeoutInterval); esconderAviso(); return; }
-    const restante = TIMEOUT_MS - (Date.now() - lastActivity);
-    const td = document.getElementById("timeoutDisplay");
-    if (td) td.textContent = "SESSAO: " + formatarTempo(Math.max(0, restante));
-    if (restante <= 0) {
-        autoLogout();
-    } else if (restante <= 120000) {
-        mostrarAviso(restante, true);
-    } else if (restante <= 300000) {
-        mostrarAviso(restante, false);
-    } else {
-        esconderAviso();
-    }
+    if(!agenteAutenticado) { clearInterval(timeoutInterval); esconderAviso(); return; }
+    const r=TIMEOUT_MS-(Date.now()-lastActivity);
+    const td=document.getElementById("timeoutDisplay"); if(td) td.textContent="SESSAO: "+formatarTempo(Math.max(0,r));
+    if(r<=0) autoLogout();
+    else if(r<=120000) mostrarAviso(r,true);
+    else if(r<=300000) mostrarAviso(r,false);
+    else esconderAviso();
 }
-function mostrarAviso(restante, critico) {
-    const bar = document.getElementById("timeoutWarning");
-    bar.style.display = "block";
-    bar.textContent = "SESSAO EXPIRA EM: " + formatarTempo(restante) + " - Clica para continuar";
-    bar.className = "timeout-bar" + (critico ? " critical" : "");
+function mostrarAviso(r,critico) {
+    const bar=document.getElementById("timeoutWarning");
+    bar.style.display="block";
+    bar.textContent="SESSAO EXPIRA EM: "+formatarTempo(r)+" - Clica para continuar";
+    bar.className="timeout-bar"+(critico?" critical":"");
 }
-function esconderAviso() {
-    const bar = document.getElementById("timeoutWarning");
-    if (bar) bar.style.display = "none";
-}
+function esconderAviso() { const b=document.getElementById("timeoutWarning"); if(b) b.style.display="none"; }
 function formatarTempo(ms) {
-    const s = Math.ceil(ms / 1000), min = Math.floor(s / 60), sec = s % 60;
-    return min.toString().padStart(2, "0") + ":" + sec.toString().padStart(2, "0");
+    const s=Math.ceil(ms/1000),min=Math.floor(s/60),sec=s%60;
+    return min.toString().padStart(2,"0")+":"+sec.toString().padStart(2,"0");
 }
 function autoLogout() {
     clearInterval(timeoutInterval); esconderAviso();
-    registarSeguranca("SESSAO_EXPIRADA", agenteAutenticado, "Inatividade 15min");
-    adicionarLog("TIMEOUT: Sessao de " + agenteAutenticado + " expirou.");
-    database.ref("presencas/" + agenteId).remove();
-    registarHistoricoPresenca(agenteAutenticado, "SAIDA");
-    const td = document.getElementById("timeoutDisplay");
-    if (td) td.style.display = "none";
-    agenteAutenticado = null; agenteId = null; isCEO = false;
-    localStorage.removeItem("matanga_sessao");
-    tocarSomErro();
+    registarSeguranca("SESSAO_EXPIRADA",agenteAutenticado,"Inatividade 15min");
+    adicionarLog("TIMEOUT: Sessao de "+agenteAutenticado+" expirou.");
+    database.ref("presencas/"+agenteId).remove();
+    registarHistoricoPresenca(agenteAutenticado,"SAIDA");
+    const td=document.getElementById("timeoutDisplay"); if(td) td.style.display="none";
+    agenteAutenticado=null; agenteId=null; isCEO=false;
+    localStorage.removeItem("matanga_sessao"); tocarSomErro();
     alert("SESSAO EXPIRADA! Autentica novamente.");
 }
-function registarSeguranca(tipo, agente, detalhes) {
-    const icons = { ACESSO_CONCEDIDO:"OK", ACESSO_NEGADO:"ERR", BLOQUEIO:"BLK", SESSAO_EXPIRADA:"TMO", SESSAO_ENCERRADA:"OFF", BREACH:"!!!" };
-    database.ref("security_logs").push().set({
-        tipo: tipo, agente: agente || "DESCONHECIDO",
-        detalhes: detalhes || "", icone: icons[tipo] || "?",
-        hora: new Date().toLocaleTimeString(), timestamp: Date.now()
-    });
+
+function registarSeguranca(tipo,agente,detalhes) {
+    const icons={ACESSO_CONCEDIDO:"OK",ACESSO_NEGADO:"ERR",BLOQUEIO:"BLK",SESSAO_EXPIRADA:"TMO",SESSAO_ENCERRADA:"OFF"};
+    database.ref("security_logs").push().set({tipo,agente:agente||"DESCONHECIDO",detalhes:detalhes||"",icone:icons[tipo]||"?",hora:new Date().toLocaleTimeString(),timestamp:Date.now()});
 }
 function ouvirSecurityLog() {
-    database.ref("security_logs").limitToLast(20).on("value", (snap) => {
-        const c = document.getElementById("secLogContainer"); c.innerHTML = "";
-        const dados = snap.val();
-        if (!dados) { c.innerHTML = "<div style='color:#555;font-size:0.8rem;text-align:center;padding:15px;'>Sem eventos.</div>"; return; }
-        Object.values(dados).reverse().forEach(e => {
-            let cls = "sec-info";
-            if (e.tipo === "ACESSO_CONCEDIDO" || e.tipo === "SESSAO_ENCERRADA") cls = "sec-ok";
-            if (e.tipo === "ACESSO_NEGADO" || e.tipo === "BLOQUEIO" || e.tipo === "BREACH") cls = "sec-fail";
-            c.innerHTML += "<div class='sec-log-item " + cls + "'>[" + e.hora + "] [" + e.icone + "] " + e.tipo + " " + e.agente + (e.detalhes ? " (" + e.detalhes + ")" : "") + "</div>";
+    database.ref("security_logs").limitToLast(20).on("value",(snap)=>{
+        const c=document.getElementById("secLogContainer"); c.innerHTML="";
+        const d=snap.val();
+        if(!d){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:15px;'>Sem eventos.</div>";return;}
+        Object.values(d).reverse().forEach(e=>{
+            let cls="sec-info";
+            if(e.tipo==="ACESSO_CONCEDIDO"||e.tipo==="SESSAO_ENCERRADA") cls="sec-ok";
+            if(e.tipo==="ACESSO_NEGADO"||e.tipo==="BLOQUEIO") cls="sec-fail";
+            c.innerHTML+="<div class='sec-log-item "+cls+"'>["+e.hora+"] ["+e.icone+"] "+e.tipo+" "+e.agente+(e.detalhes?" ("+e.detalhes+")":"")+"</div>";
         });
     });
 }
 async function limparSecLog() {
-    const pin = prompt("PIN DO CEO (6 digitos):");
-    if (!pin) return;
-    if (await sha256("yelseik:" + pin) === CEO_HASH) {
-        database.ref("security_logs").remove();
-        adicionarLog("CEO limpou registo de seguranca."); tocarSomSucesso();
-    } else { tocarSomErro(); alert("PIN incorreto."); }
+    const pin=prompt("PIN DO CEO:"); if(!pin) return;
+    if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("security_logs").remove();adicionarLog("CEO limpou registo.");tocarSomSucesso();}
+    else{tocarSomErro();alert("PIN incorreto.");}
 }
-
+AREA51EOF3Acat >> index.html << 'AREA51EOF3B'
 function pedirPermissaoNotificacoes() {
-    if (!("Notification" in window)) return alert("Navegador nao suporta notificacoes.");
-    if (Notification.permission === "granted") {
-        document.getElementById("btnNotif").classList.add("active");
-        document.getElementById("btnNotif").textContent = "ALERTAS ATIVOS"; return;
-    }
-    Notification.requestPermission().then(p => {
-        const btn = document.getElementById("btnNotif");
-        if (p === "granted") { btn.classList.add("active"); btn.textContent = "ALERTAS ATIVOS"; adicionarLog("Notificacoes ativadas."); }
-        else btn.textContent = "ALERTAS NEGADOS";
+    if(!("Notification" in window)) return alert("Navegador nao suporta notificacoes.");
+    if(Notification.permission==="granted"){document.getElementById("btnNotif").classList.add("active");document.getElementById("btnNotif").textContent="ALERTAS ATIVOS";return;}
+    Notification.requestPermission().then(p=>{
+        const btn=document.getElementById("btnNotif");
+        if(p==="granted"){btn.classList.add("active");btn.textContent="ALERTAS ATIVOS";adicionarLog("Notificacoes ativadas.");}
+        else btn.textContent="ALERTAS NEGADOS";
     });
 }
-function enviarNotificacaoPush(titulo, corpo) {
-    if ("Notification" in window && Notification.permission === "granted" && !document.hasFocus())
-        new Notification(titulo, { body: corpo });
+function enviarNotificacaoPush(titulo,corpo) {
+    if("Notification" in window&&Notification.permission==="granted"&&!document.hasFocus()) new Notification(titulo,{body:corpo});
 }
 
 function ouvirPresencas() {
-    database.ref("presencas").on("value", (snap) => {
-        const d = snap.val() || {};
-        for (const h in agentesHashMap) {
-            const eid = agentesHashMap[h].id, el = document.getElementById(eid);
-            if (!el) continue;
-            if (d[eid] === "ATIVO") { el.innerText = "ATIVO"; el.className = "status-box status-online"; }
-            else { el.innerText = "AUSENTE"; el.className = "status-box status-offline"; }
+    database.ref("presencas").on("value",(snap)=>{
+        const d=snap.val()||{};
+        for(const h in agentesHashMap){
+            const eid=agentesHashMap[h].id,el=document.getElementById(eid); if(!el) continue;
+            if(d[eid]==="ATIVO"){el.innerText="ATIVO";el.className="status-box status-online";}
+            else{el.innerText="AUSENTE";el.className="status-box status-offline";}
         }
     });
 }
 function sairDaRede() {
-    if (!agenteAutenticado) return alert("Nao estas autenticado.");
-    if (!confirm("Confirmar saida para " + agenteAutenticado + "?")) return;
+    if(!agenteAutenticado) return alert("Nao estas autenticado.");
+    if(!confirm("Confirmar saida para "+agenteAutenticado+"?")) return;
     clearInterval(timeoutInterval); esconderAviso();
-    database.ref("presencas/" + agenteId).remove();
-    registarHistoricoPresenca(agenteAutenticado, "SAIDA");
-    registarSeguranca("SESSAO_ENCERRADA", agenteAutenticado, "Saida manual");
-    adicionarLog("Agente " + agenteAutenticado + " saiu da rede.");
-    const td = document.getElementById("timeoutDisplay");
-    if (td) td.style.display = "none";
-    agenteAutenticado = null; agenteId = null; isCEO = false;
-    localStorage.removeItem("matanga_sessao"); tocarSomSucesso();
-    alert("Sessao encerrada.");
+    database.ref("presencas/"+agenteId).remove();
+    registarHistoricoPresenca(agenteAutenticado,"SAIDA");
+    registarSeguranca("SESSAO_ENCERRADA",agenteAutenticado,"Saida manual");
+    adicionarLog("Agente "+agenteAutenticado+" saiu da rede.");
+    const td=document.getElementById("timeoutDisplay"); if(td) td.style.display="none";
+    agenteAutenticado=null; agenteId=null; isCEO=false;
+    localStorage.removeItem("matanga_sessao"); tocarSomSucesso(); alert("Sessao encerrada.");
 }
 async function limparPresencas() {
-    const pin = prompt("PIN DO CEO (6 digitos):");
-    if (!pin) return;
-    if (await sha256("yelseik:" + pin) === CEO_HASH) {
-        database.ref("presencas").remove(); tocarSomSucesso();
-        adicionarLog("CEO executou wipe de presenca."); alert("Presencas reinicializadas.");
-    } else { tocarSomErro(); adicionarLog("Falha no wipe de presencas.", true); alert("PIN incorreto."); }
+    const pin=prompt("PIN DO CEO:"); if(!pin) return;
+    if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("presencas").remove();tocarSomSucesso();adicionarLog("CEO wipe de presenca.");alert("Presencas reinicializadas.");}
+    else{tocarSomErro();alert("PIN incorreto.");}
 }
-function registarHistoricoPresenca(nome, acao) {
-    database.ref("historico_presencas").push().set({ agente: nome, acao: acao, hora: new Date().toLocaleTimeString(), timestamp: Date.now() });
+function registarHistoricoPresenca(nome,acao) {
+    database.ref("historico_presencas").push().set({agente:nome,acao,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});
 }
 function ouvirHistoricoPresencas() {
-    database.ref("historico_presencas").limitToLast(30).on("value", (snap) => {
-        const c = document.getElementById("historyContainer"); c.innerHTML = "";
-        const d = snap.val();
-        if (!d) { c.innerHTML = "<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem registos.</div>"; return; }
-        Object.values(d).reverse().forEach(h => {
-            const cls = h.acao === "ENTRADA" ? "history-entrada" : "history-saida";
-            const icone = h.acao === "ENTRADA" ? ">" : "=";
-            c.innerHTML += "<div class='history-item " + cls + "'><div><span class='history-agente'>" + icone + " " + h.agente + "</span> <span class='history-acao'>" + h.acao + "</span></div><span class='history-hora'>" + h.hora + "</span></div>";
+    database.ref("historico_presencas").limitToLast(30).on("value",(snap)=>{
+        const c=document.getElementById("historyContainer"); c.innerHTML="";
+        const d=snap.val();
+        if(!d){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem registos.</div>";return;}
+        Object.values(d).reverse().forEach(h=>{
+            const cls=h.acao==="ENTRADA"?"history-entrada":"history-saida";
+            c.innerHTML+="<div class='history-item "+cls+"'><div><span class='history-agente'>"+(h.acao==="ENTRADA"?">":"=")+" "+h.agente+"</span> <span class='history-acao'>"+h.acao+"</span></div><span class='history-hora'>"+h.hora+"</span></div>";
         });
     });
 }
 async function limparHistorico() {
-    const pin = prompt("PIN DO CEO (6 digitos):");
-    if (!pin) return;
-    if (await sha256("yelseik:" + pin) === CEO_HASH) {
-        database.ref("historico_presencas").remove(); adicionarLog("CEO limpou historico."); tocarSomSucesso();
-    } else { tocarSomErro(); alert("PIN incorreto."); }
+    const pin=prompt("PIN DO CEO:"); if(!pin) return;
+    if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("historico_presencas").remove();adicionarLog("CEO limpou historico.");tocarSomSucesso();}
+    else{tocarSomErro();alert("PIN incorreto.");}
 }
 
+// ── MENCOES ───────────────────────────────────────────────────
+function detetarMencao(input,tipo) {
+    const val=input.value, pos=input.selectionStart;
+    const antes=val.substring(0,pos), match=antes.match(/@(\w*)$/);
+    const dropId=tipo==="priv"?"mentionDropdownPriv":"mentionDropdownChat";
+    const drop=document.getElementById(dropId);
+    if(match) {
+        const pref=match[1].toLowerCase();
+        const ops=AGENTES_NOMES.filter(n=>n.toLowerCase().startsWith(pref)&&n!==agenteAutenticado);
+        if(ops.length>0){
+            drop.innerHTML=ops.map(n=>"<div class='mention-option' onclick='inserirMencao(\""+n+"\",\""+tipo+"\")'>@"+n+"</div>").join("");
+            drop.style.display="block";
+        } else drop.style.display="none";
+    } else drop.style.display="none";
+}
+function inserirMencao(nome,tipo) {
+    const inputId=tipo==="priv"?"privInput":"chatInput";
+    const dropId=tipo==="priv"?"mentionDropdownPriv":"mentionDropdownChat";
+    const inp=document.getElementById(inputId);
+    const pos=inp.selectionStart, antes=inp.value.substring(0,pos);
+    inp.value=antes.replace(/@\w*$/,"@"+nome+" ")+inp.value.substring(pos);
+    document.getElementById(dropId).style.display="none";
+    inp.focus();
+}
+function realcarMencoes(texto) {
+    return texto.replace(/@(\w+)/g,function(match,nome){
+        const isMine=nome.toLowerCase()===(agenteAutenticado||"").toLowerCase();
+        return "<span class='mention"+(isMine?" me":"")+"'>"+match+"</span>";
+    });
+}
+function extrairMencoes(texto) {
+    const mencoes=[], reg=/@(\w+)/g; let m;
+    while((m=reg.exec(texto))!==null){
+        if(AGENTES_NOMES.some(n=>n.toLowerCase()===m[1].toLowerCase())) mencoes.push(m[1]);
+    }
+    return mencoes.join(",");
+}
+
+// ── CHAT PRINCIPAL (com mencoes e autodestruicao) ─────────────
 function enviarMensagemChat() {
-    const txt = document.getElementById("chatInput").value;
-    if (!txt.trim()) return;
-    if (!agenteAutenticado) { tocarSomErro(); return alert("Autentica primeiro!"); }
-    database.ref("chat").push().set({ user: agenteAutenticado, msg: txt, time: new Date().toLocaleTimeString() });
-    document.getElementById("chatInput").value = "";
+    const txt=document.getElementById("chatInput").value;
+    if(!txt.trim()) return;
+    if(!agenteAutenticado){tocarSomErro();return alert("Autentica primeiro!");}
+    const timer=parseInt(document.getElementById("chatTimer").value)||0;
+    const mencoes=extrairMencoes(txt);
+    const msg={user:agenteAutenticado,msg:txt,time:new Date().toLocaleTimeString(),timestamp:Date.now(),mencoes};
+    if(timer>0) msg.expira=Date.now()+(timer*1000);
+    database.ref("chat").push().set(msg);
+    document.getElementById("chatInput").value="";
+    document.getElementById("mentionDropdownChat").style.display="none";
 }
 function ouvirChat() {
-    database.ref("chat").on("value", (snap) => {
-        const c = document.getElementById("chatContainer"), d = snap.val();
-        c.innerHTML = "";
-        if (d) {
-            Object.values(d).forEach(m => {
-                c.innerHTML += "<div class='chat-msg'><span class='chat-meta'>[" + m.time + "]</span> <span class='chat-user'>" + m.user + ":</span> " + m.msg + "</div>";
+    database.ref("chat").on("value",(snap)=>{
+        const c=document.getElementById("chatContainer"),d=snap.val(); c.innerHTML="";
+        if(d){
+            const agora=Date.now(), toDelete=[];
+            Object.keys(d).forEach(key=>{
+                const m=d[key];
+                if(m.expira&&agora>m.expira){toDelete.push(key);return;}
+                const timerHtml=m.expira?"<span class='msg-timer'>"+formatarTempo(Math.max(0,m.expira-agora))+"</span>":"";
+                const mencBadge=m.mencoes&&m.mencoes.includes(agenteAutenticado||"")?"<span style='color:#ff8800;font-size:0.65rem;margin-left:4px;'>[MENCAO]</span>":"";
+                c.innerHTML+="<div class='chat-msg'><span class='chat-meta'>["+m.time+"]</span> <span class='chat-user'>"+m.user+":</span> "+realcarMencoes(m.msg)+timerHtml+mencBadge+"</div>";
             });
-            if (!primeiraCargaChat) {
-                const u = Object.values(d).slice(-1)[0];
-                if (u && u.user !== agenteAutenticado) enviarNotificacaoPush("MSG de " + u.user, u.msg);
+            toDelete.forEach(k=>database.ref("chat/"+k).remove());
+            if(!primeiraCargaChat){
+                const keys=Object.keys(d), ultima=d[keys[keys.length-1]];
+                if(ultima&&ultima.user!==agenteAutenticado){
+                    const mencoes=ultima.mencoes||"";
+                    if(mencoes.includes(agenteAutenticado||"")){
+                        tocarSomMencao(); enviarNotificacaoPush("@MENCAO de "+ultima.user,ultima.msg);
+                    } else { enviarNotificacaoPush("MSG de "+ultima.user,ultima.msg); }
+                }
             }
         }
-        c.scrollTop = c.scrollHeight;
+        c.scrollTop=c.scrollHeight;
     });
 }
 
+// ── CHAT PRIVADO ──────────────────────────────────────────────
+function getSalaPrivada(a,b) { return [a,b].sort().join("_"); }
+
+function selecionarDestinatario(agente) {
+    if(!agente) return;
+    if(!agenteAutenticado){alert("Autentica primeiro!");document.getElementById("privDestinatario").value="";return;}
+    if(agente===agenteAutenticado){alert("Nao podes enviar para ti mesmo.");document.getElementById("privDestinatario").value="";return;}
+    if(privListener) database.ref("chat_privado/"+salaPrivadaAtual).off();
+    salaPrivadaAtual=getSalaPrivada(agenteAutenticado,agente);
+    ouvirChatPrivado(salaPrivadaAtual,agente);
+    adicionarLog("Canal privado aberto com "+agente+".");
+}
+function ouvirChatPrivado(sala,dest) {
+    privListener=database.ref("chat_privado/"+sala).on("value",(snap)=>{
+        const c=document.getElementById("privChatBox"); c.innerHTML="";
+        const d=snap.val();
+        if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:20px;font-size:0.8rem;'>Inicio da conversa cifrada com "+dest+".</div>";return;}
+        const agora=Date.now(), toDelete=[];
+        Object.keys(d).forEach(key=>{
+            const m=d[key];
+            if(m.expira&&agora>m.expira){toDelete.push(key);return;}
+            const mine=m.user===agenteAutenticado;
+            const destructHtml=m.expira?"<span class='priv-destruct'>"+formatarTempo(Math.max(0,m.expira-agora))+"</span>":"";
+            c.innerHTML+="<div class='priv-msg"+(mine?" mine":"")+"'><span class='priv-user'>"+m.user+":</span> "+realcarMencoes(m.msg)+destructHtml+"<span class='chat-meta'> ["+m.time+"]</span></div>";
+        });
+        toDelete.forEach(k=>database.ref("chat_privado/"+sala+"/"+k).remove());
+        c.scrollTop=c.scrollHeight;
+    });
+}
+function enviarMensagemPrivada() {
+    if(!agenteAutenticado) return alert("Autentica primeiro!");
+    const dest=document.getElementById("privDestinatario").value;
+    if(!dest||!salaPrivadaAtual) return alert("Seleciona um destinatario.");
+    const txt=document.getElementById("privInput").value;
+    if(!txt.trim()) return;
+    const timer=parseInt(document.getElementById("privTimer").value)||0;
+    const msg={user:agenteAutenticado,msg:txt,time:new Date().toLocaleTimeString(),timestamp:Date.now()};
+    if(timer>0) msg.expira=Date.now()+(timer*1000);
+    database.ref("chat_privado/"+salaPrivadaAtual).push().set(msg);
+    document.getElementById("privInput").value="";
+    document.getElementById("mentionDropdownPriv").style.display="none";
+    enviarNotificacaoPush("MSG PRIVADA de "+agenteAutenticado,"[CIFRADO]");
+}
+
+// ── LIMPEZA AUTOMATICA ────────────────────────────────────────
+function iniciarLimpezaAutomatica() {
+    setInterval(()=>{
+        const agora=Date.now();
+        database.ref("chat").once("value",(snap)=>{
+            const d=snap.val(); if(!d) return;
+            Object.keys(d).forEach(k=>{ if(d[k].expira&&agora>d[k].expira) database.ref("chat/"+k).remove(); });
+        });
+    }, 15000);
+}
+
+// ── ALARME MISSOES ────────────────────────────────────────────
 function ouvirAlarmeMissoes() {
-    database.ref("tarefas").on("child_added", (snap) => {
-        if (!primeiraCargaTarefas) {
-            const t = snap.val();
+    database.ref("tarefas").on("child_added",(snap)=>{
+        if(!primeiraCargaTarefas){
+            const t=snap.val();
             document.body.classList.add("siren-active");
-            setTimeout(() => document.body.classList.remove("siren-active"), 3000);
-            if (t.prioridade === "critica") tocarAlertaCritico(); else tocarSomErro();
-            enviarNotificacaoPush("NOVA MISSAO [" + (t.prioridade || "normal").toUpperCase() + "]", t.agente + ": " + t.desc);
+            setTimeout(()=>document.body.classList.remove("siren-active"),3000);
+            if(t.prioridade==="critica") tocarAlertaCritico(); else tocarSomErro();
+            enviarNotificacaoPush("NOVA MISSAO ["+(t.prioridade||"normal").toUpperCase()+"]",t.agente+": "+t.desc);
         }
     });
 }
 
-function filtrarMissoes(f) { filtroAtivo = f; renderizarTarefas(todasTarefas); }
+// ── MISSOES ───────────────────────────────────────────────────
+function filtrarMissoes(f){filtroAtivo=f;renderizarTarefas(todasTarefas);}
 function renderizarTarefas(dados) {
-    const c = document.getElementById("taskContainer"); c.innerHTML = "";
-    if (!dados || Object.keys(dados).length === 0) {
-        c.innerHTML = "<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem missoes.</div>"; return;
-    }
-    Object.keys(dados).forEach(key => {
-        const t = dados[key], p = t.prioridade || "normal";
-        if (filtroAtivo === "critica" && p !== "critica") return;
-        if (filtroAtivo === "alta" && p !== "alta") return;
-        if (filtroAtivo === "pendente" && t.done) return;
-        const done = t.done ? "done" : "", badge = p.charAt(0).toUpperCase() + p.slice(1);
-        c.innerHTML += "<div class='task-item prio-" + p + " " + done + "' onclick='alternarStatusTarefa(\"" + key + "\"," + t.done + ")'><div><b>[" + t.agente.toUpperCase() + "]</b> " + t.desc + " <span class='prio-badge " + p + "'>" + badge + "</span></div><div class='task-meta'><span>" + t.coord + "</span><span>" + (t.done ? "FINALIZADA" : "EM CURSO") + "</span></div></div>";
+    const c=document.getElementById("taskContainer"); c.innerHTML="";
+    if(!dados||Object.keys(dados).length===0){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem missoes.</div>";return;}
+    Object.keys(dados).forEach(key=>{
+        const t=dados[key],p=t.prioridade||"normal";
+        if(filtroAtivo==="critica"&&p!=="critica") return;
+        if(filtroAtivo==="alta"&&p!=="alta") return;
+        if(filtroAtivo==="pendente"&&t.done) return;
+        const done=t.done?"done":"",badge=p.charAt(0).toUpperCase()+p.slice(1);
+        c.innerHTML+="<div class='task-item prio-"+p+" "+done+"' onclick='alternarStatusTarefa(\""+key+"\","+t.done+")'><div><b>["+t.agente.toUpperCase()+"]</b> "+t.desc+" <span class='prio-badge "+p+"'>"+badge+"</span></div><div class='task-meta'><span>"+t.coord+"</span><span>"+(t.done?"FINALIZADA":"EM CURSO")+"</span></div></div>";
     });
 }
 function ouvirTarefas() {
-    database.ref("tarefas").on("value", (snap) => { todasTarefas = snap.val() || {}; renderizarTarefas(todasTarefas); });
+    database.ref("tarefas").on("value",(snap)=>{todasTarefas=snap.val()||{};renderizarTarefas(todasTarefas);});
 }
-function alternarStatusTarefa(key, statusAtual) {
-    if (!agenteAutenticado) { tocarSomErro(); return alert("Autentica primeiro."); }
-    database.ref("tarefas/" + key).update({ done: !statusAtual });
-    tocarSomSucesso(); adicionarLog("Missao atualizada por " + agenteAutenticado + ".");
+function alternarStatusTarefa(key,statusAtual) {
+    if(!agenteAutenticado){tocarSomErro();return alert("Autentica primeiro.");}
+    database.ref("tarefas/"+key).update({done:!statusAtual});
+    tocarSomSucesso(); adicionarLog("Missao atualizada por "+agenteAutenticado+".");
 }
 
+// ── ATAS ──────────────────────────────────────────────────────
 function ouvirAtas() {
-    database.ref("atas").on("value", (snap) => {
-        const c = document.getElementById("ataContainer"); c.innerHTML = "";
-        const d = snap.val();
-        if (d) Object.values(d).reverse().forEach(a => {
-            c.innerHTML += "<div class='task-item done' style='border-left-color:#00ff66;cursor:default;'><div>" + a.desc + "</div><div class='task-meta'><span>" + a.hora + "</span></div></div>";
+    database.ref("atas").on("value",(snap)=>{
+        const c=document.getElementById("ataContainer"); c.innerHTML="";
+        const d=snap.val();
+        if(d) Object.values(d).reverse().forEach(a=>{
+            c.innerHTML+="<div class='task-item done' style='border-left-color:#00ff66;cursor:default;'><div>"+a.desc+"</div><div class='task-meta'><span>"+a.hora+"</span></div></div>";
         });
     });
 }
 
+// ── ESTATISTICAS ──────────────────────────────────────────────
 function ouvirEstatisticas() {
-    database.ref("presencas").on("value", (snap) => {
-        atualizarStat("stat-online", Object.values(snap.val() || {}).filter(v => v === "ATIVO").length);
+    database.ref("presencas").on("value",(snap)=>{
+        atualizarStat("stat-online",Object.values(snap.val()||{}).filter(v=>v==="ATIVO").length);
     });
-    database.ref("tarefas").on("value", (snap) => {
-        const d = snap.val() || {}, total = Object.keys(d).length;
-        const conc = Object.values(d).filter(t => t.done).length;
-        const crit = Object.values(d).filter(t => !t.done && t.prioridade === "critica").length;
-        const pct = total > 0 ? Math.round((conc / total) * 100) : 0;
-        atualizarStat("stat-missoes", total); atualizarStat("stat-concluidas", conc);
-        atualizarStat("stat-pendentes", total - conc); atualizarStat("stat-criticas", crit);
-        const bar = document.getElementById("progresso-bar"), pctEl = document.getElementById("progresso-pct");
-        if (bar) bar.style.width = pct + "%";
-        if (pctEl) pctEl.textContent = pct + "% concluido";
+    database.ref("tarefas").on("value",(snap)=>{
+        const d=snap.val()||{},total=Object.keys(d).length;
+        const conc=Object.values(d).filter(t=>t.done).length;
+        const crit=Object.values(d).filter(t=>!t.done&&t.prioridade==="critica").length;
+        const pct=total>0?Math.round((conc/total)*100):0;
+        atualizarStat("stat-missoes",total);atualizarStat("stat-concluidas",conc);
+        atualizarStat("stat-pendentes",total-conc);atualizarStat("stat-criticas",crit);
+        const bar=document.getElementById("progresso-bar"),pctEl=document.getElementById("progresso-pct");
+        if(bar) bar.style.width=pct+"%"; if(pctEl) pctEl.textContent=pct+"% concluido";
     });
-    database.ref("chat").on("value", (snap) => {
-        atualizarStat("stat-mensagens", Object.keys(snap.val() || {}).length);
+    database.ref("chat").on("value",(snap)=>{
+        atualizarStat("stat-mensagens",Object.keys(snap.val()||{}).length);
     });
 }
-function atualizarStat(id, val) {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = val; el.style.animation = "none"; el.offsetHeight; el.style.animation = "countUp 0.4s ease-out"; }
+function atualizarStat(id,val) {
+    const el=document.getElementById(id);
+    if(el){el.textContent=val;el.style.animation="none";el.offsetHeight;el.style.animation="countUp 0.4s ease-out";}
 }
 
+// ── PAINEL CEO ────────────────────────────────────────────────
 function alternarCamposPainel() {
-    const m = document.getElementById("emissaoTipo").value === "missao";
-    document.getElementById("labelDinamica").innerText = m ? "Descricao da Missao:" : "Resumo da Reuniao:";
-    document.getElementById("panelDesc").placeholder = m ? "Ex: Monitorizar trafego..." : "Ex: Decisoes tomadas...";
-    document.getElementById("grupoAgente").style.display = m ? "block" : "none";
-    document.getElementById("grupoCoordenadas").style.display = m ? "block" : "none";
-    document.getElementById("grupoPrioridade").style.display = m ? "block" : "none";
+    const m=document.getElementById("emissaoTipo").value==="missao";
+    document.getElementById("labelDinamica").innerText=m?"Descricao da Missao:":"Resumo da Reuniao:";
+    document.getElementById("panelDesc").placeholder=m?"Ex: Monitorizar trafego...":"Ex: Decisoes tomadas...";
+    document.getElementById("grupoAgente").style.display=m?"block":"none";
+    document.getElementById("grupoCoordenadas").style.display=m?"block":"none";
+    document.getElementById("grupoPrioridade").style.display=m?"block":"none";
 }
 async function executarAcaoPainel() {
-    const tipo = document.getElementById("emissaoTipo").value;
-    const desc = document.getElementById("panelDesc").value;
-    if (!desc.trim()) return alert("Preencha a descricao.");
-    const pin = prompt("PIN DO CEO (6 digitos):");
-    if (!pin) return;
-    if (await sha256("yelseik:" + pin) !== CEO_HASH) {
-        tocarSomErro(); adicionarLog("Tentativa de usurpacao negada.", true); return alert("PIN incorreto.");
-    }
+    const tipo=document.getElementById("emissaoTipo").value,desc=document.getElementById("panelDesc").value;
+    if(!desc.trim()) return alert("Preencha a descricao.");
+    const pin=prompt("PIN DO CEO:"); if(!pin) return;
+    if(await sha256("yelseik:"+pin)!==CEO_HASH){tocarSomErro();adicionarLog("Tentativa de usurpacao negada.",true);return alert("PIN incorreto.");}
     tocarSomSucesso();
-    if (tipo === "missao") {
-        const coord = document.getElementById("panelCoord").value;
-        const agente = document.getElementById("taskAgent").value;
-        const prio = document.getElementById("taskPrioridade").value;
-        if (!coord.trim()) return alert("Preencha as coordenadas.");
-        database.ref("tarefas").push().set({ desc: desc, coord: coord, agente: agente, prioridade: prio, done: false, timestamp: Date.now() });
-        adicionarLog("Nova missao [" + prio.toUpperCase() + "] para " + agente + ": " + desc);
+    if(tipo==="missao"){
+        const coord=document.getElementById("panelCoord").value,agente=document.getElementById("taskAgent").value,prio=document.getElementById("taskPrioridade").value;
+        if(!coord.trim()) return alert("Preencha as coordenadas.");
+        database.ref("tarefas").push().set({desc,coord,agente,prioridade:prio,done:false,timestamp:Date.now()});
+        adicionarLog("Nova missao ["+prio.toUpperCase()+"] para "+agente+": "+desc);
     } else {
-        database.ref("atas").push().set({ desc: desc, hora: new Date().toLocaleTimeString(), timestamp: Date.now() });
-        adicionarLog("Ata arquivada: " + desc);
+        database.ref("atas").push().set({desc,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});
+        adicionarLog("Ata arquivada: "+desc);
     }
-    document.getElementById("panelDesc").value = "";
-    const coord = document.getElementById("panelCoord");
-    if (coord) coord.value = "";
+    document.getElementById("panelDesc").value="";
+    const coord=document.getElementById("panelCoord"); if(coord) coord.value="";
 }
     </script>
 </body>
 </html>
+
