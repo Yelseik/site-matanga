@@ -1,4 +1,3 @@
-cat > index.html << 'AREA51EOF1'
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
@@ -110,7 +109,6 @@ cat > index.html << 'AREA51EOF1'
         @keyframes pinShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
         .pin-shake { animation: pinShake 0.4s ease; }
     </style>
-AREA51EOF1cat >> index.html << 'AREA51EOF2'
 </head>
 <body>
     <div id="timeoutWarning" class="timeout-bar"></div>
@@ -291,7 +289,6 @@ AREA51EOF1cat >> index.html << 'AREA51EOF2'
     </div>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-AREA51EOF2cat >> index.html << 'AREA51EOF3A'
     <script>
 const firebaseConfig = {
     apiKey: "AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...",
@@ -532,7 +529,6 @@ function autoLogout() {
     tocarSomErro();
     alert("SESSAO EXPIRADA! Autentica novamente.");
 }
-AREA51EOF3Acat >> index.html << 'AREA51EOF3B'
 function registarSeguranca(tipo, agente, detalhes) {
     const icons = { ACESSO_CONCEDIDO:"OK", ACESSO_NEGADO:"ERR", BLOQUEIO:"BLK", SESSAO_EXPIRADA:"TMO", SESSAO_ENCERRADA:"OFF", BREACH:"!!!" };
     database.ref("security_logs").push().set({
@@ -766,4 +762,3 @@ async function executarAcaoPainel() {
     </script>
 </body>
 </html>
-AREA51EOF3B
