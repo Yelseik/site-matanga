@@ -1,765 +1,761 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA CENTRAL - ÁREA 51</title>
-    <style>
-        :root{--prim:#00ff66;--prim-dark:#004411;--prim-bg:#020502;--body-bg:#050705;--card-bg:#0a0c0a;}
-        body.tema-r{--prim:#ff4444;--prim-dark:#440000;--prim-bg:#050202;--body-bg:#070202;--card-bg:#0c0808;}
-        body.tema-b{--prim:#0088ff;--prim-dark:#001144;--prim-bg:#020208;--body-bg:#020207;--card-bg:#08080c;}
-        *{box-sizing:border-box;margin:0;padding:0;font-family:'Courier New',Courier,monospace;}
-        body{background-color:var(--body-bg);color:var(--prim);padding:20px;position:relative;transition:background-color 0.5s,color 0.5s;}
-        body::before{content:" ";display:block;position:fixed;top:0;left:0;bottom:0;right:0;background:linear-gradient(rgba(18,16,16,0) 50%,rgba(0,0,0,0.25) 50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06));z-index:9999;background-size:100% 4px,6px 100%;pointer-events:none;}
-        #loginScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:flex;justify-content:center;align-items:center;transition:opacity 1s ease;}
-        #loginScreen.fadeout{opacity:0;pointer-events:none;}
-        #loginWrap{width:90%;max-width:560px;}
-        #bootLines{font-size:0.8rem;min-height:150px;margin-bottom:15px;}
-        .boot-line{margin-bottom:5px;opacity:0;transform:translateX(-10px);animation:bootIn 0.3s forwards;}
-        .b-ok{color:#00ff66;}.b-warn{color:#ffcc00;}.b-err{color:#ff3333;}
-        #bootBar{height:4px;background:#004411;margin:12px 0;border-radius:2px;overflow:hidden;}
-        #bootBarFill{height:100%;width:0%;background:#00ff66;box-shadow:0 0 8px #00ff66;transition:width 0.4s;}
-        #loginLogo{font-size:2.8rem;font-weight:bold;letter-spacing:10px;color:#00ff66;text-shadow:0 0 30px #00ff66;text-align:center;margin:20px 0 8px;display:none;}
-        #loginSub{text-align:center;font-size:0.7rem;letter-spacing:3px;color:#444;margin-bottom:22px;display:none;}
-        #loginBtn{display:none;width:100%;background:transparent;border:2px solid #00ff66;color:#00ff66;padding:14px;font-family:inherit;font-size:0.95rem;font-weight:bold;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:0.3s;}
-        #loginBtn:hover{background:#00ff66;color:#000;box-shadow:0 0 25px #00ff66;}
-        @keyframes bootIn{to{opacity:1;transform:translateX(0);}}
-        @keyframes logoPulse{0%,100%{text-shadow:0 0 20px #00ff66;}50%{text-shadow:0 0 50px #00ff66,0 0 80px #00ff66;}}
-        #loginLogo.pulse{animation:logoPulse 2s infinite;}
-        .glitch-text{position:relative;display:inline-block;}
-        .glitch-text::before,.glitch-text::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;}
-        .glitch-text.glitching::before{opacity:1;left:3px;color:#ff0000;text-shadow:-2px 0 #ff0000;animation:gClip1 0.25s steps(3) forwards;}
-        .glitch-text.glitching::after{opacity:1;left:-3px;color:#00ffff;text-shadow:2px 0 #00ffff;animation:gClip2 0.25s steps(3) forwards;}
-        @keyframes gClip1{0%{clip-path:polygon(0 5%,100% 5%,100% 25%,0 25%);}33%{clip-path:polygon(0 55%,100% 55%,100% 75%,0 75%);}66%{clip-path:polygon(0 30%,100% 30%,100% 45%,0 45%);}100%{clip-path:polygon(0 0,100% 0,100% 0,0 0);opacity:0;}}
-        @keyframes gClip2{0%{clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}33%{clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);}66%{clip-path:polygon(0 80%,100% 80%,100% 100%,0 100%);}100%{clip-path:polygon(0 0,100% 0,100% 0,0 0);opacity:0;}}
-        .alerta-banner{position:fixed;top:0;left:0;right:0;z-index:9997;padding:10px 15px;text-align:center;font-weight:bold;font-size:0.85rem;letter-spacing:2px;display:none;border-bottom:3px solid;cursor:pointer;}
-        .alerta-verde{background:#002210;color:#00ff66;border-color:#00ff66;}
-        .alerta-amarelo{background:#221a00;color:#ffcc00;border-color:#ffcc00;animation:blink 1.5s infinite;}
-        .alerta-vermelho{background:#220000;color:#ff3333;border-color:#ff3333;animation:blink 0.4s infinite;}
-        .conexao-badge{padding:4px 10px;font-size:0.78rem;border:1px solid var(--prim);background:var(--prim-bg);transition:0.5s;cursor:default;}
-        .conexao-online{color:#00ff66;border-color:#00ff66;}
-        .conexao-offline{color:#ff8800;border-color:#ff8800;animation:blink 1s infinite;}
-        .theme-switcher{display:flex;gap:5px;align-items:center;}
-        .btn-tema{width:18px;height:18px;border-radius:50%;border:2px solid #333;cursor:pointer;transition:0.2s;}
-        .btn-tema:hover,.btn-tema.ativo{border-color:#fff;transform:scale(1.3);}
-        #btn-tema-v{background:#00ff66;}#btn-tema-r{background:#ff4444;}#btn-tema-b{background:#0088ff;}
-        header{border-bottom:2px solid var(--prim);padding-bottom:10px;margin-bottom:25px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;transition:border-color 0.5s;}
-        h1{font-size:1.3rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 5px var(--prim);}
-        .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-        .timeout-display{background:#001100;border:1px solid var(--prim-dark);padding:4px 10px;font-size:0.75rem;color:#888;}
-        .btn-notif{background:transparent;border:1px solid #ffcc00;color:#ffcc00;padding:5px 10px;font-size:0.75rem;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:0.3s;}
-        .btn-notif:hover{background:#ffcc00;color:#000;}
-        .btn-notif.active{border-color:var(--prim);color:var(--prim);}
-        .btn-ceo{background:#220000;border:1px solid #ff3333;color:#ff3333;padding:5px 10px;font-size:0.75rem;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:0.3s;display:none;font-weight:bold;}
-        .btn-ceo:hover{background:#ff3333;color:#000;box-shadow:0 0 10px #ff3333;}
-        .timeout-bar{position:fixed;top:0;left:0;right:0;background:#220000;border-bottom:2px solid #ff3333;color:#ff3333;text-align:center;padding:8px;font-size:0.85rem;z-index:9998;display:none;font-weight:bold;}
-        .timeout-bar.critical{animation:blink 0.5s infinite;}
-        .grid-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;}
-        .card{background:var(--card-bg);border:1px solid var(--prim-dark);padding:15px;border-radius:4px;box-shadow:0 0 15px rgba(0,0,0,0.5);transition:border-color 0.5s,background 0.5s;}
-        .card h2{font-size:1.1rem;margin-bottom:15px;border-bottom:1px dashed var(--prim);padding-bottom:5px;color:#fff;transition:border-color 0.5s;}
-        .card.private-card{border-color:#003366;}
-        .card.private-card h2{border-bottom-color:#0088ff;color:#66bbff;}
-        .presence-list{list-style:none;margin-bottom:15px;}
-        .presence-list li{padding:8px 0;font-size:0.85rem;border-bottom:1px solid var(--prim-dark);}
-        .membro-nome{font-weight:bold;color:var(--prim);}
-        .membro-cargo{color:#888;font-size:0.75rem;display:block;margin-top:2px;}
-        .status-box{float:right;font-size:0.8rem;padding:2px 6px;border-radius:2px;font-weight:bold;}
-        .status-online{background:#003311;color:#00ff66;border:1px solid #00ff66;box-shadow:0 0 5px #00ff66;}
-        .status-offline{background:#330000;color:#ff3333;border:1px solid #ff3333;}
-        .btn-action{background:transparent;border:1px solid var(--prim);color:var(--prim);padding:10px 12px;width:100%;cursor:pointer;font-weight:bold;text-transform:uppercase;transition:0.3s;margin-top:10px;font-family:inherit;}
-        .btn-action:hover{background:var(--prim);color:#000;box-shadow:0 0 10px var(--prim);}
-        .btn-danger{border-color:#ff3333;color:#ff3333;}
-        .btn-danger:hover{background:#ff3333;color:#000;}
-        .btn-warn{border-color:#ffcc00;color:#ffcc00;}
-        .btn-warn:hover{background:#ffcc00;color:#000;}
-        .btn-blue{border-color:#0088ff;color:#0088ff;}
-        .btn-blue:hover{background:#0088ff;color:#000;}
-        .input-group{margin-bottom:10px;}
-        .input-group label{display:block;font-size:0.8rem;margin-bottom:5px;color:#888;}
-        .input-field{width:100%;background:#001100;border:1px solid var(--prim-dark);padding:8px;color:var(--prim);font-family:inherit;transition:border-color 0.5s;}
-        .input-field:focus{border-color:var(--prim);outline:none;box-shadow:0 0 5px var(--prim);}
-        .task-list{display:flex;flex-direction:column;gap:10px;max-height:280px;overflow-y:auto;}
-        .task-item{background:var(--prim-bg);border-left:3px solid #ffcc00;padding:10px;font-size:0.85rem;cursor:pointer;transition:0.3s;}
-        .task-item:hover{filter:brightness(1.3);}
-        .task-item.done{opacity:0.5;text-decoration:line-through;border-left-color:#00ff66;}
-        .task-item.prio-critica{border-left-color:#ff3333;}
-        .task-item.prio-alta{border-left-color:#ff8800;}
-        .task-item.prio-normal{border-left-color:#ffcc00;}
-        .prio-badge{display:inline-block;font-size:0.7rem;padding:1px 5px;border-radius:2px;margin-left:6px;font-weight:bold;}
-        .prio-badge.critica{background:#330000;color:#ff3333;border:1px solid #ff3333;}
-        .prio-badge.alta{background:#331a00;color:#ff8800;border:1px solid #ff8800;}
-        .prio-badge.normal{background:#332b00;color:#ffcc00;border:1px solid #ffcc00;}
-        .task-meta{font-size:0.75rem;color:#888;margin-top:5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;}
-        .chat-input-wrap{position:relative;}
-        .chat-box{background:var(--prim-bg);border:1px solid var(--prim);height:150px;overflow-y:auto;padding:10px;font-size:0.8rem;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;transition:border-color 0.5s;}
-        .chat-msg{border-bottom:1px dashed var(--prim-dark);padding-bottom:4px;line-height:1.5;display:flex;justify-content:space-between;align-items:flex-start;gap:5px;}
-        .chat-msg-content{flex:1;}
-        .chat-user{color:#fff;font-weight:bold;}
-        .chat-meta{color:#ffcc00;font-size:0.7rem;}
-        .msg-del-btn{background:transparent;border:1px solid #ff3333;color:#ff3333;padding:1px 5px;font-size:0.6rem;cursor:pointer;border-radius:2px;flex-shrink:0;display:none;}
-        .msg-del-btn:hover{background:#ff3333;color:#000;}
-        .mention{color:#ffcc00;font-weight:bold;}
-        .mention.me{color:#ff8800;background:#1a1000;padding:0 3px;border-radius:2px;}
-        .msg-timer{display:inline-block;font-size:0.65rem;padding:1px 5px;border:1px solid #ff3333;color:#ff3333;border-radius:2px;margin-left:5px;}
-        .mention-autocomplete{position:absolute;background:var(--prim-bg);border:1px solid var(--prim);z-index:200;bottom:38px;left:0;right:0;max-height:120px;overflow-y:auto;}
-        .mention-option{padding:7px 10px;cursor:pointer;font-size:0.8rem;border-bottom:1px solid var(--prim-dark);}
-        .mention-option:hover{background:var(--prim-dark);}
-        .private-chat-box{background:#020208;border:1px solid #0088ff;height:160px;overflow-y:auto;padding:10px;font-size:0.8rem;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;}
-        .priv-msg{border-bottom:1px dashed #001133;padding-bottom:4px;line-height:1.5;}
-        .priv-msg .priv-user{color:#0088ff;font-weight:bold;}
-        .priv-msg.mine .priv-user{color:#00ff66;}
-        .priv-msg.mine{text-align:right;}
-        .priv-destruct{display:inline-block;font-size:0.62rem;padding:1px 4px;border:1px solid #ff3333;color:#ff3333;border-radius:2px;margin-left:4px;}
-        .radar-container{display:flex;align-items:center;gap:15px;background:var(--prim-bg);border:1px solid var(--prim-dark);padding:10px;margin-top:10px;}
-        .radar{width:60px;height:60px;border:2px solid var(--prim-dark);border-radius:50%;position:relative;background:radial-gradient(circle,rgba(0,255,102,0.05) 0%,rgba(0,0,0,1) 80%);overflow:hidden;flex-shrink:0;}
-        .radar::after{content:"";position:absolute;width:100%;height:100%;background:linear-gradient(90deg,rgba(0,255,102,0.4) 0%,rgba(0,0,0,0) 50%);top:0;left:0;transform-origin:center;animation:radar-sweep 3s linear infinite;}
-        .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-        .stat-item{background:var(--prim-bg);border:1px solid var(--prim-dark);padding:12px 8px;text-align:center;border-radius:3px;transition:0.3s;}
-        .stat-item:hover{border-color:var(--prim);}
-        .stat-num{font-size:1.8rem;font-weight:bold;color:var(--prim);text-shadow:0 0 8px var(--prim);display:block;line-height:1;}
-        .stat-num.danger{color:#ff3333;text-shadow:0 0 8px #ff3333;}
-        .stat-num.warn{color:#ffcc00;text-shadow:0 0 8px #ffcc00;}
-        .stat-label{font-size:0.65rem;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:4px;display:block;}
-        .history-list{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
-        .history-item{background:var(--prim-bg);border:1px solid var(--prim-dark);padding:7px 10px;font-size:0.78rem;display:flex;justify-content:space-between;align-items:center;border-radius:2px;}
-        .history-entrada{border-left:3px solid #00ff66;}
-        .history-saida{border-left:3px solid #ff3333;}
-        .history-agente{color:var(--prim);font-weight:bold;}
-        .history-saida .history-agente{color:#ff5555;}
-        .history-hora{color:#555;font-size:0.7rem;}
-        .history-acao{font-size:0.7rem;padding:1px 5px;border-radius:2px;}
-        .history-entrada .history-acao{background:#003311;color:#00ff66;}
-        .history-saida .history-acao{background:#330000;color:#ff3333;}
-        .sec-log-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
-        .sec-log-item{padding:7px 10px;font-size:0.75rem;border-left:3px solid;border-radius:2px;}
-        .sec-ok{border-left-color:#00ff66;background:#001100;color:#00ff66;}
-        .sec-fail{border-left-color:#ff3333;background:#110000;color:#ff5555;}
-        .sec-info{border-left-color:#ffcc00;background:#111000;color:#ffcc00;}
-        .pin-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.93);z-index:10000;justify-content:center;align-items:center;}
-        .pin-modal-overlay.show{display:flex;}
-        .pin-box{background:var(--card-bg);border:2px solid var(--prim);box-shadow:0 0 50px rgba(0,0,0,0.8);padding:30px 25px;width:310px;max-width:95vw;}
-        .pin-title{text-align:center;font-size:1rem;letter-spacing:3px;color:#fff;margin-bottom:4px;}
-        .pin-subtitle{text-align:center;font-size:0.7rem;color:#555;letter-spacing:2px;margin-bottom:20px;}
-        .pin-dots{display:flex;gap:10px;justify-content:center;margin:18px 0;}
-        .pin-dot{width:22px;height:22px;border:2px solid var(--prim-dark);border-radius:50%;transition:0.2s;}
-        .pin-dot.filled{background:var(--prim);border-color:var(--prim);box-shadow:0 0 10px var(--prim);}
-        .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px;}
-        .pin-btn{background:var(--prim-bg);border:1px solid var(--prim-dark);color:var(--prim);padding:14px;font-size:1.1rem;font-family:inherit;font-weight:bold;cursor:pointer;border-radius:3px;transition:0.2s;}
-        .pin-btn:hover{border-color:var(--prim);}
-        .pin-btn:active{background:var(--prim);color:#000;}
-        .pin-btn.del{color:#ff3333;border-color:#330000;font-size:0.85rem;}
-        .pin-btn.del:hover{background:#220000;border-color:#ff3333;}
-        .pin-btn.ok{color:#ffcc00;border-color:#332b00;font-size:0.85rem;}
-        .pin-btn.ok:hover{background:#221a00;border-color:#ffcc00;}
-        .pin-error{color:#ff3333;text-align:center;font-size:0.8rem;margin-top:10px;font-weight:bold;display:none;}
-        .ceo-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:10001;overflow-y:auto;padding:20px;}
-        .ceo-modal-overlay.show{display:block;}
-        .ceo-panel{background:#080202;border:2px solid #ff3333;max-width:720px;margin:0 auto;padding:25px;box-shadow:0 0 50px rgba(255,0,0,0.2);}
-        .ceo-panel-title{color:#ff3333;font-size:1.1rem;letter-spacing:3px;text-align:center;margin-bottom:4px;text-shadow:0 0 10px #ff3333;}
-        .ceo-panel-sub{text-align:center;color:#555;font-size:0.7rem;letter-spacing:2px;margin-bottom:20px;}
-        .ceo-tabs{display:flex;gap:0;border-bottom:1px solid #330000;margin-bottom:15px;flex-wrap:wrap;}
-        .ceo-tab{background:transparent;border:1px solid #330000;border-bottom:none;color:#883333;padding:7px 10px;cursor:pointer;font-family:inherit;font-size:0.72rem;text-transform:uppercase;transition:0.2s;}
-        .ceo-tab.active,.ceo-tab:hover{background:#220000;color:#ff3333;}
-        .ceo-tab-content{display:none;}
-        .ceo-tab-content.active{display:block;}
-        .agent-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #220000;margin-bottom:6px;font-size:0.82rem;flex-wrap:wrap;gap:8px;border-radius:2px;}
-        .agent-row:hover{background:#110000;}
-        .agent-nome{color:#ff6666;font-weight:bold;min-width:80px;}
-        .agent-cargo-badge{font-size:0.7rem;padding:2px 6px;border:1px solid #440000;color:#ff8800;border-radius:2px;background:#220000;}
-        .agent-actions{display:flex;gap:5px;flex-wrap:wrap;}
-        .ceo-btn{background:transparent;border:1px solid;padding:4px 8px;font-size:0.68rem;cursor:pointer;font-family:inherit;border-radius:2px;transition:0.2s;text-transform:uppercase;}
-        .ceo-btn-up{border-color:#00ff66;color:#00ff66;}
-        .ceo-btn-up:hover{background:#00ff66;color:#000;}
-        .ceo-btn-down{border-color:#ffcc00;color:#ffcc00;}
-        .ceo-btn-down:hover{background:#ffcc00;color:#000;}
-        .ceo-btn-ban{border-color:#ff3333;color:#ff3333;}
-        .ceo-btn-ban:hover{background:#ff3333;color:#000;}
-        .ceo-btn-unban{border-color:#00ff66;color:#00ff66;}
-        .ceo-btn-unban:hover{background:#00ff66;color:#000;}
-        .ceo-msg-row{display:flex;align-items:flex-start;justify-content:space-between;padding:7px 8px;border-bottom:1px solid #220000;font-size:0.78rem;gap:8px;}
-        .ceo-msg-row:hover{background:#110000;}
-        .ceo-canal-row{padding:8px 10px;border:1px solid #220000;margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;border-radius:2px;}
-        .ceo-canal-row:hover{background:#110000;}
-        .ceo-priv-msgs{max-height:250px;overflow-y:auto;margin-top:10px;border:1px solid #330000;padding:8px;display:none;}
-        .alerta-nivel-box{display:flex;gap:8px;margin:15px 0;justify-content:center;}
-        .nivel-btn{background:transparent;border:2px solid;padding:10px 16px;font-family:inherit;font-size:0.8rem;font-weight:bold;cursor:pointer;border-radius:3px;transition:0.2s;letter-spacing:1px;}
-        .nivel-verde{border-color:#00ff66;color:#00ff66;}
-        .nivel-verde:hover,.nivel-verde.ativo{background:#00ff66;color:#000;}
-        .nivel-amarelo{border-color:#ffcc00;color:#ffcc00;}
-        .nivel-amarelo:hover,.nivel-amarelo.ativo{background:#ffcc00;color:#000;}
-        .nivel-vermelho{border-color:#ff3333;color:#ff3333;}
-        .nivel-vermelho:hover,.nivel-vermelho.ativo{background:#ff3333;color:#000;}
-        .banido-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #330000;margin-bottom:6px;font-size:0.8rem;background:#0a0000;border-radius:2px;flex-wrap:wrap;gap:8px;}
-        .banido-nome{color:#ff5555;font-weight:bold;}
-        .banido-info{color:#888;font-size:0.72rem;}
-        .log-panel{margin-top:20px;background:#020202;border:1px solid #ff3333;padding:10px;font-size:0.8rem;border-radius:4px;}
-        .log-title{color:#ff3333;font-weight:bold;margin-bottom:5px;}
-        .log-content{max-height:150px;overflow-y:auto;color:#aaa;list-style:none;}
-        .log-erro{color:#ff3333;font-weight:bold;animation:blink 1s infinite;}
-        @keyframes alert-flash{0%,100%{box-shadow:inset 0 0 0 transparent;}50%{box-shadow:inset 0 0 100px rgba(255,0,0,0.8);background-color:#220000;}}
-        .siren-active{animation:alert-flash 0.5s 6;}
-        @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.5;}}
-        @keyframes radar-sweep{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-        @keyframes countUp{from{opacity:0;transform:scale(0.8);}to{opacity:1;transform:scale(1);}}
-        @keyframes pinShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
-        .pin-shake{animation:pinShake 0.4s ease;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ÁREA 51 - SISTEMA CENTRAL</title>
+<style>
+:root{--p:#00ff66;--pd:#004411;--pb:#020502;--bg:#050705;--cb:#0a0c0a;}
+body.r{--p:#ff4444;--pd:#440000;--pb:#050202;--bg:#070202;--cb:#0c0808;}
+body.b{--p:#0088ff;--pd:#001144;--pb:#020208;--bg:#020207;--cb:#08080c;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Courier New',monospace;}
+body{background:var(--bg);color:var(--p);padding:20px;transition:background 0.5s,color 0.5s;}
+body::before{content:" ";display:block;position:fixed;top:0;left:0;bottom:0;right:0;background:linear-gradient(rgba(18,16,16,0) 50%,rgba(0,0,0,0.25) 50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06));z-index:9999;background-size:100% 4px,6px 100%;pointer-events:none;}
+#ls{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px;}
+#ls.out{opacity:0;pointer-events:none;transition:opacity 1s;}
+#lw{width:90%;max-width:540px;}
+#bl{font-size:0.78rem;min-height:160px;margin-bottom:12px;overflow:hidden;}
+.bl{margin-bottom:4px;opacity:0;transform:translateX(-10px);animation:bIn 0.3s forwards;}
+.bok{color:#00ff66;}.bw{color:#ffcc00;}.be{color:#ff3333;}
+#bb{height:3px;background:#003308;margin:10px 0;border-radius:2px;overflow:hidden;}
+#bbf{height:100%;width:0%;background:#00ff66;box-shadow:0 0 6px #00ff66;transition:width 0.35s;}
+#ll{font-size:2.5rem;font-weight:bold;letter-spacing:8px;color:#00ff66;text-shadow:0 0 25px #00ff66;text-align:center;margin:18px 0 6px;display:none;}
+#ll.pulse{animation:lpulse 2s infinite;}
+#ls2{text-align:center;font-size:0.68rem;letter-spacing:3px;color:#444;margin-bottom:18px;display:none;}
+#lb{display:none;width:100%;background:transparent;border:2px solid #00ff66;color:#00ff66;padding:13px;font-family:inherit;font-size:0.9rem;font-weight:bold;letter-spacing:3px;cursor:pointer;text-transform:uppercase;transition:0.3s;}
+#lb:hover{background:#00ff66;color:#000;box-shadow:0 0 20px #00ff66;}
+@keyframes bIn{to{opacity:1;transform:translateX(0);}}
+@keyframes lpulse{0%,100%{text-shadow:0 0 20px #00ff66;}50%{text-shadow:0 0 50px #00ff66,0 0 70px #00ff66;}}
+.gl{position:relative;display:inline-block;}
+.gl::before,.gl::after{content:attr(data-t);position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;}
+.gl.g::before{opacity:1;left:3px;color:#f00;text-shadow:-2px 0 #f00;animation:gc1 0.25s steps(3) forwards;}
+.gl.g::after{opacity:1;left:-3px;color:#0ff;text-shadow:2px 0 #0ff;animation:gc2 0.25s steps(3) forwards;}
+@keyframes gc1{0%{clip-path:polygon(0 5%,100% 5%,100% 25%,0 25%);}33%{clip-path:polygon(0 55%,100% 55%,100% 75%,0 75%);}66%{clip-path:polygon(0 30%,100% 30%,100% 45%,0 45%);}100%{clip-path:none;opacity:0;}}
+@keyframes gc2{0%{clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}33%{clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);}66%{clip-path:polygon(0 80%,100% 80%,100% 100%,0 100%);}100%{clip-path:none;opacity:0;}}
+.tsw{display:flex;gap:5px;align-items:center;}
+.tb{width:17px;height:17px;border-radius:50%;border:2px solid #333;cursor:pointer;transition:0.2s;}
+.tb:hover,.tb.on{border-color:#fff;transform:scale(1.3);}
+#tv{background:#00ff66;}#tr{background:#ff4444;}#tb2{background:#0088ff;}
+.ab{position:fixed;top:0;left:0;right:0;z-index:9997;padding:9px;text-align:center;font-weight:bold;font-size:0.82rem;letter-spacing:2px;display:none;border-bottom:3px solid;cursor:pointer;}
+.av{background:#002210;color:#00ff66;border-color:#00ff66;}
+.aa{background:#221a00;color:#ffcc00;border-color:#ffcc00;animation:blk 1.5s infinite;}
+.ar{background:#220000;color:#ff3333;border-color:#ff3333;animation:blk 0.4s infinite;}
+.tob{position:fixed;top:0;left:0;right:0;background:#220000;border-bottom:2px solid #ff3333;color:#ff3333;text-align:center;padding:7px;font-size:0.82rem;z-index:9998;display:none;font-weight:bold;}
+.tob.cr{animation:blk 0.5s infinite;}
+</style>
+EOF1Acat >> index.html << 'EOF1B'
+<style>
+header{border-bottom:2px solid var(--p);padding-bottom:10px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;transition:border-color 0.5s;}
+h1{font-size:1.2rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 5px var(--p);}
+.hr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tdp{background:#001100;border:1px solid var(--pd);padding:3px 9px;font-size:0.72rem;color:#888;}
+.bnf{background:transparent;border:1px solid #ffcc00;color:#ffcc00;padding:4px 9px;font-size:0.72rem;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:0.3s;}
+.bnf:hover{background:#ffcc00;color:#000;}
+.bnf.on{border-color:var(--p);color:var(--p);}
+.bceo{background:#1a0000;border:1px solid #ff3333;color:#ff3333;padding:4px 9px;font-size:0.72rem;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:0.3s;display:none;font-weight:bold;}
+.bceo:hover{background:#ff3333;color:#000;}
+.cob{padding:3px 9px;font-size:0.72rem;border:1px solid;transition:0.4s;}
+.con{color:#00ff66;border-color:#00ff66;}
+.coff{color:#ff8800;border-color:#ff8800;animation:blk 1s infinite;}
+.gc{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;}
+.card{background:var(--cb);border:1px solid var(--pd);padding:14px;border-radius:4px;box-shadow:0 0 12px rgba(0,0,0,0.5);transition:border-color 0.5s,background 0.5s;}
+.card h2{font-size:1rem;margin-bottom:13px;border-bottom:1px dashed var(--p);padding-bottom:5px;color:#fff;transition:border-color 0.5s;}
+.pcard{border-color:#003366!important;}
+.pcard h2{border-bottom-color:#0088ff!important;color:#66bbff!important;}
+.vcard2{border-color:#332200!important;}
+.vcard2 h2{border-bottom-color:#ffcc00!important;color:#ffdd88!important;}
+.ncard{border-color:#002233!important;}
+.ncard h2{border-bottom-color:#0088ff!important;color:#55aaff!important;}
+.pl{list-style:none;margin-bottom:13px;}
+.pl li{padding:7px 0;font-size:0.82rem;border-bottom:1px solid var(--pd);}
+.mn{font-weight:bold;color:var(--p);}
+.mc{color:#888;font-size:0.72rem;display:block;margin-top:2px;}
+.sb{float:right;font-size:0.78rem;padding:2px 6px;border-radius:2px;font-weight:bold;}
+.son{background:#003311;color:#00ff66;border:1px solid #00ff66;box-shadow:0 0 5px #00ff66;}
+.sof{background:#330000;color:#ff3333;border:1px solid #ff3333;}
+.ba{background:transparent;border:1px solid var(--p);color:var(--p);padding:9px 11px;width:100%;cursor:pointer;font-weight:bold;text-transform:uppercase;transition:0.3s;margin-top:9px;font-family:inherit;}
+.ba:hover{background:var(--p);color:#000;box-shadow:0 0 8px var(--p);}
+.bd{border-color:#ff3333;color:#ff3333;}
+.bd:hover{background:#ff3333;color:#000;}
+.bw2{border-color:#ffcc00;color:#ffcc00;}
+.bw2:hover{background:#ffcc00;color:#000;}
+.bbl{border-color:#0088ff;color:#0088ff;}
+.bbl:hover{background:#0088ff;color:#000;}
+.ig{margin-bottom:9px;}
+.ig label{display:block;font-size:0.78rem;margin-bottom:4px;color:#888;}
+.if{width:100%;background:#001100;border:1px solid var(--pd);padding:7px;color:var(--p);font-family:inherit;transition:border-color 0.5s;}
+.if:focus{border-color:var(--p);outline:none;box-shadow:0 0 5px var(--p);}
+.tl{display:flex;flex-direction:column;gap:9px;max-height:270px;overflow-y:auto;}
+.ti{background:var(--pb);border-left:3px solid #ffcc00;padding:9px;font-size:0.82rem;cursor:pointer;transition:0.3s;position:relative;}
+.ti:hover{filter:brightness(1.3);}
+.ti.dn{opacity:0.5;text-decoration:line-through;border-left-color:#00ff66;}
+.ti.pc{border-left-color:#ff3333;}
+.ti.pa{border-left-color:#ff8800;}
+.ti.pn{border-left-color:#ffcc00;}
+.ti.exp{border-left-color:#ff3333;animation:blk 1s infinite;}
+.pb2{display:inline-block;font-size:0.68rem;padding:1px 5px;border-radius:2px;margin-left:5px;font-weight:bold;}
+.pb2.c{background:#330000;color:#ff3333;border:1px solid #ff3333;}
+.pb2.a{background:#331a00;color:#ff8800;border:1px solid #ff8800;}
+.pb2.n{background:#332b00;color:#ffcc00;border:1px solid #ffcc00;}
+.tm{font-size:0.73rem;color:#888;margin-top:4px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:3px;}
+.prazo-ok{color:#ffcc00;font-size:0.7rem;}
+.prazo-urgente{color:#ff8800;font-size:0.7rem;font-weight:bold;}
+.prazo-exp{color:#ff3333;font-size:0.7rem;font-weight:bold;animation:blk 0.8s infinite;}
+</style>
+<style>
+.ciw{position:relative;}
+.cb2{background:var(--pb);border:1px solid var(--p);height:145px;overflow-y:auto;padding:9px;font-size:0.78rem;margin-bottom:9px;display:flex;flex-direction:column;gap:5px;transition:border-color 0.5s;}
+.cm{border-bottom:1px dashed var(--pd);padding-bottom:3px;line-height:1.5;display:flex;justify-content:space-between;align-items:flex-start;gap:4px;}
+.cmc{flex:1;}
+.cu{color:#fff;font-weight:bold;}
+.ct2{color:#ffcc00;font-size:0.68rem;}
+.mdb{background:transparent;border:1px solid #ff3333;color:#ff3333;padding:1px 5px;font-size:0.58rem;cursor:pointer;border-radius:2px;flex-shrink:0;}
+.mdb:hover{background:#ff3333;color:#000;}
+.mn2{color:#ffcc00;font-weight:bold;}
+.mn2.me{color:#ff8800;background:#1a1000;padding:0 3px;border-radius:2px;}
+.mti{display:inline-block;font-size:0.63rem;padding:1px 4px;border:1px solid #ff3333;color:#ff3333;border-radius:2px;margin-left:4px;}
+.mac{position:absolute;background:var(--pb);border:1px solid var(--p);z-index:200;bottom:36px;left:0;right:0;max-height:110px;overflow-y:auto;}
+.mao{padding:6px 9px;cursor:pointer;font-size:0.78rem;border-bottom:1px solid var(--pd);}
+.mao:hover{background:var(--pd);}
+.pcb{background:#020208;border:1px solid #0088ff;height:150px;overflow-y:auto;padding:9px;font-size:0.78rem;margin-bottom:9px;display:flex;flex-direction:column;gap:5px;}
+.pm{border-bottom:1px dashed #001133;padding-bottom:3px;line-height:1.5;}
+.pm .pu{color:#0088ff;font-weight:bold;}
+.pm.me2 .pu{color:#00ff66;}
+.pm.me2{text-align:right;}
+.pd2{display:inline-block;font-size:0.6rem;padding:1px 4px;border:1px solid #ff3333;color:#ff3333;border-radius:2px;margin-left:3px;}
+.rc{display:flex;align-items:center;gap:13px;background:var(--pb);border:1px solid var(--pd);padding:9px;margin-top:9px;}
+.radar{width:55px;height:55px;border:2px solid var(--pd);border-radius:50%;position:relative;background:radial-gradient(circle,rgba(0,255,102,0.05) 0%,rgba(0,0,0,1) 80%);overflow:hidden;flex-shrink:0;}
+.radar::after{content:"";position:absolute;width:100%;height:100%;background:linear-gradient(90deg,rgba(0,255,102,0.4) 0%,rgba(0,0,0,0) 50%);top:0;left:0;transform-origin:center;animation:rs 3s linear infinite;}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.si{background:var(--pb);border:1px solid var(--pd);padding:11px 7px;text-align:center;border-radius:3px;transition:0.3s;}
+.si:hover{border-color:var(--p);}
+.sn{font-size:1.7rem;font-weight:bold;color:var(--p);text-shadow:0 0 8px var(--p);display:block;line-height:1;}
+.sn.d{color:#ff3333;text-shadow:0 0 8px #ff3333;}
+.sn.w{color:#ffcc00;text-shadow:0 0 8px #ffcc00;}
+.sl{font-size:0.62rem;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:3px;display:block;}
+.hl{max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+.hi{background:var(--pb);border:1px solid var(--pd);padding:6px 9px;font-size:0.76rem;display:flex;justify-content:space-between;align-items:center;border-radius:2px;}
+.hin{border-left:3px solid #00ff66;}
+.hout{border-left:3px solid #ff3333;}
+.han{color:var(--p);font-weight:bold;}
+.hout .han{color:#ff5555;}
+.hh{color:#555;font-size:0.68rem;}
+.ha{font-size:0.68rem;padding:1px 4px;border-radius:2px;}
+.hin .ha{background:#003311;color:#00ff66;}
+.hout .ha{background:#330000;color:#ff3333;}
+.sll{max-height:190px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}
+.sli{padding:6px 9px;font-size:0.73rem;border-left:3px solid;border-radius:2px;}
+.slok{border-left-color:#00ff66;background:#001100;color:#00ff66;}
+.slfl{border-left-color:#ff3333;background:#110000;color:#ff5555;}
+.slin{border-left-color:#ffcc00;background:#111000;color:#ffcc00;}
+.lp{margin-top:18px;background:#020202;border:1px solid #ff3333;padding:9px;font-size:0.78rem;border-radius:4px;}
+.lt{color:#ff3333;font-weight:bold;margin-bottom:4px;}
+.lc{max-height:130px;overflow-y:auto;color:#aaa;list-style:none;}
+.le{color:#ff3333;font-weight:bold;animation:blk 1s infinite;}
+.vc{background:var(--pb);border:1px solid #332200;padding:11px;margin-bottom:9px;border-radius:3px;}
+.vtit{color:#ffdd88;font-weight:bold;font-size:0.88rem;margin-bottom:4px;}
+.vinfo{color:#555;font-size:0.68rem;margin-bottom:9px;}
+.vop{padding:7px;border:1px solid var(--pd);margin:5px 0;border-radius:2px;transition:0.2s;}
+.vop.vv{border-color:#ffcc00;background:#221a00;}
+.vbar{background:var(--pd);height:5px;border-radius:2px;margin:4px 0;overflow:hidden;}
+.vfill{height:100%;background:#ffcc00;transition:width 0.5s;}
+.vbtn{background:transparent;border:1px solid #ffcc00;color:#ffcc00;padding:3px 8px;font-size:0.68rem;cursor:pointer;font-family:inherit;border-radius:2px;transition:0.2s;margin-top:4px;}
+.vbtn:hover{background:#ffcc00;color:#000;}
+.nota-area{width:100%;background:#001122;border:1px solid #003366;padding:8px;color:#66bbff;font-family:inherit;resize:vertical;min-height:110px;font-size:0.78rem;line-height:1.5;}
+.nota-area:focus{border-color:#0088ff;outline:none;box-shadow:0 0 5px #0055aa;}
+.nota-saved{color:#00ff66;font-size:0.7rem;margin-top:4px;display:none;}
+.pm2{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.93);z-index:10000;justify-content:center;align-items:center;display:none;}
+.pm2.on{display:flex;}
+.pb3{background:var(--cb);border:2px solid var(--p);padding:28px 23px;width:300px;max-width:95vw;}
+.pt{text-align:center;font-size:0.95rem;letter-spacing:3px;color:#fff;margin-bottom:4px;}
+.ps{text-align:center;font-size:0.68rem;color:#555;letter-spacing:2px;margin-bottom:18px;}
+.pd3{display:flex;gap:9px;justify-content:center;margin:16px 0;}
+.pd4{width:20px;height:20px;border:2px solid var(--pd);border-radius:50%;transition:0.2s;}
+.pd4.on{background:var(--p);border-color:var(--p);box-shadow:0 0 8px var(--p);}
+.pp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px;}
+.pb4{background:var(--pb);border:1px solid var(--pd);color:var(--p);padding:13px;font-size:1rem;font-family:inherit;font-weight:bold;cursor:pointer;border-radius:3px;transition:0.2s;}
+.pb4:hover{border-color:var(--p);}
+.pb4:active{background:var(--p);color:#000;}
+.pb4.dl{color:#ff3333;border-color:#330000;font-size:0.82rem;}
+.pb4.dl:hover{background:#220000;border-color:#ff3333;}
+.pb4.ok{color:#ffcc00;border-color:#332b00;font-size:0.82rem;}
+.pb4.ok:hover{background:#221a00;border-color:#ffcc00;}
+.pe{color:#ff3333;text-align:center;font-size:0.78rem;margin-top:9px;font-weight:bold;display:none;}
+.cmo{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:10001;overflow-y:auto;padding:18px;}
+.cmo.on{display:block;}
+.cp{background:#080202;border:2px solid #ff3333;max-width:700px;margin:0 auto;padding:22px;box-shadow:0 0 40px rgba(255,0,0,0.2);}
+.cpt{color:#ff3333;font-size:1rem;letter-spacing:3px;text-align:center;margin-bottom:3px;text-shadow:0 0 8px #ff3333;}
+.cps{text-align:center;color:#555;font-size:0.68rem;letter-spacing:2px;margin-bottom:17px;}
+.cts{display:flex;gap:0;border-bottom:1px solid #330000;margin-bottom:13px;flex-wrap:wrap;}
+.ct{background:transparent;border:1px solid #330000;border-bottom:none;color:#883333;padding:6px 9px;cursor:pointer;font-family:inherit;font-size:0.68rem;text-transform:uppercase;transition:0.2s;}
+.ct.on,.ct:hover{background:#220000;color:#ff3333;}
+.ctc{display:none;}
+.ctc.on{display:block;}
+.ar2{display:flex;align-items:center;justify-content:space-between;padding:9px;border:1px solid #220000;margin-bottom:5px;font-size:0.8rem;flex-wrap:wrap;gap:7px;border-radius:2px;}
+.ar2:hover{background:#110000;}
+.an{color:#ff6666;font-weight:bold;min-width:75px;}
+.acb{font-size:0.68rem;padding:2px 6px;border:1px solid #440000;color:#ff8800;border-radius:2px;background:#220000;}
+.aa2{display:flex;gap:4px;flex-wrap:wrap;}
+.cb3{background:transparent;border:1px solid;padding:3px 7px;font-size:0.67rem;cursor:pointer;font-family:inherit;border-radius:2px;transition:0.2s;text-transform:uppercase;}
+.cup{border-color:#00ff66;color:#00ff66;}
+.cup:hover{background:#00ff66;color:#000;}
+.cdn{border-color:#ffcc00;color:#ffcc00;}
+.cdn:hover{background:#ffcc00;color:#000;}
+.cban{border-color:#ff3333;color:#ff3333;}
+.cban:hover{background:#ff3333;color:#000;}
+.cub{border-color:#00ff66;color:#00ff66;}
+.cub:hover{background:#00ff66;color:#000;}
+.mr{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 7px;border-bottom:1px solid #220000;font-size:0.76rem;gap:7px;}
+.mr:hover{background:#110000;}
+.cr2{padding:8px 9px;border:1px solid #220000;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;border-radius:2px;}
+.cr2:hover{background:#110000;}
+.cpv{max-height:230px;overflow-y:auto;margin-top:9px;border:1px solid #330000;padding:7px;display:none;}
+.nlb{display:flex;gap:7px;margin:13px 0;justify-content:center;flex-wrap:wrap;}
+.nb{background:transparent;border:2px solid;padding:9px 14px;font-family:inherit;font-size:0.78rem;font-weight:bold;cursor:pointer;border-radius:3px;transition:0.2s;letter-spacing:1px;}
+.nv{border-color:#00ff66;color:#00ff66;}
+.nv:hover,.nv.on{background:#00ff66;color:#000;}
+.na{border-color:#ffcc00;color:#ffcc00;}
+.na:hover,.na.on{background:#ffcc00;color:#000;}
+.nr{border-color:#ff3333;color:#ff3333;}
+.nr:hover,.nr.on{background:#ff3333;color:#000;}
+.br2{display:flex;align-items:center;justify-content:space-between;padding:9px;border:1px solid #330000;margin-bottom:5px;font-size:0.78rem;background:#0a0000;border-radius:2px;flex-wrap:wrap;gap:7px;}
+.bname{color:#ff5555;font-weight:bold;}
+.binfo{color:#888;font-size:0.7rem;}
+@keyframes blk{0%,100%{opacity:1;}50%{opacity:0.5;}}
+@keyframes rs{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes saf{0%,100%{box-shadow:inset 0 0 0 transparent;}50%{box-shadow:inset 0 0 80px rgba(255,0,0,0.8);background:#220000;}}
+.sa{animation:saf 0.5s 6;}
+@keyframes cu2{from{opacity:0;transform:scale(0.8);}to{opacity:1;transform:scale(1);}}
+@keyframes psh{0%,100%{transform:translateX(0);}25%{transform:translateX(-7px);}75%{transform:translateX(7px);}}
+.psh{animation:psh 0.4s ease;}
+</style>
 </head>
 <body>
-    <div id="loginScreen">
-        <div id="loginWrap">
-            <div id="bootLines"></div>
-            <div id="bootBar"><div id="bootBarFill"></div></div>
-            <div id="loginLogo" class="glitch-text" data-text="AREA 51">AREA 51</div>
-            <div id="loginSub">SISTEMA CENTRAL // OPERACOES EM TEMPO REAL</div>
-            <button id="loginBtn" onclick="inicializarSistema()">[ INICIALIZAR SISTEMA ]</button>
-        </div>
+<div id="ls">
+  <div id="lw">
+    <div id="bl"></div>
+    <div id="bb"><div id="bbf"></div></div>
+    <div id="ll" class="gl" data-t="AREA 51">AREA 51</div>
+    <div id="ls2">SISTEMA CENTRAL // OPERACOES EM TEMPO REAL</div>
+    <button id="lb" onclick="entrar()">[ INICIALIZAR SISTEMA ]</button>
+  </div>
+</div>
+<div id="ab" class="ab"></div>
+<div id="tb" class="tob"></div>
+<div id="pm" class="pm2">
+  <div class="pb3" id="pb">
+    <div class="pt">AUTENTICACAO SEGURA</div>
+    <div class="ps">AREA 51 // ACESSO RESTRITO</div>
+    <div id="ps1">
+      <div class="ig"><label>AGENTE:</label>
+        <select id="pa" class="if">
+          <option value="">-- SELECIONAR --</option>
+          <option value="yelseik">yelseik [CEO]</option>
+          <option value="aihosj">aihosj</option>
+          <option value="Rengaw">Rengaw</option>
+          <option value="innavoeg">innavoeg</option>
+          <option value="onaitsirc">onaitsirc</option>
+        </select>
+      </div>
+      <button class="ba" onclick="irPIN()">CONTINUAR</button>
+      <button class="ba bd" onclick="fecharPIN()">CANCELAR</button>
     </div>
-    <div id="alertaGlobalBanner" class="alerta-banner" onclick="fecharPainelCEO()"></div>
-    <div id="timeoutWarning" class="timeout-bar"></div>
-    <div id="pinModal" class="pin-modal-overlay">
-        <div class="pin-box" id="pinBox">
-            <div class="pin-title">AUTENTICACAO SEGURA</div>
-            <div class="pin-subtitle">AREA 51 // ACESSO RESTRITO</div>
-            <div id="pinStep1">
-                <div class="input-group"><label>AGENTE:</label>
-                    <select id="pinAgente" class="input-field">
-                        <option value="">-- SELECIONAR --</option>
-                        <option value="yelseik">yelseik [CEO]</option>
-                        <option value="aihosj">aihosj</option>
-                        <option value="Rengaw">Rengaw</option>
-                        <option value="innavoeg">innavoeg</option>
-                        <option value="onaitsirc">onaitsirc</option>
-                    </select>
-                </div>
-                <button class="btn-action" onclick="avancarParaPIN()">CONTINUAR</button>
-                <button class="btn-action btn-danger" onclick="fecharModalPIN()">CANCELAR</button>
-            </div>
-            <div id="pinStep2" style="display:none;">
-                <div style="text-align:center;font-size:0.8rem;color:#888;margin-bottom:5px;">AGENTE:</div>
-                <div style="text-align:center;font-size:1rem;color:var(--prim);font-weight:bold;margin-bottom:10px;" id="pinNomeDisplay"></div>
-                <div style="text-align:center;font-size:0.75rem;color:#555;">PIN DE 6 DIGITOS:</div>
-                <div class="pin-dots">
-                    <div class="pin-dot" id="pinDot0"></div><div class="pin-dot" id="pinDot1"></div>
-                    <div class="pin-dot" id="pinDot2"></div><div class="pin-dot" id="pinDot3"></div>
-                    <div class="pin-dot" id="pinDot4"></div><div class="pin-dot" id="pinDot5"></div>
-                </div>
-                <div class="pin-pad">
-                    <button class="pin-btn" onclick="pinDigito('7')">7</button><button class="pin-btn" onclick="pinDigito('8')">8</button><button class="pin-btn" onclick="pinDigito('9')">9</button>
-                    <button class="pin-btn" onclick="pinDigito('4')">4</button><button class="pin-btn" onclick="pinDigito('5')">5</button><button class="pin-btn" onclick="pinDigito('6')">6</button>
-                    <button class="pin-btn" onclick="pinDigito('1')">1</button><button class="pin-btn" onclick="pinDigito('2')">2</button><button class="pin-btn" onclick="pinDigito('3')">3</button>
-                    <button class="pin-btn del" onclick="pinDel()">DEL</button><button class="pin-btn" onclick="pinDigito('0')">0</button><button class="pin-btn ok" onclick="validarPIN()">OK</button>
-                </div>
-                <div class="pin-error" id="pinError">PIN INCORRETO</div>
-                <button class="btn-action btn-danger" style="margin-top:15px;" onclick="voltarStep1()">VOLTAR</button>
-            </div>
-        </div>
+    <div id="ps2" style="display:none;">
+      <div style="text-align:center;font-size:0.78rem;color:#888;margin-bottom:4px;">AGENTE:</div>
+      <div style="text-align:center;font-size:0.95rem;color:var(--p);font-weight:bold;margin-bottom:9px;" id="pnd"></div>
+      <div style="text-align:center;font-size:0.72rem;color:#555;">PIN DE 6 DIGITOS:</div>
+      <div class="pd3">
+        <div class="pd4" id="d0"></div><div class="pd4" id="d1"></div>
+        <div class="pd4" id="d2"></div><div class="pd4" id="d3"></div>
+        <div class="pd4" id="d4"></div><div class="pd4" id="d5"></div>
+      </div>
+      <div class="pp">
+        <button class="pb4" onclick="pd('7')">7</button><button class="pb4" onclick="pd('8')">8</button><button class="pb4" onclick="pd('9')">9</button>
+        <button class="pb4" onclick="pd('4')">4</button><button class="pb4" onclick="pd('5')">5</button><button class="pb4" onclick="pd('6')">6</button>
+        <button class="pb4" onclick="pd('1')">1</button><button class="pb4" onclick="pd('2')">2</button><button class="pb4" onclick="pd('3')">3</button>
+        <button class="pb4 dl" onclick="pdel()">DEL</button><button class="pb4" onclick="pd('0')">0</button><button class="pb4 ok" onclick="validar()">OK</button>
+      </div>
+      <div class="pe" id="pe">PIN INCORRETO</div>
+      <button class="ba bd" style="margin-top:13px;" onclick="voltarS1()">VOLTAR</button>
     </div>
-    <div id="ceoPainel" class="ceo-modal-overlay">
-        <div class="ceo-panel">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-                <div class="ceo-panel-title">PAINEL CEO // PODER MAXIMO</div>
-                <button class="ceo-btn ceo-btn-ban" onclick="fecharPainelCEO()">X FECHAR</button>
-            </div>
-            <div class="ceo-panel-sub">TODAS AS ACOES SAO REGISTADAS E IRREVERSIVEIS</div>
-            <div class="ceo-tabs">
-                <button class="ceo-tab active" id="ceoTabBtn_agentes" onclick="ceoTab('agentes')">AGENTES</button>
-                <button class="ceo-tab" id="ceoTabBtn_pins" onclick="ceoTab('pins')">PINS</button>
-                <button class="ceo-tab" id="ceoTabBtn_banidos" onclick="ceoTab('banidos')">BANIDOS</button>
-                <button class="ceo-tab" id="ceoTabBtn_chat" onclick="ceoTab('chat')">CHAT</button>
-                <button class="ceo-tab" id="ceoTabBtn_missoes" onclick="ceoTab('missoes')">MISSOES</button>
-                <button class="ceo-tab" id="ceoTabBtn_priv" onclick="ceoTab('priv')">PRIVADOS</button>
-                <button class="ceo-tab" id="ceoTabBtn_alerta" onclick="ceoTab('alerta')">ALERTA</button>
-            </div>
-            <div class="ceo-tab-content active" id="ceoTabContent_agentes">
-                <div id="ceoAgentesList"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
-                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="carregarPainelCEO()">ATUALIZAR</button>
-            </div>
-            <div class="ceo-tab-content" id="ceoTabContent_pins">
-                <div style="font-size:0.8rem;color:#888;margin-bottom:15px;padding:10px;border:1px solid #330000;background:#0a0000;">PIN antigo deixa de funcionar imediatamente.</div>
-                <div class="input-group"><label>AGENTE:</label>
-                    <select id="ceoPinAgente" class="input-field">
-                        <option value="">-- SELECIONAR --</option>
-                        <option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option>
-                        <option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option>
-                    </select>
-                </div>
-                <div class="input-group"><label>NOVO PIN (6 digitos):</label><input type="text" id="ceoPinNovo" class="input-field" placeholder="Ex: 123456" maxlength="6"></div>
-                <button class="btn-action btn-danger" onclick="mudarPinAgente()">DEFINIR NOVO PIN</button>
-            </div>
-            <div class="ceo-tab-content" id="ceoTabContent_banidos">
-                <div id="ceoBanidosList"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
-                <div style="margin-top:15px;border-top:1px solid #330000;padding-top:15px;">
-                    <div style="font-size:0.8rem;color:#888;margin-bottom:10px;">BANIR NOVO AGENTE:</div>
-                    <div class="input-group"><label>AGENTE:</label>
-                        <select id="ceoBanirAgente" class="input-field">
-                            <option value="">-- SELECIONAR --</option>
-                            <option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option>
-                            <option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option>
-                        </select>
-                    </div>
-                    <div class="input-group"><label>MOTIVO:</label><input type="text" id="ceoBanirMotivo" class="input-field" placeholder="Motivo..."></div>
-                    <button class="btn-action btn-danger" onclick="banirAgenteForm()">EXECUTAR BANIMENTO</button>
-                </div>
-            </div>
-            <div class="ceo-tab-content" id="ceoTabContent_chat">
-                <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-                    <button class="btn-action btn-danger" style="margin:0;padding:7px;" onclick="carregarChatCEO()">ATUALIZAR</button>
-                    <button class="btn-action btn-danger" style="margin:0;padding:7px;" onclick="apagarTodoChat()">APAGAR TUDO</button>
-                </div>
-                <div id="ceoChatList" style="max-height:350px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
-            </div>
-            <div class="ceo-tab-content" id="ceoTabContent_missoes">
-                <div style="font-size:0.8rem;color:#888;margin-bottom:8px;font-weight:bold;">MISSOES:</div>
-                <div id="ceoMissoesList" style="max-height:200px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:15px;">Carregando...</div></div>
-                <div style="font-size:0.8rem;color:#888;margin:12px 0 8px;font-weight:bold;">ATAS:</div>
-                <div id="ceoAtasList" style="max-height:150px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:15px;">Carregando...</div></div>
-                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="carregarMissoesCEO()">ATUALIZAR</button>
-            </div>
-            <div class="ceo-tab-content" id="ceoTabContent_priv">
-                <div id="ceoCanaisList" style="max-height:200px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
-                <div id="ceoPrivMsgs" class="ceo-priv-msgs"></div>
-                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="carregarCanaisPrivados()">ATUALIZAR</button>
-            </div>
-            <div class="ceo-tab-content" id="ceoTabContent_alerta">
-                <div id="alertaAtualStatus" style="text-align:center;padding:10px;font-size:0.85rem;margin-bottom:10px;border:1px solid #330000;background:#0a0000;color:#888;">Sem alerta ativo.</div>
-                <div style="font-size:0.8rem;color:#888;margin-bottom:8px;">NIVEL DE AMEACA:</div>
-                <div class="alerta-nivel-box">
-                    <button class="nivel-btn nivel-verde" id="nivelVerde" onclick="selecionarNivel('VERDE')">VERDE</button>
-                    <button class="nivel-btn nivel-amarelo" id="nivelAmarelo" onclick="selecionarNivel('AMARELO')">AMARELO</button>
-                    <button class="nivel-btn nivel-vermelho" id="nivelVermelho" onclick="selecionarNivel('VERMELHO')">VERMELHO</button>
-                </div>
-                <div class="input-group"><label>MENSAGEM DE ALERTA:</label><input type="text" id="alertaMensagem" class="input-field" placeholder="Mensagem para todos os agentes..."></div>
-                <button class="btn-action btn-danger" onclick="ativarAlertaGlobal()">ATIVAR ALERTA GLOBAL</button>
-                <button class="btn-action btn-warn" style="margin-top:5px;" onclick="cancelarAlertaGlobal()">CANCELAR ALERTA</button>
-            </div>
-        </div>
+  </div>
+</div>
+<div id="cpanel" class="cmo">
+  <div class="cp">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <div class="cpt">PAINEL CEO // PODER MAXIMO</div>
+      <button class="cb3 cban" onclick="fecharCEO()">X FECHAR</button>
     </div>
-    <header>
-        <h1 class="glitch-text" data-text="AREA 51 // OPERACOES">AREA 51 // OPERACOES</h1>
-        <div class="header-right">
-            <button id="btnCEOPanel" class="btn-ceo" onclick="abrirPainelCEO()">CEO PANEL</button>
-            <div class="theme-switcher">
-                <button class="btn-tema ativo" id="btn-tema-v" onclick="trocarTema('v')"></button>
-                <button class="btn-tema" id="btn-tema-r" onclick="trocarTema('r')"></button>
-                <button class="btn-tema" id="btn-tema-b" onclick="trocarTema('b')"></button>
-            </div>
-            <div class="timeout-display" id="timeoutDisplay" style="display:none;">SESSAO: --:--</div>
-            <button class="btn-notif" id="btnNotif" onclick="pedirPermissaoNotificacoes()">ALERTAS</button>
-            <div id="conexaoBadge" class="conexao-badge conexao-online">ONLINE</div>
-        </div>
-    </header>
-    <div class="grid-container">
-        <div class="card">
-<h2>CONTROLO DE PRESENCA</h2>
-            <ul class="presence-list">
-                <li><span class="membro-nome">[CEO] yelseik</span><span class="status-box status-offline" id="status-yelseik">AUSENTE</span><span class="membro-cargo" id="cargo-yelseik">Lider Supremo</span></li>
-                <li><span class="membro-nome">[ASSIST.] aihosj</span><span class="status-box status-offline" id="status-aihosj">AUSENTE</span><span class="membro-cargo" id="cargo-aihosj">Assistente</span></li>
-                <li><span class="membro-nome">[CONS.] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo" id="cargo-rengaw">Conselheiro</span></li>
-                <li><span class="membro-nome">[S.CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo" id="cargo-innavoeg">Chefe Seguranca</span></li>
-                <li><span class="membro-nome">[SEG.] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo" id="cargo-onaitsirc">Seguranca</span></li>
-            </ul>
-            <button class="btn-action" onclick="mostrarModalPIN()">Autenticar via PIN</button>
-            <button class="btn-action btn-warn" onclick="sairDaRede()">Sair da Rede</button>
-            <button class="btn-action btn-danger" onclick="limparPresencas()">Reset Presencas (CEO)</button>
-        </div>
-        <div class="card">
-            <h2>COMUNICACOES CIPHER</h2>
-            <div class="chat-box" id="chatContainer"></div>
-            <div class="chat-input-wrap">
-                <div id="mentionDropdownChat" style="display:none;" class="mention-autocomplete"></div>
-                <input type="text" id="chatInput" class="input-field" placeholder="Mensagem... @agente para mencionar" oninput="detetarMencao(this,'chat')" onkeydown="if(event.key==='Enter')enviarMensagemChat()">
-            </div>
-            <div class="input-group" style="margin-top:8px;"><label>Autodestruicao:</label>
-                <select id="chatTimer" class="input-field">
-                    <option value="0">Sem timer</option><option value="30">30 seg</option>
-                    <option value="60">1 min</option><option value="300">5 min</option>
-                </select>
-            </div>
-            <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
-            <div class="radar-container"><div class="radar"></div><div style="font-size:0.75rem;color:#888;">SCANNER:<br><span style="color:var(--prim);animation:blink 1s infinite;">ATIVO</span></div></div>
-        </div>
-        <div class="card private-card">
-            <h2>CANAL PRIVADO</h2>
-            <div class="input-group"><label>DESTINATARIO:</label>
-                <select id="privDestinatario" class="input-field" onchange="selecionarDestinatario(this.value)">
-                    <option value="">-- SELECIONAR --</option>
-                    <option value="yelseik">yelseik</option><option value="aihosj">aihosj</option>
-                    <option value="Rengaw">Rengaw</option><option value="innavoeg">innavoeg</option>
-                    <option value="onaitsirc">onaitsirc</option>
-                </select>
-            </div>
-            <div class="private-chat-box" id="privChatBox"><div style="color:#555;text-align:center;padding:20px;font-size:0.8rem;">Seleciona um agente.</div></div>
-            <div class="chat-input-wrap">
-                <div id="mentionDropdownPriv" style="display:none;" class="mention-autocomplete"></div>
-                <input type="text" id="privInput" class="input-field" placeholder="Mensagem cifrada..." oninput="detetarMencao(this,'priv')" onkeydown="if(event.key==='Enter')enviarMensagemPrivada()">
-            </div>
-            <div class="input-group" style="margin-top:8px;"><label>Autodestruicao:</label>
-                <select id="privTimer" class="input-field">
-                    <option value="0">Sem timer</option><option value="30">30 seg</option>
-                    <option value="60">1 min</option><option value="300">5 min</option>
-                </select>
-            </div>
-            <button class="btn-action btn-blue" onclick="enviarMensagemPrivada()">Enviar Cifrado</button>
-        </div>
-        <div class="card">
-            <h2>ESTATISTICAS</h2>
-            <div class="stats-grid">
-                <div class="stat-item"><span class="stat-num" id="stat-online">0</span><span class="stat-label">Online</span></div>
-                <div class="stat-item"><span class="stat-num" id="stat-missoes">0</span><span class="stat-label">Missoes</span></div>
-                <div class="stat-item"><span class="stat-num" id="stat-concluidas">0</span><span class="stat-label">Concluidas</span></div>
-                <div class="stat-item"><span class="stat-num warn" id="stat-pendentes">0</span><span class="stat-label">Pendentes</span></div>
-                <div class="stat-item"><span class="stat-num danger" id="stat-criticas">0</span><span class="stat-label">Criticas</span></div>
-                <div class="stat-item"><span class="stat-num danger" id="stat-banidos">0</span><span class="stat-label">Banidos</span></div>
-            </div>
-            <div style="margin-top:14px;background:var(--prim-bg);border:1px solid var(--prim-dark);padding:10px;font-size:0.75rem;">
-                <div style="color:#888;margin-bottom:6px;">TAXA DE CONCLUSAO:</div>
-                <div style="background:var(--prim-dark);border-radius:2px;height:8px;overflow:hidden;"><div id="progresso-bar" style="background:var(--prim);height:100%;width:0%;transition:width 0.5s;"></div></div>
-                <div style="margin-top:5px;color:var(--prim);" id="progresso-pct">0%</div>
-            </div>
-        </div>
-        <div class="card"><h2>REGISTO DE SEGURANCA</h2><div class="sec-log-list" id="secLogContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:15px;">Sem eventos.</div></div><button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparSecLog()">Limpar (CEO)</button></div>
-        <div class="card"><h2>HISTORICO DE PRESENCAS</h2><div class="history-list" id="historyContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:20px;">Sem registos.</div></div><button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparHistorico()">Limpar (CEO)</button></div>
-        <div class="card"><h2>ARQUIVO DE BRIEFINGS</h2><div class="task-list" id="ataContainer"></div></div>
-        <div class="card">
-            <h2>MISSOES OPERACIONAIS</h2>
-            <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
-                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;" onclick="filtrarMissoes('todas')">TODAS</button>
-                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;border-color:#ff3333;color:#ff3333;" onclick="filtrarMissoes('critica')">CRITICAS</button>
-                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;border-color:#ff8800;color:#ff8800;" onclick="filtrarMissoes('alta')">ALTAS</button>
-                <button class="btn-action" style="margin:0;padding:5px 8px;font-size:0.7rem;" onclick="filtrarMissoes('pendente')">PENDENTES</button>
-            </div>
-            <div class="task-list" id="taskContainer"></div>
-        </div>
-        <div class="card">
-            <h2>PAINEL DO COMANDANTE</h2>
-            <div class="input-group"><label>Tipo:</label><select id="emissaoTipo" class="input-field" onchange="alternarCamposPainel()"><option value="missao">Lancar Missao</option><option value="ata">Arquivar Ata</option></select></div>
-            <div class="input-group"><label id="labelDinamica">Descricao:</label><input type="text" id="panelDesc" class="input-field" placeholder="Detalhes..."></div>
-            <div class="input-group" id="grupoCoordenadas"><label>Coordenadas:</label><input type="text" id="panelCoord" class="input-field" placeholder="Ex: Setor Sul..."></div>
-            <div class="input-group" id="grupoAgente"><label>Agente:</label><select id="taskAgent" class="input-field"><option value="yelseik">yelseik</option><option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option><option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option></select></div>
-            <div class="input-group" id="grupoPrioridade"><label>Prioridade:</label><select id="taskPrioridade" class="input-field"><option value="normal">NORMAL</option><option value="alta">ALTA</option><option value="critica">CRITICA</option></select></div>
-            <button class="btn-action" onclick="executarAcaoPainel()">Executar Diretriz</button>
-        </div>
+    <div class="cps">TODAS AS ACOES SAO REGISTADAS E IRREVERSIVEIS</div>
+    <div class="cts">
+      <button class="ct on" id="ct_ag" onclick="tab('ag')">AGENTES</button>
+      <button class="ct" id="ct_pi" onclick="tab('pi')">PINS</button>
+      <button class="ct" id="ct_ba" onclick="tab('ba')">BANIDOS</button>
+      <button class="ct" id="ct_ch" onclick="tab('ch')">CHAT</button>
+      <button class="ct" id="ct_mi" onclick="tab('mi')">MISSOES</button>
+      <button class="ct" id="ct_pv" onclick="tab('pv')">PRIVADOS</button>
+      <button class="ct" id="ct_al" onclick="tab('al')">ALERTA</button>
+      <button class="ct" id="ct_vo" onclick="tab('vo')">VOTOS</button>
     </div>
-    <div class="log-panel"><div class="log-title">LOGS DE INCIDENTES:</div><ul class="log-content" id="logContainer"></ul></div>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-cat >> index.html << 'AREA51EOF3A'
-    <script>
-const firebaseConfig={apiKey:"AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...",authDomain:"area51-matanga.firebaseapp.com",databaseURL:"https://area51-matanga-default-rtdb.firebaseio.com",projectId:"area51-matanga",storageBucket:"area51-matanga.firebasestorage.app",messagingSenderId:"8932975266",appId:"1:8932975266:web:50532f72a8c73b42"};
-firebase.initializeApp(firebaseConfig);
-const database=firebase.database();
-
-const agentesHashMap={
-    "4ba06031fb4e25afc62a285e00b82db164ad080b5ef7e0baad15c928f7d387b5":{id:"status-yelseik",nome:"yelseik",isCEO:true},
-    "fe2ca392b5fec350ceb36911e4dce95f75a58447031b0d189604902d7b123a9e":{id:"status-aihosj",nome:"aihosj",isCEO:false},
-    "ba5fb33efdc33b17f120cb66d8444ed59eccd4b7593227cd8a3f9514d11d5f5d":{id:"status-rengaw",nome:"Rengaw",isCEO:false},
-    "45a96860bfa03d80a4a39dad04cdd807d7bf94bd5940c07560dc7fce93c1c713":{id:"status-innavoeg",nome:"innavoeg",isCEO:false},
-    "a72a84647d82ddcfdc3c06c024627ba01f112a2f93031528c09d4b76f5ab7e06":{id:"status-onaitsirc",nome:"onaitsirc",isCEO:false}
+    <div class="ctc on" id="tc_ag">
+      <div id="agl"><div style="color:#555;text-align:center;padding:18px;">Carregando...</div></div>
+      <button class="ba bd" style="margin-top:9px;" onclick="loadCEO()">ATUALIZAR</button>
+    </div>
+    <div class="ctc" id="tc_pi">
+      <div style="font-size:0.78rem;color:#888;margin-bottom:13px;padding:9px;border:1px solid #330000;background:#0a0000;">PIN antigo invalida imediatamente.</div>
+      <div class="ig"><label>AGENTE:</label>
+        <select id="cpa" class="if">
+          <option value="">-- SELECIONAR --</option>
+          <option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option>
+          <option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option>
+        </select>
+      </div>
+      <div class="ig"><label>NOVO PIN (6 digitos):</label><input type="text" id="cpn" class="if" placeholder="Ex: 123456" maxlength="6"></div>
+      <button class="ba bd" onclick="mudarPIN()">DEFINIR NOVO PIN</button>
+    </div>
+    <div class="ctc" id="tc_ba">
+      <div id="banl"><div style="color:#555;text-align:center;padding:18px;">Carregando...</div></div>
+      <div style="margin-top:13px;border-top:1px solid #330000;padding-top:13px;">
+        <div class="ig"><label>BANIR AGENTE:</label>
+          <select id="cba" class="if">
+            <option value="">-- SELECIONAR --</option>
+            <option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option>
+            <option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option>
+          </select>
+        </div>
+        <div class="ig"><label>MOTIVO:</label><input type="text" id="cbm" class="if" placeholder="Motivo..."></div>
+        <button class="ba bd" onclick="banirForm()">EXECUTAR BANIMENTO</button>
+      </div>
+    </div>
+    <div class="ctc" id="tc_ch">
+      <div style="display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap;">
+        <button class="ba bd" style="margin:0;padding:6px;" onclick="loadChat()">ATUALIZAR</button>
+        <button class="ba bd" style="margin:0;padding:6px;" onclick="apagarTodoChat()">APAGAR TUDO</button>
+      </div>
+      <div id="chatl" style="max-height:320px;overflow-y:auto;"></div>
+    </div>
+    <div class="ctc" id="tc_mi">
+      <div style="font-size:0.78rem;color:#888;margin-bottom:7px;font-weight:bold;">MISSOES:</div>
+      <div id="misl" style="max-height:190px;overflow-y:auto;"></div>
+      <div style="font-size:0.78rem;color:#888;margin:11px 0 7px;font-weight:bold;">ATAS:</div>
+      <div id="atasl" style="max-height:140px;overflow-y:auto;"></div>
+      <button class="ba bd" style="margin-top:9px;" onclick="loadMissoesCEO()">ATUALIZAR</button>
+    </div>
+    <div class="ctc" id="tc_pv">
+      <div id="canl" style="max-height:190px;overflow-y:auto;"></div>
+      <div id="pvmsg" class="cpv"></div>
+      <button class="ba bd" style="margin-top:9px;" onclick="loadPrivados()">ATUALIZAR</button>
+    </div>
+    <div class="ctc" id="tc_al">
+      <div id="alst" style="text-align:center;padding:9px;font-size:0.82rem;margin-bottom:9px;border:1px solid #330000;background:#0a0000;color:#888;">Sem alerta ativo.</div>
+      <div style="font-size:0.78rem;color:#888;margin-bottom:7px;">NIVEL DE AMEACA:</div>
+      <div class="nlb">
+        <button class="nb nv" id="nv2" onclick="selNivel('VERDE')">VERDE</button>
+        <button class="nb na" id="na2" onclick="selNivel('AMARELO')">AMARELO</button>
+        <button class="nb nr on" id="nr2" onclick="selNivel('VERMELHO')">VERMELHO</button>
+      </div>
+      <div class="ig"><label>MENSAGEM:</label><input type="text" id="almsg" class="if" placeholder="Mensagem para todos..."></div>
+      <button class="ba bd" onclick="ativarAlerta()">ATIVAR ALERTA GLOBAL</button>
+      <button class="ba bw2" style="margin-top:5px;" onclick="cancelarAlerta()">CANCELAR ALERTA</button>
+    </div>
+    <div class="ctc" id="tc_vo">
+      <div style="font-size:0.78rem;color:#888;margin-bottom:11px;padding:7px;border:1px solid #332200;background:#111000;">Criar votacao para todos os agentes:</div>
+      <div class="ig"><label>TITULO DA VOTACAO:</label><input type="text" id="v_tit" class="if" placeholder="Ex: Qual o proximo objetivo?"></div>
+      <div class="ig"><label>OPCAO 1:</label><input type="text" id="v_o1" class="if" placeholder="Opcao A"></div>
+      <div class="ig"><label>OPCAO 2:</label><input type="text" id="v_o2" class="if" placeholder="Opcao B"></div>
+      <div class="ig"><label>OPCAO 3 (opcional):</label><input type="text" id="v_o3" class="if" placeholder="Opcao C (deixa vazio se nao usar)"></div>
+      <button class="ba bw2" onclick="criarVot()">CRIAR VOTACAO</button>
+      <div style="margin-top:13px;border-top:1px solid #332200;padding-top:11px;font-size:0.78rem;color:#888;margin-bottom:7px;">VOTACOES ATIVAS:</div>
+      <div id="ceo_vots" style="max-height:200px;overflow-y:auto;"></div>
+      <button class="ba bd" style="margin-top:7px;" onclick="loadVotsCEO()">ATUALIZAR LISTA</button>
+    </div>
+  </div>
+</div>
+<header>
+  <h1 class="gl" data-t="AREA 51 // OPERACOES">AREA 51 // OPERACOES</h1>
+  <div class="hr">
+    <button id="bceo" class="bceo" onclick="abrirCEO()">CEO PANEL</button>
+    <div class="tsw">
+      <button class="tb on" id="tv" onclick="tema('v')"></button>
+      <button class="tb" id="tr" onclick="tema('r')"></button>
+      <button class="tb" id="tb2" onclick="tema('b')"></button>
+    </div>
+    <div class="tdp" id="tdp" style="display:none;">--:--</div>
+    <button class="bnf" id="bnf" onclick="pedirNotif()">ALERTAS</button>
+    <div id="cob" class="cob con">ONLINE</div>
+  </div>
+</header>
+<div class="gc">
+  <div class="card">
+    <h2>CONTROLO DE PRESENCA</h2>
+    <ul class="pl">
+      <li><span class="mn">[CEO] yelseik</span><span class="sb sof" id="s-yelseik">AUSENTE</span><span class="mc" id="c-yelseik">Lider Supremo</span></li>
+      <li><span class="mn">[ASSIST.] aihosj</span><span class="sb sof" id="s-aihosj">AUSENTE</span><span class="mc" id="c-aihosj">Assistente</span></li>
+      <li><span class="mn">[CONS.] Rengaw</span><span class="sb sof" id="s-rengaw">AUSENTE</span><span class="mc" id="c-rengaw">Conselheiro</span></li>
+      <li><span class="mn">[S.CHEFE] innavoeg</span><span class="sb sof" id="s-innavoeg">AUSENTE</span><span class="mc" id="c-innavoeg">Chefe Seg.</span></li>
+      <li><span class="mn">[SEG.] onaitsirc</span><span class="sb sof" id="s-onaitsirc">AUSENTE</span><span class="mc" id="c-onaitsirc">Seguranca</span></li>
+    </ul>
+    <button class="ba" onclick="abrirPIN()">Autenticar via PIN</button>
+    <button class="ba bw2" onclick="sair()">Sair da Rede</button>
+    <button class="ba bd" onclick="wipePresencas()">Reset Presencas (CEO)</button>
+  </div>
+  <div class="card">
+    <h2>COMUNICACOES CIPHER</h2>
+    <div class="cb2" id="chat"></div>
+    <div class="ciw">
+      <div id="mdc" style="display:none;" class="mac"></div>
+      <input type="text" id="chi" class="if" placeholder="Mensagem... @agente para mencionar" oninput="detMen(this,'c')" onkeydown="if(event.key==='Enter')envChat()">
+    </div>
+    <div class="ig" style="margin-top:7px;"><label>Autodestruicao:</label>
+      <select id="cht" class="if">
+        <option value="0">Sem timer</option><option value="30">30 seg</option>
+        <option value="60">1 min</option><option value="300">5 min</option>
+      </select>
+    </div>
+    <button class="ba" onclick="envChat()">Transmitir Sinal</button>
+    <div class="rc"><div class="radar"></div><div style="font-size:0.72rem;color:#888;">SCANNER:<br><span style="color:var(--p);animation:blk 1s infinite;">ATIVO</span></div></div>
+  </div>
+  <div class="card pcard">
+    <h2>CANAL PRIVADO</h2>
+    <div class="ig"><label>DESTINATARIO:</label>
+      <select id="pd5" class="if" onchange="selDest(this.value)">
+        <option value="">-- SELECIONAR --</option>
+        <option value="yelseik">yelseik</option><option value="aihosj">aihosj</option>
+        <option value="Rengaw">Rengaw</option><option value="innavoeg">innavoeg</option>
+        <option value="onaitsirc">onaitsirc</option>
+      </select>
+    </div>
+    <div class="pcb" id="pchat"><div style="color:#555;text-align:center;padding:18px;font-size:0.78rem;">Seleciona um agente.</div></div>
+    <div class="ciw">
+      <div id="mdp" style="display:none;" class="mac"></div>
+      <input type="text" id="pi2" class="if" placeholder="Mensagem cifrada..." oninput="detMen(this,'p')" onkeydown="if(event.key==='Enter')envPriv()">
+    </div>
+    <div class="ig" style="margin-top:7px;"><label>Autodestruicao:</label>
+      <select id="pt2" class="if">
+        <option value="0">Sem timer</option><option value="30">30 seg</option>
+        <option value="60">1 min</option><option value="300">5 min</option>
+      </select>
+    </div>
+    <button class="ba bbl" onclick="envPriv()">Enviar Cifrado</button>
+  </div>
+  <div class="card">
+    <h2>ESTATISTICAS</h2>
+    <div class="sg">
+      <div class="si"><span class="sn" id="st-on">0</span><span class="sl">Online</span></div>
+      <div class="si"><span class="sn" id="st-mi">0</span><span class="sl">Missoes</span></div>
+      <div class="si"><span class="sn" id="st-co">0</span><span class="sl">Concluidas</span></div>
+      <div class="si"><span class="sn w" id="st-pe">0</span><span class="sl">Pendentes</span></div>
+      <div class="si"><span class="sn d" id="st-cr">0</span><span class="sl">Criticas</span></div>
+      <div class="si"><span class="sn d" id="st-ba">0</span><span class="sl">Banidos</span></div>
+    </div>
+    <div style="margin-top:12px;background:var(--pb);border:1px solid var(--pd);padding:9px;font-size:0.72rem;">
+      <div style="color:#888;margin-bottom:5px;">TAXA DE CONCLUSAO:</div>
+      <div style="background:var(--pd);border-radius:2px;height:7px;overflow:hidden;"><div id="pb5" style="background:var(--p);height:100%;width:0%;transition:width 0.5s;"></div></div>
+      <div style="margin-top:4px;color:var(--p);" id="pct">0%</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>REGISTO DE SEGURANCA</h2>
+    <div class="sll" id="seclog"><div style="color:#555;font-size:0.78rem;text-align:center;padding:13px;">Sem eventos.</div></div>
+    <button class="ba bd" style="margin-top:11px;" onclick="wipeSecLog()">Limpar (CEO)</button>
+  </div>
+  <div class="card">
+    <h2>HISTORICO DE PRESENCAS</h2>
+    <div class="hl" id="hist"><div style="color:#555;font-size:0.78rem;text-align:center;padding:18px;">Sem registos.</div></div>
+    <button class="ba bd" style="margin-top:11px;" onclick="wipeHist()">Limpar (CEO)</button>
+  </div>
+  <div class="card">
+    <h2>ARQUIVO DE BRIEFINGS</h2>
+    <div class="tl" id="atas"></div>
+  </div>
+  <div class="card">
+    <h2>MISSOES OPERACIONAIS</h2>
+    <div style="display:flex;gap:5px;margin-bottom:9px;flex-wrap:wrap;">
+      <button class="ba" style="margin:0;padding:4px 7px;font-size:0.68rem;" onclick="filtro('t')">TODAS</button>
+      <button class="ba bd" style="margin:0;padding:4px 7px;font-size:0.68rem;" onclick="filtro('c')">CRITICAS</button>
+      <button class="ba" style="margin:0;padding:4px 7px;font-size:0.68rem;border-color:#ff8800;color:#ff8800;" onclick="filtro('a')">ALTAS</button>
+      <button class="ba" style="margin:0;padding:4px 7px;font-size:0.68rem;" onclick="filtro('p')">PENDENTES</button>
+      <button class="ba" style="margin:0;padding:4px 7px;font-size:0.68rem;border-color:#ff3333;color:#ff3333;" onclick="filtro('e')">EXPIRADAS</button>
+    </div>
+    <div class="tl" id="miss"></div>
+  </div>
+  <div class="card vcard2">
+    <h2>VOTACOES OPERACIONAIS</h2>
+    <div id="votacoes"><div style="color:#555;text-align:center;padding:18px;font-size:0.78rem;">Sem votacoes ativas.</div></div>
+  </div>
+  <div class="card ncard">
+    <h2>NOTAS DO AGENTE</h2>
+    <div id="nota_info" style="font-size:0.72rem;color:#888;margin-bottom:8px;">Autentica para aceder as tuas notas privadas.</div>
+    <textarea id="nota_txt" class="nota-area" placeholder="As tuas notas privadas... (auto-guardadas)" oninput="debNota()" disabled></textarea>
+    <div class="nota-saved" id="nota_saved">Guardado automaticamente!</div>
+  </div>
+  <div class="card">
+    <h2>PAINEL DO COMANDANTE</h2>
+    <div class="ig"><label>Tipo:</label>
+      <select id="et" class="if" onchange="altPainel()">
+        <option value="m">Lancar Nova Missao</option>
+        <option value="a">Arquivar Ata</option>
+      </select>
+    </div>
+    <div class="ig"><label id="ld">Descricao:</label><input type="text" id="pd6" class="if" placeholder="Detalhes..."></div>
+    <div class="ig" id="gc2"><label>Coordenadas:</label><input type="text" id="pc2" class="if" placeholder="Ex: Setor Sul..."></div>
+    <div class="ig" id="ga"><label>Agente:</label>
+      <select id="ta" class="if">
+        <option value="yelseik">yelseik</option><option value="aihosj">aihosj</option>
+        <option value="Rengaw">Rengaw</option><option value="innavoeg">innavoeg</option>
+        <option value="onaitsirc">onaitsirc</option>
+      </select>
+    </div>
+    <div class="ig" id="gp"><label>Prioridade:</label>
+      <select id="tp" class="if">
+        <option value="n">NORMAL</option><option value="a">ALTA</option><option value="c">CRITICA</option>
+      </select>
+    </div>
+    <div class="ig" id="gprazo"><label>Prazo (opcional):</label>
+      <input type="datetime-local" id="prazo_i" class="if">
+    </div>
+    <button class="ba" onclick="execPainel()">Executar Diretriz</button>
+  </div>
+</div>
+<div class="lp"><div class="lt">LOGS DE INCIDENTES:</div><ul class="lc" id="logs"></ul></div>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+// FIREBASE COM APIKEY REAL
+// ═══════════════════════════════════════════════════
+const FC = {
+    apiKey: "AIzaSyA0L_KIg0VA41_pFhUON-XJf3yz7ims2u0",
+    authDomain: "area51-matanga.firebaseapp.com",
+    databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
+    projectId: "area51-matanga",
+    storageBucket: "area51-matanga.firebasestorage.app",
+    messagingSenderId: "89329275266",
+    appId: "1:89329275266:web:50532f72a8c73b42267f9b"
 };
-const CEO_HASH="4ba06031fb4e25afc62a285e00b82db164ad080b5ef7e0baad15c928f7d387b5";
-const AGENTES_NOMES=["yelseik","aihosj","Rengaw","innavoeg","onaitsirc"];
+let DB = null;
+function initFB(){try{if(typeof firebase==="undefined")return false;if(!firebase.apps.length)firebase.initializeApp(FC);DB=firebase.database();return true;}catch(e){console.error("Firebase erro:",e);return false;}}
+function R(p){return DB?DB.ref(p):null;}
+
+const HM={
+    "4ba06031fb4e25afc62a285e00b82db164ad080b5ef7e0baad15c928f7d387b5":{id:"s-yelseik",nome:"yelseik",isCEO:true},
+    "fe2ca392b5fec350ceb36911e4dce95f75a58447031b0d189604902d7b123a9e":{id:"s-aihosj",nome:"aihosj",isCEO:false},
+    "ba5fb33efdc33b17f120cb66d8444ed59eccd4b7593227cd8a3f9514d11d5f5d":{id:"s-rengaw",nome:"Rengaw",isCEO:false},
+    "45a96860bfa03d80a4a39dad04cdd807d7bf94bd5940c07560dc7fce93c1c713":{id:"s-innavoeg",nome:"innavoeg",isCEO:false},
+    "a72a84647d82ddcfdc3c06c024627ba01f112a2f93031528c09d4b76f5ab7e06":{id:"s-onaitsirc",nome:"onaitsirc",isCEO:false}
+};
+const CEO_H="4ba06031fb4e25afc62a285e00b82db164ad080b5ef7e0baad15c928f7d387b5";
+const ANS=["yelseik","aihosj","Rengaw","innavoeg","onaitsirc"];
 const RANKS=["AGENTE","SEGURANCA","S.CHEFE","CONSELHEIRO","ASSISTENTE","CEO"];
-const CARGOS_DEFAULT={yelseik:"CEO",aihosj:"ASSISTENTE",Rengaw:"CONSELHEIRO",innavoeg:"S.CHEFE",onaitsirc:"SEGURANCA"};
+const CD={yelseik:"CEO",aihosj:"ASSISTENTE",Rengaw:"CONSELHEIRO",innavoeg:"S.CHEFE",onaitsirc:"SEGURANCA"};
 
-let agenteAutenticado=null,agenteId=null,isCEO=false;
-let tentativasFalhadas=0,bloqueioAte=0,filtroAtivo="todas";
-let primeiraCargaTarefas=true,primeiraCargaChat=true,todasTarefas={};
-let pinAtual="",pinAgenteEscolhido="",nivelAlertaSelecionado="VERMELHO";
-let timeoutInterval=null,lastActivity=Date.now();
-let salaPrivadaAtual=null,privListener=null;
-const TIMEOUT_MS=15*60*1000;
+let ag=null,agId=null,CEO=false;
+let tf=0,bAt=0,filtroAct="t";
+let p1Load=true,c1Load=true,todos={};
+let pin="",pinAg="",nivelAl="VERMELHO";
+let toInt=null,lastAct=Date.now(),sala=null,privLis=null;
+let notaTimer=null;
+const TMS=15*60*1000;
 
-async function sha256(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t.trim()));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
-function getAgenteByNome(nome){return Object.values(agentesHashMap).find(a=>a.nome.toLowerCase()===nome.toLowerCase());}
+async function h256(t){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t.trim()));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
+function getAg(n){return Object.values(HM).find(a=>a.nome.toLowerCase()===n.toLowerCase());}
 
-function trocarTema(t){document.body.classList.remove("tema-r","tema-b");if(t==="r")document.body.classList.add("tema-r");if(t==="b")document.body.classList.add("tema-b");localStorage.setItem("matanga_tema",t);document.querySelectorAll(".btn-tema").forEach(b=>b.classList.remove("ativo"));const btn=document.getElementById("btn-tema-"+t);if(btn)btn.classList.add("ativo");}
-function carregarTema(){const t=localStorage.getItem("matanga_tema")||"v";trocarTema(t);}
+function tema(t){document.body.classList.remove("r","b");if(t==="r")document.body.classList.add("r");if(t==="b")document.body.classList.add("b");localStorage.setItem("mt",t);document.querySelectorAll(".tb").forEach(b=>b.classList.remove("on"));const bt=document.getElementById(t==="v"?"tv":t==="r"?"tr":"tb2");if(bt)bt.classList.add("on");}
+function carTema(){tema(localStorage.getItem("mt")||"v");}
 
-const bootSeq=[
-    {t:"PROTOCOLO DE ARRANQUE INICIADO...",c:"b-warn",p:12},
-    {t:"VERIFICANDO HARDWARE...             [OK]",c:"b-ok",p:26},
-    {t:"SERVICE WORKER REGISTADO...         [OK]",c:"b-ok",p:40},
-    {t:"MODO OFFLINE ATIVADO...             [OK]",c:"b-ok",p:54},
-    {t:"FIREBASE SINCRONIZADO...            [OK]",c:"b-ok",p:70},
-    {t:"VERIFICANDO BANIMENTOS...           [OK]",c:"b-ok",p:86},
-    {t:"SISTEMA PRONTO.                     [OK]",c:"b-ok",p:100}
+const BS=[
+    {t:"PROTOCOLO DE ARRANQUE INICIADO...",c:"bw",p:12},
+    {t:"VERIFICANDO HARDWARE...              [OK]",c:"bok",p:25},
+    {t:"FIREBASE CONECTADO...                [OK]",c:"bok",p:40},
+    {t:"LIGACAO ENCRIPTADA ATIVA...          [OK]",c:"bok",p:55},
+    {t:"MODULOS DE SEGURANCA CARREGADOS...   [OK]",c:"bok",p:72},
+    {t:"SCANNER DE PERIMETRO ATIVO...        [OK]",c:"bok",p:87},
+    {t:"TODOS OS SISTEMAS OPERACIONAIS.      [OK]",c:"bok",p:100}
 ];
-function mostrarBootSequence(){
-    const cont=document.getElementById("bootLines"),bar=document.getElementById("bootBarFill");
-    bootSeq.forEach((item,i)=>{setTimeout(()=>{const l=document.createElement("div");l.className="boot-line "+item.c;l.textContent="> "+item.t;cont.appendChild(l);bar.style.width=item.p+"%";},i*480);});
-    setTimeout(()=>{document.getElementById("loginLogo").style.display="block";document.getElementById("loginLogo").classList.add("pulse");setTimeout(()=>document.getElementById("loginSub").style.display="block",400);setTimeout(()=>{document.getElementById("loginBtn").style.display="block";iniciarGlitch();},800);},bootSeq.length*480+300);
+function boot(){
+    const bl=document.getElementById("bl"),bf=document.getElementById("bbf");
+    if(!bl||!bf)return;
+    BS.forEach((x,i)=>setTimeout(()=>{const l=document.createElement("div");l.className="bl "+x.c;l.textContent="> "+x.t;bl.appendChild(l);bf.style.width=x.p+"%";},i*400));
+    setTimeout(()=>{
+        const ll=document.getElementById("ll"),ls2=document.getElementById("ls2"),lb=document.getElementById("lb");
+        if(ll){ll.style.display="block";ll.classList.add("pulse");}
+        setTimeout(()=>{if(ls2)ls2.style.display="block";},350);
+        setTimeout(()=>{if(lb)lb.style.display="block";startGlitch();},700);
+    },BS.length*400+200);
 }
-function inicializarSistema(){const s=document.getElementById("loginScreen");s.classList.add("fadeout");setTimeout(()=>s.style.display="none",1000);adicionarLog("Sistema inicializado.");}
-function iniciarGlitch(){function d(){const els=document.querySelectorAll(".glitch-text");if(els.length>0){const el=els[Math.floor(Math.random()*els.length)];if(!el.classList.contains("glitching")){el.classList.add("glitching");setTimeout(()=>el.classList.remove("glitching"),280);}}setTimeout(d,Math.random()*3500+1500);}d();}
+function startGlitch(){function g(){const els=document.querySelectorAll(".gl");if(els.length){const e=els[Math.floor(Math.random()*els.length)];if(!e.classList.contains("g")){e.classList.add("g");setTimeout(()=>e.classList.remove("g"),270);}}setTimeout(g,Math.random()*3000+1200);}g();}
+function entrar(){const ls=document.getElementById("ls");if(ls)ls.classList.add("out");setTimeout(()=>{if(ls)ls.style.display="none";},1000);if(DB)log("Sistema inicializado.");}
 
 window.onload=function(){
-    carregarTema();mostrarBootSequence();
-    ouvirPresencas();ouvirChat();ouvirTarefas();ouvirAtas();ouvirLogs();
-    ouvirEstatisticas();ouvirHistoricoPresencas();ouvirSecurityLog();
-    ouvirAlarmeMissoes();ouvirBanimentos();ouvirCargos();
-    ouvirAlertaGlobal();ouvirConexao();
-    verificarSessaoGuardada();iniciarLimpezaAutomatica();
-    adicionarLog("Terminal operacional conectado.");
-    setTimeout(()=>{primeiraCargaTarefas=false;primeiraCargaChat=false;},3000);
-    window.addEventListener("beforeunload",()=>{if(agenteAutenticado&&agenteId){registarHistoricoPresenca(agenteAutenticado,"SAIDA");database.ref("presencas/"+agenteId).remove();}});
-    document.addEventListener("click",(e)=>{if(!e.target.closest(".chat-input-wrap")){["mentionDropdownChat","mentionDropdownPriv"].forEach(id=>{const d=document.getElementById(id);if(d)d.style.display="none";});}});
-    if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").catch(()=>{});}
+    carTema();
+    boot();
+    const ok=initFB();
+    if(ok){
+        lisPresencas();lisChat();lisMissoes();lisAtas();lisLogs();
+        lisStats();lisHist();lisSecLog();lisAlerta();lisConexao();
+        lisBanimentos();lisCargos();lisAlarmeMissoes();lisVotacoes();
+        restoreSessao();
+        inicLimpeza();
+        setTimeout(()=>{p1Load=false;c1Load=false;},3000);
+        if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+    }
+    document.addEventListener("click",e=>{if(!e.target.closest(".ciw")){["mdc","mdp"].forEach(id=>{const d=document.getElementById(id);if(d)d.style.display="none";});});
 };
+function restoreSessao(){if(!DB)return;const d=localStorage.getItem("m_s");if(!d)return;try{const s=JSON.parse(d);ag=s.n;agId=s.i;CEO=s.c;if(R("presencas/"+agId))R("presencas/"+agId).set("ATIVO");inicTO();if(CEO){const b=document.getElementById("bceo");if(b)b.style.display="inline-block";}ativarNota();}catch(e){localStorage.removeItem("m_s");}}
+</script>
+<script>
+function log(m,e=false){if(!R("logs"))return;R("logs").push().set({m,e,ts:Date.now(),h:new Date().toLocaleTimeString()});}
+function lisLogs(){if(!R("logs"))return;R("logs").limitToLast(50).on("value",s=>{const c=document.getElementById("logs");if(!c)return;c.innerHTML="";const d=s.val();if(d)Object.values(d).reverse().forEach(l=>{c.innerHTML+="<li"+(l.e?" class='le'":"")+">["+l.h+"] "+l.m+"</li>";});});}
 
-function verificarSessaoGuardada(){const d=localStorage.getItem("matanga_sessao");if(d){try{const s=JSON.parse(d);agenteAutenticado=s.nome;agenteId=s.id;isCEO=s.isCEO;database.ref("presencas/"+agenteId).set("ATIVO");iniciarTimeout();if(isCEO){const b=document.getElementById("btnCEOPanel");if(b)b.style.display="inline-block";}}catch(e){localStorage.removeItem("matanga_sessao");}}}
+function sErr(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.type="sawtooth";o.frequency.setValueAtTime(120,c.currentTime);o.frequency.exponentialRampToValueAtTime(40,c.currentTime+0.4);g.gain.setValueAtTime(0.3,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.4);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.4);}catch(e){}}
+function sOk(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.setValueAtTime(600,c.currentTime);o.frequency.setValueAtTime(900,c.currentTime+0.08);g.gain.setValueAtTime(0.1,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.2);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.2);}catch(e){}}
+function sCrit(){try{const c=new(window.AudioContext||window.webkitAudioContext)();[0,0.15,0.3].forEach(d=>{const o=c.createOscillator(),g=c.createGain();o.type="square";o.frequency.setValueAtTime(440,c.currentTime+d);g.gain.setValueAtTime(0.15,c.currentTime+d);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+d+0.12);o.connect(g);g.connect(c.destination);o.start(c.currentTime+d);o.stop(c.currentTime+d+0.12);});}catch(e){}}
+function sMen(){try{const c=new(window.AudioContext||window.webkitAudioContext)();[0,0.1].forEach((d,i)=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.setValueAtTime(i?1000:700,c.currentTime+d);g.gain.setValueAtTime(0.12,c.currentTime+d);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+d+0.15);o.connect(g);g.connect(c.destination);o.start(c.currentTime+d);o.stop(c.currentTime+d+0.15);});}catch(e){}}
 
-function adicionarLog(msg,erro=false){database.ref("logs").push().set({msg,erro,timestamp:Date.now(),hora:new Date().toLocaleTimeString()});}
-function ouvirLogs(){database.ref("logs").limitToLast(50).on("value",(snap)=>{const c=document.getElementById("logContainer");c.innerHTML="";const logs=snap.val();if(logs)Object.values(logs).reverse().forEach(l=>{c.innerHTML+="<li "+(l.erro?"class='log-erro'":"")+">["+l.hora+"] "+l.msg+"</li>";});});}
+function abrirPIN(){if(Date.now()<bAt){alert("Bloqueado "+Math.ceil((bAt-Date.now())/1000)+"s.");return;}pin="";pinAg="";const a=document.getElementById("pa");if(a)a.value="";const s1=document.getElementById("ps1"),s2=document.getElementById("ps2"),p2=document.getElementById("pm"),pe=document.getElementById("pe");if(s1)s1.style.display="block";if(s2)s2.style.display="none";if(pe)pe.style.display="none";if(p2)p2.classList.add("on");}
+function fecharPIN(){const p2=document.getElementById("pm");if(p2)p2.classList.remove("on");pin="";}
+function voltarS1(){pin="";pinAg="";const s1=document.getElementById("ps1"),s2=document.getElementById("ps2"),pe=document.getElementById("pe");if(s1)s1.style.display="block";if(s2)s2.style.display="none";if(pe)pe.style.display="none";atuDots();}
+function irPIN(){const a=document.getElementById("pa");if(!a||!a.value){alert("Seleciona um agente.");return;}pinAg=a.value;pin="";atuDots();const nd=document.getElementById("pnd"),pe=document.getElementById("pe"),s1=document.getElementById("ps1"),s2=document.getElementById("ps2");if(nd)nd.textContent=pinAg.toUpperCase();if(s1)s1.style.display="none";if(s2)s2.style.display="block";if(pe)pe.style.display="none";}
+function pd(d){if(pin.length>=6)return;pin+=d;atuDots();if(pin.length===6)setTimeout(validar,200);}
+function pdel(){pin=pin.slice(0,-1);atuDots();}
+function atuDots(){for(let i=0;i<6;i++){const d=document.getElementById("d"+i);if(d)d.classList.toggle("on",i<pin.length);}}
 
-function tocarSomErro(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type="sawtooth";o.frequency.setValueAtTime(120,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(40,ctx.currentTime+0.4);g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.4);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.4);}catch(e){}}
-function tocarSomSucesso(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(600,ctx.currentTime);o.frequency.setValueAtTime(900,ctx.currentTime+0.08);g.gain.setValueAtTime(0.1,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.2);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.2);}catch(e){}}
-function tocarAlertaCritico(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[0,0.15,0.3].forEach(d=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="square";o.frequency.setValueAtTime(440,ctx.currentTime+d);g.gain.setValueAtTime(0.15,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+d+0.12);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+0.12);});}catch(e){}}
-function tocarSomMencao(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[0,0.1].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(i===0?700:1000,ctx.currentTime+d);g.gain.setValueAtTime(0.12,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+d+0.15);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+0.15);});}catch(e){}}
-
-function mostrarModalPIN(){if(Date.now()<bloqueioAte)return alert("Bloqueado "+Math.ceil((bloqueioAte-Date.now())/1000)+"s.");pinAtual="";pinAgenteEscolhido="";document.getElementById("pinAgente").value="";document.getElementById("pinStep1").style.display="block";document.getElementById("pinStep2").style.display="none";document.getElementById("pinError").style.display="none";document.getElementById("pinModal").classList.add("show");}
-function fecharModalPIN(){document.getElementById("pinModal").classList.remove("show");pinAtual="";}
-function voltarStep1(){pinAtual="";pinAgenteEscolhido="";document.getElementById("pinStep1").style.display="block";document.getElementById("pinStep2").style.display="none";document.getElementById("pinError").style.display="none";atualizarDots();}
-function avancarParaPIN(){const ag=document.getElementById("pinAgente").value;if(!ag)return alert("Seleciona um agente.");pinAgenteEscolhido=ag;pinAtual="";atualizarDots();document.getElementById("pinNomeDisplay").textContent=ag.toUpperCase();document.getElementById("pinStep1").style.display="none";document.getElementById("pinStep2").style.display="block";document.getElementById("pinError").style.display="none";}
-function pinDigito(d){if(pinAtual.length>=6)return;pinAtual+=d;atualizarDots();if(pinAtual.length===6)setTimeout(validarPIN,200);}
-function pinDel(){pinAtual=pinAtual.slice(0,-1);atualizarDots();}
-function atualizarDots(){for(let i=0;i<6;i++){const dot=document.getElementById("pinDot"+i);if(dot)dot.classList.toggle("filled",i<pinAtual.length);}}
-
-async function validarPIN(){
-    const agente=pinAgenteEscolhido;
-    const banSnap=await database.ref("config/banidos/"+agente).once("value");
-    if(banSnap.val()){pinAtual="";atualizarDots();const ban=banSnap.val();const err=document.getElementById("pinError");err.style.display="block";err.textContent="ACESSO NEGADO - BANIDO";tocarSomErro();registarSeguranca("ACESSO_NEGADO",agente,"Banido: "+ban.motivo);adicionarLog("Banido tentou aceder: "+agente,true);return;}
-    const inputHash=await sha256(agente+":"+pinAtual);
-    const pinSnap=await database.ref("config/pins/"+agente).once("value");
-    const customHash=pinSnap.val();
-    const valid=customHash?inputHash===customHash:(agentesHashMap[inputHash]&&agentesHashMap[inputHash].nome.toLowerCase()===agente.toLowerCase());
+async function validar(){
+    if(!DB){alert("Firebase nao disponivel.");return;}
+    const agt=pinAg;
+    try{const bs=await R("config/banidos/"+agt).once("value");if(bs.val()){pin="";atuDots();const pe=document.getElementById("pe"),pb=document.getElementById("pb");if(pe){pe.style.display="block";pe.textContent="ACESSO NEGADO - AGENTE BANIDO";}if(pb){pb.classList.add("psh");setTimeout(()=>pb.classList.remove("psh"),400);}sErr();logSec("ACESSO_NEGADO",agt,"Banido: "+bs.val().m);log("Banido tentou aceder: "+agt,true);return;}}catch(e){}
+    const ih=await h256(agt+":"+pin);
+    let valid=false;
+    try{const ps=await R("config/pins/"+agt).once("value");const ch=ps.val();valid=ch?ih===ch:(HM[ih]&&HM[ih].nome.toLowerCase()===agt.toLowerCase());}catch(e){valid=!!(HM[ih]&&HM[ih].nome.toLowerCase()===agt.toLowerCase());}
     if(valid){
-        const agInfo=getAgenteByNome(agente);if(!agInfo){errarPIN();return;}
-        agenteAutenticado=agInfo.nome;agenteId=agInfo.id;isCEO=agInfo.isCEO;tentativasFalhadas=0;
-        localStorage.setItem("matanga_sessao",JSON.stringify({nome:agInfo.nome,id:agInfo.id,isCEO:isCEO}));
-        database.ref("presencas/"+agInfo.id).set("ATIVO");
-        registarHistoricoPresenca(agInfo.nome,"ENTRADA");registarSeguranca("ACESSO_CONCEDIDO",agInfo.nome,"Login PIN");
-        adicionarLog("SINAL: Agente "+agInfo.nome+" entrou na rede.");tocarSomSucesso();fecharModalPIN();iniciarTimeout();
-        if(isCEO){const b=document.getElementById("btnCEOPanel");if(b)b.style.display="inline-block";}
-        alert("Identidade validada. Canal ativo para "+agInfo.nome+".");
-    }else{errarPIN();}
+        const ai=getAg(agt);if(!ai){erroPin();return;}
+        ag=ai.nome;agId=ai.id;CEO=ai.isCEO;tf=0;
+        localStorage.setItem("m_s",JSON.stringify({n:ai.nome,i:ai.id,c:CEO}));
+        if(R("presencas/"+ai.id))R("presencas/"+ai.id).set("ATIVO");
+        regHist(ai.nome,"ENTRADA");logSec("ACESSO_CONCEDIDO",ai.nome,"Login PIN");
+        log("SINAL: Agente "+ai.nome+" entrou na rede.");
+        sOk();fecharPIN();inicTO();ativarNota();
+        if(CEO){const b=document.getElementById("bceo");if(b)b.style.display="inline-block";}
+        alert("Identidade validada. Canal ativo para "+ai.nome+".");
+    }else{erroPin();}
 }
-function errarPIN(){pinAtual="";atualizarDots();tentativasFalhadas++;const box=document.getElementById("pinBox");box.classList.add("pin-shake");setTimeout(()=>box.classList.remove("pin-shake"),400);const err=document.getElementById("pinError");err.style.display="block";err.textContent="PIN INCORRETO ["+tentativasFalhadas+"/3]";tocarSomErro();if(tentativasFalhadas>=3){bloqueioAte=Date.now()+30000;tentativasFalhadas=0;fecharModalPIN();registarSeguranca("BLOQUEIO",pinAgenteEscolhido,"3 falhas");adicionarLog("BREACH: Bloqueado 30s.",true);alert("BLOQUEADO 30s!");}else{registarSeguranca("ACESSO_NEGADO",pinAgenteEscolhido,"Tentativa "+tentativasFalhadas+"/3");adicionarLog("PIN incorreto ["+tentativasFalhadas+"/3]",true);}}
+function erroPin(){pin="";atuDots();tf++;const pb=document.getElementById("pb"),pe=document.getElementById("pe");if(pb){pb.classList.add("psh");setTimeout(()=>pb.classList.remove("psh"),400);}if(pe){pe.style.display="block";pe.textContent="PIN INCORRETO ["+tf+"/3]";}sErr();if(tf>=3){bAt=Date.now()+30000;tf=0;fecharPIN();logSec("BLOQUEIO",pinAg,"3 falhas");log("BREACH: Bloqueado 30s.",true);alert("BLOQUEADO 30s!");}else{logSec("ACESSO_NEGADO",pinAg,"Tentativa "+tf+"/3");log("PIN incorreto ["+tf+"/3]",true);}}
 
-function iniciarTimeout(){lastActivity=Date.now();if(timeoutInterval)clearInterval(timeoutInterval);timeoutInterval=setInterval(verificarTimeout,1000);["click","keypress","mousemove","touchstart","scroll"].forEach(e=>document.addEventListener(e,resetarTimeout));const td=document.getElementById("timeoutDisplay");if(td)td.style.display="block";}
-function resetarTimeout(){if(agenteAutenticado)lastActivity=Date.now();}
-function verificarTimeout(){if(!agenteAutenticado){clearInterval(timeoutInterval);esconderAviso();return;}const r=TIMEOUT_MS-(Date.now()-lastActivity);const td=document.getElementById("timeoutDisplay");if(td)td.textContent="SESSAO: "+formatarTempo(Math.max(0,r));if(r<=0)autoLogout();else if(r<=120000)mostrarAviso(r,true);else if(r<=300000)mostrarAviso(r,false);else esconderAviso();}
-function mostrarAviso(r,critico){const bar=document.getElementById("timeoutWarning");bar.style.display="block";bar.textContent="SESSAO EXPIRA EM: "+formatarTempo(r);bar.className="timeout-bar"+(critico?" critical":"");}
-function esconderAviso(){const b=document.getElementById("timeoutWarning");if(b)b.style.display="none";}
-function formatarTempo(ms){const s=Math.ceil(ms/1000),min=Math.floor(s/60),sec=s%60;return min.toString().padStart(2,"0")+":"+sec.toString().padStart(2,"0");}
-function limparSessao(){clearInterval(timeoutInterval);esconderAviso();const td=document.getElementById("timeoutDisplay");if(td)td.style.display="none";const b=document.getElementById("btnCEOPanel");if(b)b.style.display="none";agenteAutenticado=null;agenteId=null;isCEO=false;localStorage.removeItem("matanga_sessao");}
-function autoLogout(){registarSeguranca("SESSAO_EXPIRADA",agenteAutenticado,"Inatividade");adicionarLog("TIMEOUT: "+agenteAutenticado+" expirou.");database.ref("presencas/"+agenteId).remove();registarHistoricoPresenca(agenteAutenticado,"SAIDA");limparSessao();tocarSomErro();alert("SESSAO EXPIRADA!");}
+function limparSessao(){if(toInt)clearInterval(toInt);escTO();const td=document.getElementById("tdp");if(td)td.style.display="none";const bc=document.getElementById("bceo");if(bc)bc.style.display="none";ag=null;agId=null;CEO=false;localStorage.removeItem("m_s");desativarNota();}
+function inicTO(){lastAct=Date.now();if(toInt)clearInterval(toInt);toInt=setInterval(tickTO,1000);["click","keypress","mousemove","touchstart","scroll"].forEach(e=>document.addEventListener(e,resetTO));const td=document.getElementById("tdp");if(td)td.style.display="block";}
+function resetTO(){if(ag)lastAct=Date.now();}
+function tickTO(){if(!ag){clearInterval(toInt);escTO();return;}const r=TMS-(Date.now()-lastAct);const td=document.getElementById("tdp");if(td)td.textContent=ftm(Math.max(0,r));if(r<=0)autoOut();else if(r<=120000)mTO(r,true);else if(r<=300000)mTO(r,false);else escTO();}
+function mTO(r,cr){const b=document.getElementById("tb");if(b){b.style.display="block";b.textContent="SESSAO EXPIRA EM: "+ftm(r);b.className="tob"+(cr?" cr":"");}}
+function escTO(){const b=document.getElementById("tb");if(b)b.style.display="none";}
+function ftm(ms){const s=Math.ceil(ms/1000),m=Math.floor(s/60),sc=s%60;return m.toString().padStart(2,"0")+":"+sc.toString().padStart(2,"0");}
+function autoOut(){logSec("SESSAO_EXPIRADA",ag,"Inatividade");log("TIMEOUT: "+ag+" expirou.");if(R("presencas/"+agId))R("presencas/"+agId).remove();regHist(ag,"SAIDA");limparSessao();sErr();alert("SESSAO EXPIRADA!");}
+function sair(){if(!ag){alert("Nao autenticado.");return;}if(!confirm("Sair da rede?"))return;if(R("presencas/"+agId))R("presencas/"+agId).remove();regHist(ag,"SAIDA");logSec("SESSAO_ENCERRADA",ag,"Saida manual");log("Agente "+ag+" saiu.");fecharCEO();limparSessao();sOk();alert("Sessao encerrada.");}
+async function wipePresencas(){const p=prompt("PIN CEO:");if(!p)return;if(await h256("yelseik:"+p)===CEO_H){if(R("presencas"))R("presencas").remove();sOk();log("CEO wipe presencas.");alert("Presencas reinicializadas.");}else{sErr();alert("PIN incorreto.");}}
 
-function registarSeguranca(tipo,agente,detalhes){const icons={ACESSO_CONCEDIDO:"OK",ACESSO_NEGADO:"ERR",BLOQUEIO:"BLK",SESSAO_EXPIRADA:"TMO",SESSAO_ENCERRADA:"OFF",BANIMENTO:"BAN",ALERTA_GLOBAL:"ALT"};database.ref("security_logs").push().set({tipo,agente:agente||"?",detalhes:detalhes||"",icone:icons[tipo]||"?",hora:new Date().toLocaleTimeString(),timestamp:Date.now()});}
-function ouvirSecurityLog(){database.ref("security_logs").limitToLast(20).on("value",(snap)=>{const c=document.getElementById("secLogContainer");c.innerHTML="";const d=snap.val();if(!d){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:15px;'>Sem eventos.</div>";return;}Object.values(d).reverse().forEach(e=>{let cls="sec-info";if(e.tipo==="ACESSO_CONCEDIDO"||e.tipo==="SESSAO_ENCERRADA")cls="sec-ok";if(e.tipo==="ACESSO_NEGADO"||e.tipo==="BLOQUEIO"||e.tipo==="BANIMENTO")cls="sec-fail";c.innerHTML+="<div class='sec-log-item "+cls+"'>["+e.hora+"] ["+e.icone+"] "+e.tipo+" "+e.agente+(e.detalhes?" ("+e.detalhes+")":"")+"</div>";});});}
-async function limparSecLog(){const pin=prompt("PIN DO CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("security_logs").remove();adicionarLog("CEO limpou registo.");tocarSomSucesso();}else{tocarSomErro();alert("PIN incorreto.");}}
-cat >> index.html << 'AREA51EOF3B'
-// ── MODO OFFLINE ──────────────────────────────────────────────
-function ouvirConexao(){
-    database.ref(".info/connected").on("value",(snap)=>{
-        const online=snap.val();
-        const badge=document.getElementById("conexaoBadge");
-        if(badge){badge.textContent=online?"ONLINE":"OFFLINE";badge.className="conexao-badge "+(online?"conexao-online":"conexao-offline");}
-        if(!online)adicionarLog("AVISO: Conexao perdida. Modo offline ativo.");
-        else adicionarLog("Ligacao restabelecida.");
-    });
-}
+function logSec(tipo,agt,det){if(!R("security_logs"))return;const ic={ACESSO_CONCEDIDO:"OK",ACESSO_NEGADO:"ERR",BLOQUEIO:"BLK",SESSAO_EXPIRADA:"TMO",SESSAO_ENCERRADA:"OFF",BANIMENTO:"BAN",ALERTA:"ALT"};R("security_logs").push().set({tipo,agt:agt||"?",det:det||"",ic:ic[tipo]||"?",h:new Date().toLocaleTimeString(),ts:Date.now()});}
+function lisSecLog(){if(!R("security_logs"))return;R("security_logs").limitToLast(20).on("value",s=>{const c=document.getElementById("seclog");if(!c)return;c.innerHTML="";const d=s.val();if(!d){c.innerHTML="<div style='color:#555;font-size:0.78rem;text-align:center;padding:13px;'>Sem eventos.</div>";return;}Object.values(d).reverse().forEach(e=>{let cl="slin";if(e.tipo==="ACESSO_CONCEDIDO"||e.tipo==="SESSAO_ENCERRADA")cl="slok";if(e.tipo==="ACESSO_NEGADO"||e.tipo==="BLOQUEIO"||e.tipo==="BANIMENTO")cl="slfl";c.innerHTML+="<div class='sli "+cl+"'>["+e.h+"] ["+e.ic+"] "+e.tipo+" "+e.agt+(e.det?" ("+e.det+")":"")+"</div>";});});}
+async function wipeSecLog(){const p=prompt("PIN CEO:");if(!p)return;if(await h256("yelseik:"+p)===CEO_H){if(R("security_logs"))R("security_logs").remove();log("CEO limpou registo.");sOk();}else{sErr();alert("PIN incorreto.");}}
+</script>
+<script>
+function abrirCEO(){if(!CEO)return;document.getElementById("cpanel").classList.add("on");loadCEO();tab("ag");}
+function fecharCEO(){document.getElementById("cpanel").classList.remove("on");}
+function tab(t){document.querySelectorAll(".ctc").forEach(c=>c.classList.remove("on"));document.querySelectorAll(".ct").forEach(c=>c.classList.remove("on"));const tc=document.getElementById("tc_"+t),ct=document.getElementById("ct_"+t);if(tc)tc.classList.add("on");if(ct)ct.classList.add("on");if(t==="ch")loadChat();if(t==="mi")loadMissoesCEO();if(t==="pv")loadPrivados();if(t==="vo")loadVotsCEO();}
 
-// ── ALERTA GLOBAL ─────────────────────────────────────────────
-let alertaAtivo=false;
-function selecionarNivel(nivel){
-    nivelAlertaSelecionado=nivel;
-    ["Verde","Amarelo","Vermelho"].forEach(n=>{const b=document.getElementById("nivel"+n);if(b)b.classList.remove("ativo");});
-    const btn=document.getElementById("nivel"+nivel.charAt(0)+nivel.slice(1).toLowerCase());
-    if(btn)btn.classList.add("ativo");
-}
-function ouvirAlertaGlobal(){
-    database.ref("config/alerta").on("value",(snap)=>{
-        const a=snap.val();
-        const banner=document.getElementById("alertaGlobalBanner");
-        const status=document.getElementById("alertaAtualStatus");
-        if(!banner)return;
-        if(a&&a.ativo){
-            const cores={VERDE:"alerta-verde",AMARELO:"alerta-amarelo",VERMELHO:"alerta-vermelho"};
-            banner.className="alerta-banner "+(cores[a.nivel]||"alerta-vermelho");
-            banner.style.display="block";
-            banner.textContent="["+a.nivel+"] "+a.mensagem+" — Clica para fechar";
-            if(status)status.textContent="ATIVO: ["+a.nivel+"] "+a.mensagem;
-            if(a.nivel==="VERMELHO"){tocarAlertaCritico();document.body.classList.add("siren-active");setTimeout(()=>document.body.classList.remove("siren-active"),3000);}
-            enviarNotificacaoPush("ALERTA "+a.nivel,a.mensagem);
-        }else{
-            banner.style.display="none";
-            if(status)status.textContent="Sem alerta ativo.";
-        }
-    });
-}
-function ativarAlertaGlobal(){
-    const msg=document.getElementById("alertaMensagem").value;
-    if(!msg.trim())return alert("Escreve uma mensagem de alerta.");
-    database.ref("config/alerta").set({nivel:nivelAlertaSelecionado,mensagem:msg,ativo:true,por:"yelseik",timestamp:Date.now()});
-    adicionarLog("CEO ativou ALERTA "+nivelAlertaSelecionado+": "+msg,nivelAlertaSelecionado==="VERMELHO");
-    registarSeguranca("ALERTA_GLOBAL","yelseik",nivelAlertaSelecionado+": "+msg);
-    tocarSomSucesso();document.getElementById("alertaMensagem").value="";
-}
-function cancelarAlertaGlobal(){
-    database.ref("config/alerta").set({ativo:false});
-    adicionarLog("CEO cancelou alerta global.");tocarSomSucesso();
-}
-// ── PAINEL CEO ────────────────────────────────────────────────
-function abrirPainelCEO(){if(!isCEO)return;document.getElementById("ceoPainel").classList.add("show");carregarPainelCEO();ceoTab("agentes");}
-function fecharPainelCEO(){document.getElementById("ceoPainel").classList.remove("show");}
-function ceoTab(tab){document.querySelectorAll(".ceo-tab-content").forEach(c=>c.classList.remove("active"));document.querySelectorAll(".ceo-tab").forEach(t=>t.classList.remove("active"));document.getElementById("ceoTabContent_"+tab).classList.add("active");document.getElementById("ceoTabBtn_"+tab).classList.add("active");if(tab==="chat")carregarChatCEO();if(tab==="missoes")carregarMissoesCEO();if(tab==="priv")carregarCanaisPrivados();}
+async function loadCEO(){if(!DB)return;const[pS,bS,cS]=await Promise.all([R("presencas").once("value"),R("config/banidos").once("value"),R("config/cargos").once("value")]);renderAgentes(pS.val()||{},bS.val()||{},cS.val()||{});renderBanidos(bS.val()||{});}
+function renderAgentes(pres,bans,cargos){const c=document.getElementById("agl");if(!c)return;c.innerHTML="";ANS.forEach(n=>{const ai=getAg(n),sid=ai?ai.id:null;const on=sid&&pres[sid]==="ATIVO",ban=bans[n];const cargo=cargos[n]||CD[n]||"AGENTE",isc=n==="yelseik";let st=ban?"<span style='color:#ff8800;font-size:0.73rem;'>BANIDO</span>":on?"<span style='color:#00ff66;font-size:0.73rem;'>ATIVO</span>":"<span style='color:#ff3333;font-size:0.73rem;'>AUSENTE</span>";let ac="";if(!isc){const idx=RANKS.indexOf(cargo);if(idx<RANKS.length-2)ac+="<button class='cb3 cup' onclick='prom(\""+n+"\",\""+cargo+"\")'>>PROM</button> ";if(idx>0)ac+="<button class='cb3 cdn' onclick='reb(\""+n+"\",\""+cargo+"\")'><REB</button> ";if(ban)ac+="<button class='cb3 cub' onclick='desban(\""+n+"\")'>DESBAN</button>";else ac+="<button class='cb3 cban' onclick='pedBan(\""+n+"\")'>BANIR</button>";}c.innerHTML+="<div class='ar2'><span class='an'>"+n+"</span><span class='acb'>"+cargo+"</span>"+st+"<div class='aa2'>"+ac+"</div></div>";});}
+async function prom(n,cargo){const idx=RANKS.indexOf(cargo);if(idx>=RANKS.length-2)return alert("Nivel maximo.");const nv=RANKS[idx+1];if(!confirm("Promover "+n+" para "+nv+"?"))return;await R("config/cargos/"+n).set(nv);log("CEO promoveu "+n+" para "+nv+".");sOk();loadCEO();}
+async function reb(n,cargo){const idx=RANKS.indexOf(cargo);if(idx<=0)return alert("Nivel minimo.");const nv=RANKS[idx-1];if(!confirm("Rebaixar "+n+" para "+nv+"?"))return;await R("config/cargos/"+n).set(nv);log("CEO rebaixou "+n+" para "+nv+".");sOk();loadCEO();}
+function pedBan(n){const m=prompt("MOTIVO DO BANIMENTO de "+n+":");if(!m)return;banir(n,m);}
+async function banir(n,m){await R("config/banidos/"+n).set({m,por:"yelseik",h:new Date().toLocaleTimeString(),ts:Date.now()});const ai=getAg(n);if(ai&&R("presencas/"+ai.id))R("presencas/"+ai.id).remove();log("CEO baniu "+n+": "+m,true);logSec("BANIMENTO",n,m);sErr();loadCEO();}
+async function desban(n){if(!confirm("Desbanir "+n+"?"))return;await R("config/banidos/"+n).remove();log("CEO desbaniu "+n+".");sOk();loadCEO();}
+function banirForm(){const n=document.getElementById("cba").value,m=document.getElementById("cbm").value;if(!n||!m.trim())return alert("Preenche agente e motivo.");banir(n,m);document.getElementById("cbm").value="";document.getElementById("cba").value="";}
+function renderBanidos(bans){const c=document.getElementById("banl");if(!c)return;c.innerHTML="";const e=Object.entries(bans);if(!e.length){c.innerHTML="<div style='color:#555;font-size:0.78rem;text-align:center;padding:18px;'>Nenhum agente banido.</div>";return;}e.forEach(([n,i])=>{c.innerHTML+="<div class='br2'><div><span class='bname'>"+n+"</span><br><span class='binfo'>"+i.m+" | "+i.h+"</span></div><button class='cb3 cub' onclick='desban(\""+n+"\")'>DESBANIR</button></div>";});}
+async function mudarPIN(){const a=document.getElementById("cpa").value,np=document.getElementById("cpn").value;if(!a)return alert("Seleciona agente.");if(!np||np.length!==6||!/^\d{6}$/.test(np))return alert("PIN: 6 digitos numericos.");if(!confirm("Definir novo PIN para "+a+"?"))return;const nh=await h256(a+":"+np);await R("config/pins/"+a).set(nh);log("CEO alterou PIN de "+a+".");sOk();document.getElementById("cpn").value="";alert("PIN de "+a+" atualizado!");}
 
-async function carregarPainelCEO(){
-    const[pS,bS,cS]=await Promise.all([database.ref("presencas").once("value"),database.ref("config/banidos").once("value"),database.ref("config/cargos").once("value")]);
-    renderizarAgentes(pS.val()||{},bS.val()||{},cS.val()||{});
-    renderizarBanidos(bS.val()||{});
-}
-function renderizarAgentes(pres,bans,cargos){
-    const c=document.getElementById("ceoAgentesList");c.innerHTML="";
-    AGENTES_NOMES.forEach(nome=>{
-        const agInfo=getAgenteByNome(nome),statusId=agInfo?agInfo.id:null;
-        const online=statusId&&pres[statusId]==="ATIVO",banido=bans[nome];
-        const cargo=cargos[nome]||CARGOS_DEFAULT[nome]||"AGENTE",isCeoAgent=nome==="yelseik";
-        let stH="";
-        if(banido)stH="<span style='color:#ff8800;font-size:0.75rem;'>BANIDO</span>";
-        else if(online)stH="<span style='color:#00ff66;font-size:0.75rem;'>ATIVO</span>";
-        else stH="<span style='color:#ff3333;font-size:0.75rem;'>AUSENTE</span>";
-        let ac="";
-        if(!isCeoAgent){
-            const idx=RANKS.indexOf(cargo);
-            if(idx<RANKS.length-2)ac+="<button class='ceo-btn ceo-btn-up' onclick='promoverAgente(\""+nome+"\",\""+cargo+"\")'>>PROM</button> ";
-            if(idx>0)ac+="<button class='ceo-btn ceo-btn-down' onclick='rebaixarAgente(\""+nome+"\",\""+cargo+"\")'><REB</button> ";
-            if(banido)ac+="<button class='ceo-btn ceo-btn-unban' onclick='desbanirAgente(\""+nome+"\")'>DESBAN</button>";
-            else ac+="<button class='ceo-btn ceo-btn-ban' onclick='pedirBanimento(\""+nome+"\")'>BANIR</button>";
-        }
-        c.innerHTML+="<div class='agent-row'><span class='agent-nome'>"+nome+"</span><span class='agent-cargo-badge'>"+cargo+"</span>"+stH+"<div class='agent-actions'>"+ac+"</div></div>";
-    });
-}
-async function promoverAgente(nome,cargo){const idx=RANKS.indexOf(cargo);if(idx>=RANKS.length-2)return alert("Nivel maximo.");const novo=RANKS[idx+1];if(!confirm("Promover "+nome+" para "+novo+"?"))return;await database.ref("config/cargos/"+nome).set(novo);adicionarLog("CEO promoveu "+nome+" para "+novo+".");tocarSomSucesso();carregarPainelCEO();}
-async function rebaixarAgente(nome,cargo){const idx=RANKS.indexOf(cargo);if(idx<=0)return alert("Nivel minimo.");const novo=RANKS[idx-1];if(!confirm("Rebaixar "+nome+" para "+novo+"?"))return;await database.ref("config/cargos/"+nome).set(novo);adicionarLog("CEO rebaixou "+nome+" para "+novo+".");tocarSomSucesso();carregarPainelCEO();}
-function pedirBanimento(nome){const motivo=prompt("MOTIVO DO BANIMENTO de "+nome+":");if(!motivo)return;banirAgenteCEO(nome,motivo);}
-async function banirAgenteCEO(nome,motivo){await database.ref("config/banidos/"+nome).set({motivo,por:"yelseik",hora:new Date().toLocaleTimeString(),timestamp:Date.now()});const agInfo=getAgenteByNome(nome);if(agInfo)database.ref("presencas/"+agInfo.id).remove();adicionarLog("CEO baniu "+nome+": "+motivo,true);registarSeguranca("BANIMENTO",nome,motivo);tocarSomErro();carregarPainelCEO();}
-async function desbanirAgente(nome){if(!confirm("Desbanir "+nome+"?"))return;await database.ref("config/banidos/"+nome).remove();adicionarLog("CEO desbaniu "+nome+".");tocarSomSucesso();carregarPainelCEO();}
-function banirAgenteForm(){const nome=document.getElementById("ceoBanirAgente").value,motivo=document.getElementById("ceoBanirMotivo").value;if(!nome||!motivo.trim())return alert("Preenche agente e motivo.");banirAgenteCEO(nome,motivo);document.getElementById("ceoBanirMotivo").value="";document.getElementById("ceoBanirAgente").value="";}
-function renderizarBanidos(bans){const c=document.getElementById("ceoBanidosList");c.innerHTML="";const entries=Object.entries(bans);if(entries.length===0){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Nenhum agente banido.</div>";return;}entries.forEach(([nome,info])=>{c.innerHTML+="<div class='banido-row'><div><span class='banido-nome'>"+nome+"</span><br><span class='banido-info'>"+info.motivo+" | "+info.hora+"</span></div><button class='ceo-btn ceo-btn-unban' onclick='desbanirAgente(\""+nome+"\")'>DESBANIR</button></div>";});}
-async function mudarPinAgente(){const agente=document.getElementById("ceoPinAgente").value,novoPin=document.getElementById("ceoPinNovo").value;if(!agente)return alert("Seleciona agente.");if(!novoPin||novoPin.length!==6||!/^\d{6}$/.test(novoPin))return alert("PIN: 6 digitos numericos.");if(!confirm("Definir novo PIN para "+agente+"?"))return;const novoHash=await sha256(agente+":"+novoPin);await database.ref("config/pins/"+agente).set(novoHash);adicionarLog("CEO alterou PIN de "+agente+".");tocarSomSucesso();document.getElementById("ceoPinNovo").value="";alert("PIN de "+agente+" atualizado!");}
+async function loadChat(){const c=document.getElementById("chatl");if(!c||!DB)return;c.innerHTML="";const s=await R("chat").once("value");const d=s.val();if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:18px;'>Chat vazio.</div>";return;}Object.keys(d).forEach(k=>{const m=d[k];c.innerHTML+="<div class='mr'><div><span style='color:#ff6666;font-weight:bold;'>"+m.user+":</span> "+m.msg+"<span style='color:#555;font-size:0.63rem;margin-left:4px;'>["+m.time+"]</span></div><button class='cb3 cban' onclick='delMsg(\""+k+"\")'>X</button></div>";});}
+function delMsg(k){if(!R("chat/"+k))return;R("chat/"+k).remove();log("CEO apagou mensagem.");loadChat();}
+function apagarTodoChat(){if(!confirm("Apagar TODO o chat?"))return;if(R("chat"))R("chat").remove();log("CEO apagou todo o chat.",true);const c=document.getElementById("chatl");if(c)c.innerHTML="<div style='color:#555;text-align:center;padding:18px;'>Apagado.</div>";}
 
-// ── CEO: APAGAR CHAT ──────────────────────────────────────────
-async function carregarChatCEO(){
-    const c=document.getElementById("ceoChatList");c.innerHTML="";
-    const snap=await database.ref("chat").once("value");
-    const d=snap.val();
-    if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:20px;'>Chat vazio.</div>";return;}
-    Object.keys(d).forEach(key=>{
-        const m=d[key];
-        c.innerHTML+="<div class='ceo-msg-row'><div><span style='color:#ff6666;font-weight:bold;'>"+m.user+":</span> "+m.msg+"<span style='color:#555;font-size:0.65rem;margin-left:5px;'>["+m.time+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarMsgChat(\""+key+"\")'>X</button></div>";
-    });
-}
-function apagarMsgChat(key){database.ref("chat/"+key).remove();adicionarLog("CEO apagou mensagem do chat.");carregarChatCEO();}
-function apagarTodoChat(){if(!confirm("Apagar TODO o chat? Esta acao e irreversivel."))return;database.ref("chat").remove();adicionarLog("CEO apagou todo o chat.",true);document.getElementById("ceoChatList").innerHTML="<div style='color:#555;text-align:center;padding:20px;'>Chat apagado.</div>";}
+async function loadMissoesCEO(){if(!DB)return;const[ms,as]=await Promise.all([R("tarefas").once("value"),R("atas").once("value")]);const mc=document.getElementById("misl"),ac=document.getElementById("atasl");if(mc)mc.innerHTML="";if(ac)ac.innerHTML="";const md=ms.val(),ad=as.val();if(!md)mc.innerHTML="<div style='color:#555;text-align:center;padding:11px;'>Sem missoes.</div>";else Object.keys(md).forEach(k=>{const t=md[k];mc.innerHTML+="<div class='mr'><div><span style='color:#ff8800;'>["+t.agente.toUpperCase()+"]</span> "+t.desc+" <span style='color:#555;font-size:0.63rem;'>["+( t.done?"FIM":"EM CURSO")+"]</span></div><button class='cb3 cban' onclick='delMis(\""+k+"\")'>X</button></div>";});if(!ad)ac.innerHTML="<div style='color:#555;text-align:center;padding:11px;'>Sem atas.</div>";else Object.keys(ad).forEach(k=>{const a=ad[k];ac.innerHTML+="<div class='mr'><div>"+a.desc+"<span style='color:#555;font-size:0.63rem;margin-left:4px;'>["+a.hora+"]</span></div><button class='cb3 cban' onclick='delAta(\""+k+"\")'>X</button></div>";});}
+function delMis(k){if(!confirm("Apagar missao?"))return;if(R("tarefas/"+k))R("tarefas/"+k).remove();log("CEO apagou missao.");loadMissoesCEO();}
+function delAta(k){if(!confirm("Apagar ata?"))return;if(R("atas/"+k))R("atas/"+k).remove();log("CEO apagou ata.");loadMissoesCEO();}
 
-// ── CEO: APAGAR MISSOES/ATAS ──────────────────────────────────
-async function carregarMissoesCEO(){
-    const mC=document.getElementById("ceoMissoesList"),aC=document.getElementById("ceoAtasList");
-    mC.innerHTML="";aC.innerHTML="";
-    const[mS,aS]=await Promise.all([database.ref("tarefas").once("value"),database.ref("atas").once("value")]);
-    const missoes=mS.val(),atas=aS.val();
-    if(!missoes)mC.innerHTML="<div style='color:#555;text-align:center;padding:10px;'>Sem missoes.</div>";
-    else Object.keys(missoes).forEach(key=>{const t=missoes[key];mC.innerHTML+="<div class='ceo-msg-row'><div><span style='color:#ff8800;'>["+t.agente.toUpperCase()+"]</span> "+t.desc+" <span style='color:#555;font-size:0.65rem;'>["+( t.done?"CONCLUIDA":"EM CURSO")+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarMissao(\""+key+"\")'>X</button></div>";});
-    if(!atas)aC.innerHTML="<div style='color:#555;text-align:center;padding:10px;'>Sem atas.</div>";
-    else Object.keys(atas).forEach(key=>{const a=atas[key];aC.innerHTML+="<div class='ceo-msg-row'><div>"+a.desc+" <span style='color:#555;font-size:0.65rem;'>["+a.hora+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarAta(\""+key+"\")'>X</button></div>";});
-}
-function apagarMissao(key){if(!confirm("Apagar esta missao?"))return;database.ref("tarefas/"+key).remove();adicionarLog("CEO apagou missao.");carregarMissoesCEO();}
-function apagarAta(key){if(!confirm("Apagar esta ata?"))return;database.ref("atas/"+key).remove();adicionarLog("CEO apagou ata.");carregarMissoesCEO();}
+async function loadPrivados(){if(!DB)return;const c=document.getElementById("canl"),pv=document.getElementById("pvmsg");if(c)c.innerHTML="";if(pv)pv.style.display="none";const s=await R("chat_privado").once("value");const d=s.val();if(!d){if(c)c.innerHTML="<div style='color:#555;text-align:center;padding:18px;'>Sem canais privados.</div>";return;}Object.keys(d).forEach(sl=>{const cnt=Object.keys(d[sl]).length;const n=sl.split("_").join(" <-> ");if(c)c.innerHTML+="<div class='cr2'><div><span style='color:#ff6666;font-weight:bold;'>"+n+"</span><br><span style='color:#555;font-size:0.7rem;'>"+cnt+" msg</span></div><div style='display:flex;gap:4px;'><button class='cb3 cup' onclick='event.stopPropagation();verPriv(\""+sl+"\")'>VER</button><button class='cb3 cban' onclick='event.stopPropagation();delPriv(\""+sl+"\")'>DEL</button></div></div>";});}
+async function verPriv(s){const pv=document.getElementById("pvmsg");if(!pv||!DB)return;pv.style.display="block";pv.innerHTML="<div style='color:#888;font-size:0.73rem;margin-bottom:7px;border-bottom:1px solid #330000;padding-bottom:4px;'>"+s.split("_").join(" <-> ")+"</div>";const snap=await R("chat_privado/"+s).once("value");const d=snap.val();if(!d){pv.innerHTML+="<div style='color:#555;'>Sem mensagens.</div>";return;}Object.keys(d).forEach(k=>{const m=d[k];pv.innerHTML+="<div class='mr'><div><span style='color:#ff6666;font-weight:bold;'>"+m.user+":</span> "+m.msg+"<span style='color:#555;font-size:0.63rem;margin-left:4px;'>["+m.time+"]</span></div><button class='cb3 cban' onclick='delPrivMsg(\""+s+"\",\""+k+"\")'>X</button></div>";});}
+function delPrivMsg(s,k){if(R("chat_privado/"+s+"/"+k))R("chat_privado/"+s+"/"+k).remove();log("CEO apagou msg privada.");verPriv(s);}
+function delPriv(s){if(!confirm("Apagar canal privado?"))return;if(R("chat_privado/"+s))R("chat_privado/"+s).remove();log("CEO apagou canal: "+s,true);loadPrivados();}
 
-// ── CEO: CANAIS PRIVADOS ──────────────────────────────────────
-async function carregarCanaisPrivados(){
-    const c=document.getElementById("ceoCanaisList");c.innerHTML="";
-    document.getElementById("ceoPrivMsgs").style.display="none";
-    const snap=await database.ref("chat_privado").once("value");
-    const d=snap.val();
-    if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:20px;'>Sem canais privados.</div>";return;}
-    Object.keys(d).forEach(sala=>{
-        const count=Object.keys(d[sala]).length;
-        const nomes=sala.split("_").join(" <-> ");
-        c.innerHTML+="<div class='ceo-canal-row'><div><span style='color:#ff6666;font-weight:bold;'>"+nomes+"</span><br><span style='color:#555;font-size:0.72rem;'>"+count+" mensagem(ns)</span></div><div style='display:flex;gap:5px;'><button class='ceo-btn ceo-btn-up' onclick='event.stopPropagation();verCanalPrivado(\""+sala+"\")'>VER</button><button class='ceo-btn ceo-btn-ban' onclick='event.stopPropagation();apagarCanalPrivado(\""+sala+"\")'>APAGAR</button></div></div>";
-    });
-}
-async function verCanalPrivado(sala){
-    const box=document.getElementById("ceoPrivMsgs");box.style.display="block";box.innerHTML="<div style='color:#888;font-size:0.75rem;margin-bottom:8px;border-bottom:1px solid #330000;padding-bottom:5px;'>"+sala.split("_").join(" <-> ")+"</div>";
-    const snap=await database.ref("chat_privado/"+sala).once("value");
-    const msgs=snap.val();
-    if(!msgs){box.innerHTML+="<div style='color:#555;'>Sem mensagens.</div>";return;}
-    Object.keys(msgs).forEach(key=>{const m=msgs[key];box.innerHTML+="<div class='ceo-msg-row'><div><span style='color:#ff6666;font-weight:bold;'>"+m.user+":</span> "+m.msg+"<span style='color:#555;font-size:0.65rem;margin-left:5px;'>["+m.time+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarMsgPrivCEO(\""+sala+"\",\""+key+"\")'>X</button></div>";});
-}
-function apagarMsgPrivCEO(sala,key){database.ref("chat_privado/"+sala+"/"+key).remove();adicionarLog("CEO apagou mensagem privada.");verCanalPrivado(sala);}
-function apagarCanalPrivado(sala){if(!confirm("Apagar canal privado "+sala+"?"))return;database.ref("chat_privado/"+sala).remove();adicionarLog("CEO apagou canal privado: "+sala,true);carregarCanaisPrivados();}
+function selNivel(n){nivelAl=n;[["VERDE","nv2"],["AMARELO","na2"],["VERMELHO","nr2"]].forEach(([x,id])=>{const b=document.getElementById(id);if(b)b.classList.toggle("on",x===n);});}
+function ativarAlerta(){const m=document.getElementById("almsg").value;if(!m.trim())return alert("Escreve uma mensagem.");if(!R("config/alerta"))return;R("config/alerta").set({nivel:nivelAl,m,ativo:true,ts:Date.now()});log("CEO ativou ALERTA "+nivelAl+": "+m,nivelAl==="VERMELHO");logSec("ALERTA","yelseik",nivelAl+": "+m);sOk();document.getElementById("almsg").value="";}
+function cancelarAlerta(){if(!R("config/alerta"))return;R("config/alerta").set({ativo:false});log("CEO cancelou alerta.");sOk();}
+function lisAlerta(){if(!R("config/alerta"))return;R("config/alerta").on("value",s=>{const a=s.val(),b=document.getElementById("ab"),st=document.getElementById("alst");if(a&&a.ativo){const cls={VERDE:"av",AMARELO:"aa",VERMELHO:"ar"};b.className="ab "+(cls[a.nivel]||"ar");b.style.display="block";b.textContent="["+a.nivel+"] "+a.m+" — Clica para fechar";b.onclick=()=>b.style.display="none";if(st)st.textContent="ATIVO: ["+a.nivel+"] "+a.m;if(a.nivel==="VERMELHO"){sCrit();document.body.classList.add("sa");setTimeout(()=>document.body.classList.remove("sa"),3000);}notif("ALERTA "+a.nivel,a.m);}else{b.style.display="none";if(st)st.textContent="Sem alerta ativo.";}});}
 
-// ── BANIMENTOS & CARGOS ───────────────────────────────────────
-function ouvirBanimentos(){database.ref("config/banidos").on("value",(snap)=>{const bans=snap.val()||{};if(agenteAutenticado&&bans[agenteAutenticado]){const ban=bans[agenteAutenticado];alert("A tua conta foi BANIDA!\nMotivo: "+ban.motivo);if(agenteId)database.ref("presencas/"+agenteId).remove();registarHistoricoPresenca(agenteAutenticado,"SAIDA_FORCADA");limparSessao();fecharPainelCEO();}});}
-function ouvirCargos(){database.ref("config/cargos").on("value",(snap)=>{const cargos=snap.val()||{};AGENTES_NOMES.forEach(nome=>{const el=document.getElementById("cargo-"+nome.toLowerCase());if(el&&cargos[nome])el.textContent=cargos[nome];});});}
+async function loadVotsCEO(){if(!DB)return;const c=document.getElementById("ceo_vots");if(!c)return;c.innerHTML="";const s=await R("votacoes").once("value");const d=s.val();if(!d){c.innerHTML="<div style='color:#555;font-size:0.78rem;text-align:center;padding:11px;'>Sem votacoes.</div>";return;}Object.keys(d).forEach(k=>{const v=d[k];const tot=Object.keys(v.votos||{}).length;c.innerHTML+="<div class='mr'><div><span style='color:#ffdd88;font-weight:bold;'>"+v.titulo+"</span><br><span style='color:#555;font-size:0.7rem;'>"+tot+" voto(s) | "+(v.ativo?"ATIVA":"ENCERRADA")+"</span></div><div style='display:flex;gap:4px;'>"+(v.ativo?"<button class='cb3 cdn' onclick='encerrarVot(\""+k+"\")'>ENCERRAR</button>":"")+"<button class='cb3 cban' onclick='delVot(\""+k+"\")'>DEL</button></div></div>";});}
+function criarVot(){const t=document.getElementById("v_tit").value,o1=document.getElementById("v_o1").value,o2=document.getElementById("v_o2").value,o3=document.getElementById("v_o3").value;if(!t||!o1||!o2)return alert("Titulo e 2 opcoes sao obrigatorios.");const ops=[o1,o2];if(o3.trim())ops.push(o3);if(!R("votacoes"))return;R("votacoes").push().set({titulo:t,opcoes:ops,votos:{},ativo:true,criado_por:"yelseik",h:new Date().toLocaleTimeString(),ts:Date.now()});log("CEO criou votacao: "+t);sOk();["v_tit","v_o1","v_o2","v_o3"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});loadVotsCEO();}
+async function encerrarVot(k){if(!confirm("Encerrar esta votacao?"))return;await R("votacoes/"+k+"/ativo").set(false);log("CEO encerrou votacao.");sOk();loadVotsCEO();}
+function delVot(k){if(!confirm("Apagar votacao?"))return;if(R("votacoes/"+k))R("votacoes/"+k).remove();log("CEO apagou votacao.");loadVotsCEO();}
+</script>
+EOF3Ccat >> index.html << 'EOF4A'
+<script>
+function pedirNotif(){if(!("Notification" in window))return;if(Notification.permission==="granted"){const b=document.getElementById("bnf");if(b){b.classList.add("on");b.textContent="ATIVOS";}return;}Notification.requestPermission().then(p=>{const b=document.getElementById("bnf");if(p==="granted"&&b){b.classList.add("on");b.textContent="ATIVOS";log("Notificacoes ativadas.");}else if(b)b.textContent="NEGADOS";});}
+function notif(t,c){if("Notification" in window&&Notification.permission==="granted"&&!document.hasFocus())new Notification(t,{body:c});}
 
-// ── NOTIFICACOES ──────────────────────────────────────────────
-function pedirPermissaoNotificacoes(){if(!("Notification" in window))return;if(Notification.permission==="granted"){document.getElementById("btnNotif").classList.add("active");document.getElementById("btnNotif").textContent="ATIVOS";return;}Notification.requestPermission().then(p=>{const btn=document.getElementById("btnNotif");if(p==="granted"){btn.classList.add("active");btn.textContent="ATIVOS";adicionarLog("Notificacoes ativadas.");}else btn.textContent="NEGADOS";});}
-function enviarNotificacaoPush(titulo,corpo){if("Notification" in window&&Notification.permission==="granted"&&!document.hasFocus())new Notification(titulo,{body:corpo});}
+function lisPresencas(){if(!R("presencas"))return;R("presencas").on("value",s=>{const d=s.val()||{};Object.values(HM).forEach(a=>{const el=document.getElementById(a.id);if(!el)return;if(d[a.id]==="ATIVO"){el.innerText="ATIVO";el.className="sb son";}else{el.innerText="AUSENTE";el.className="sb sof";}});});}
+function regHist(n,a){if(!R("historico_presencas"))return;R("historico_presencas").push().set({n,a,h:new Date().toLocaleTimeString(),ts:Date.now()});}
+function lisHist(){if(!R("historico_presencas"))return;R("historico_presencas").limitToLast(30).on("value",s=>{const c=document.getElementById("hist");if(!c)return;c.innerHTML="";const d=s.val();if(!d){c.innerHTML="<div style='color:#555;font-size:0.78rem;text-align:center;padding:18px;'>Sem registos.</div>";return;}Object.values(d).reverse().forEach(h=>{const cls=h.a==="ENTRADA"?"hin":"hout";c.innerHTML+="<div class='hi "+cls+"'><div><span class='han'>"+(h.a==="ENTRADA"?">":"=")+" "+h.n+"</span> <span class='ha'>"+h.a+"</span></div><span class='hh'>"+h.h+"</span></div>";});});}
+async function wipeHist(){const p=prompt("PIN CEO:");if(!p)return;if(await h256("yelseik:"+p)===CEO_H){if(R("historico_presencas"))R("historico_presencas").remove();log("CEO limpou historico.");sOk();}else{sErr();alert("PIN incorreto.");}}
 
-// ── PRESENCAS ─────────────────────────────────────────────────
-function ouvirPresencas(){database.ref("presencas").on("value",(snap)=>{const d=snap.val()||{};for(const h in agentesHashMap){const eid=agentesHashMap[h].id,el=document.getElementById(eid);if(!el)continue;if(d[eid]==="ATIVO"){el.innerText="ATIVO";el.className="status-box status-online";}else{el.innerText="AUSENTE";el.className="status-box status-offline";}}});}
-function sairDaRede(){if(!agenteAutenticado)return alert("Nao autenticado.");if(!confirm("Sair da rede?"))return;database.ref("presencas/"+agenteId).remove();registarHistoricoPresenca(agenteAutenticado,"SAIDA");registarSeguranca("SESSAO_ENCERRADA",agenteAutenticado,"Saida manual");adicionarLog("Agente "+agenteAutenticado+" saiu.");fecharPainelCEO();limparSessao();tocarSomSucesso();alert("Sessao encerrada.");}
-async function limparPresencas(){const pin=prompt("PIN CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("presencas").remove();tocarSomSucesso();adicionarLog("CEO wipe presencas.");alert("Presencas reinicializadas.");}else{tocarSomErro();alert("PIN incorreto.");}}
-function registarHistoricoPresenca(nome,acao){database.ref("historico_presencas").push().set({agente:nome,acao,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});}
-function ouvirHistoricoPresencas(){database.ref("historico_presencas").limitToLast(30).on("value",(snap)=>{const c=document.getElementById("historyContainer");c.innerHTML="";const d=snap.val();if(!d){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem registos.</div>";return;}Object.values(d).reverse().forEach(h=>{const cls=h.acao==="ENTRADA"?"history-entrada":"history-saida";c.innerHTML+="<div class='history-item "+cls+"'><div><span class='history-agente'>"+(h.acao==="ENTRADA"?">":"=")+" "+h.agente+"</span> <span class='history-acao'>"+h.acao+"</span></div><span class='history-hora'>"+h.hora+"</span></div>";});});}
-async function limparHistorico(){const pin=prompt("PIN CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("historico_presencas").remove();adicionarLog("CEO limpou historico.");tocarSomSucesso();}else{tocarSomErro();alert("PIN incorreto.");}}
+function lisBanimentos(){if(!R("config/banidos"))return;R("config/banidos").on("value",s=>{const bans=s.val()||{};if(ag&&bans[ag]){alert("A tua conta foi BANIDA!\nMotivo: "+bans[ag].m);if(R("presencas/"+agId))R("presencas/"+agId).remove();regHist(ag,"SAIDA_FORCADA");fecharCEO();limparSessao();}});}
+function lisCargos(){if(!R("config/cargos"))return;R("config/cargos").on("value",s=>{const cargos=s.val()||{};ANS.forEach(n=>{const el=document.getElementById("c-"+n.toLowerCase());if(el&&cargos[n])el.textContent=cargos[n];});});}
+function lisConexao(){if(!DB)return;try{R(".info/connected").on("value",s=>{const on=s.val();const cb=document.getElementById("cob");if(cb){cb.textContent=on?"ONLINE":"OFFLINE";cb.className="cob "+(on?"con":"coff");}});}catch(e){}}
+</script>
+EOF4Acat >> index.html << 'EOF4B'
+<script>
+function detMen(inp,t){const v=inp.value,pos=inp.selectionStart,ant=v.substring(0,pos),m=ant.match(/@(\w*)$/);const did=t==="p"?"mdp":"mdc";const dr=document.getElementById(did);if(m){const pref=m[1].toLowerCase();const ops=ANS.filter(n=>n.toLowerCase().startsWith(pref)&&n!==ag);if(ops.length){dr.innerHTML=ops.map(n=>"<div class='mao' onclick='insMen(\""+n+"\",\""+t+"\")'>@"+n+"</div>").join("");dr.style.display="block";}else dr.style.display="none";}else dr.style.display="none";}
+function insMen(n,t){const iid=t==="p"?"pi2":"chi";const did=t==="p"?"mdp":"mdc";const inp=document.getElementById(iid);if(!inp)return;const pos=inp.selectionStart,ant=inp.value.substring(0,pos);inp.value=ant.replace(/@\w*$/,"@"+n+" ")+inp.value.substring(pos);const dr=document.getElementById(did);if(dr)dr.style.display="none";inp.focus();}
+function rm(txt){return txt.replace(/@(\w+)/g,(m,n)=>{const mm=n.toLowerCase()===(ag||"").toLowerCase();return "<span class='mn2"+(mm?" me":"")+"'>"+m+"</span>";});}
+function extMen(txt){const r=/@(\w+)/g,out=[];let m;while((m=r.exec(txt))!==null)if(ANS.some(n=>n.toLowerCase()===m[1].toLowerCase()))out.push(m[1]);return out.join(",");}
 
-// ── CHAT COM DELETE CEO ───────────────────────────────────────
-function detetarMencao(input,tipo){const val=input.value,pos=input.selectionStart,antes=val.substring(0,pos),match=antes.match(/@(\w*)$/);const dropId=tipo==="priv"?"mentionDropdownPriv":"mentionDropdownChat";const drop=document.getElementById(dropId);if(match){const pref=match[1].toLowerCase();const ops=AGENTES_NOMES.filter(n=>n.toLowerCase().startsWith(pref)&&n!==agenteAutenticado);if(ops.length>0){drop.innerHTML=ops.map(n=>"<div class='mention-option' onclick='inserirMencao(\""+n+"\",\""+tipo+"\")'>@"+n+"</div>").join("");drop.style.display="block";}else drop.style.display="none";}else drop.style.display="none";}
-function inserirMencao(nome,tipo){const inputId=tipo==="priv"?"privInput":"chatInput";const dropId=tipo==="priv"?"mentionDropdownPriv":"mentionDropdownChat";const inp=document.getElementById(inputId);const pos=inp.selectionStart,antes=inp.value.substring(0,pos);inp.value=antes.replace(/@\w*$/,"@"+nome+" ")+inp.value.substring(pos);document.getElementById(dropId).style.display="none";inp.focus();}
-function realcarMencoes(texto){return texto.replace(/@(\w+)/g,function(match,nome){const isMine=nome.toLowerCase()===(agenteAutenticado||"").toLowerCase();return "<span class='mention"+(isMine?" me":"")+"'>"+match+"</span>";});}
-function extrairMencoes(texto){const mencoes=[],reg=/@(\w+)/g;let m;while((m=reg.exec(texto))!==null){if(AGENTES_NOMES.some(n=>n.toLowerCase()===m[1].toLowerCase()))mencoes.push(m[1]);}return mencoes.join(",");}
-function enviarMensagemChat(){const txt=document.getElementById("chatInput").value;if(!txt.trim())return;if(!agenteAutenticado){tocarSomErro();return alert("Autentica primeiro!");}const timer=parseInt(document.getElementById("chatTimer").value)||0;const mencoes=extrairMencoes(txt);const msg={user:agenteAutenticado,msg:txt,time:new Date().toLocaleTimeString(),timestamp:Date.now(),mencoes};if(timer>0)msg.expira=Date.now()+(timer*1000);database.ref("chat").push().set(msg);document.getElementById("chatInput").value="";document.getElementById("mentionDropdownChat").style.display="none";}
-function ouvirChat(){
-    database.ref("chat").on("value",(snap)=>{
-        const c=document.getElementById("chatContainer"),d=snap.val();c.innerHTML="";
-        if(d){
-            const agora=Date.now(),toDel=[];
-            Object.keys(d).forEach(key=>{
-                const m=d[key];if(m.expira&&agora>m.expira){toDel.push(key);return;}
-                const tH=m.expira?"<span class='msg-timer'>"+formatarTempo(Math.max(0,m.expira-agora))+"</span>":"";
-                const mB=m.mencoes&&m.mencoes.includes(agenteAutenticado||"")?"<span style='color:#ff8800;font-size:0.65rem;margin-left:4px;'>[MENCAO]</span>":"";
-                const delBtn=isCEO?"<button class='msg-del-btn' style='display:inline-block;' onclick='apagarMsgChat(\""+key+"\")'>X</button>":"";
-                c.innerHTML+="<div class='chat-msg'><div class='chat-msg-content'><span class='chat-meta'>["+m.time+"]</span> <span class='chat-user'>"+m.user+":</span> "+realcarMencoes(m.msg)+tH+mB+"</div>"+delBtn+"</div>";
-            });
-            toDel.forEach(k=>database.ref("chat/"+k).remove());
-            if(!primeiraCargaChat){const keys=Object.keys(d),u=d[keys[keys.length-1]];if(u&&u.user!==agenteAutenticado){if((u.mencoes||"").includes(agenteAutenticado||"")){tocarSomMencao();enviarNotificacaoPush("@MENCAO de "+u.user,u.msg);}else enviarNotificacaoPush("MSG de "+u.user,u.msg);}}
-        }
-        c.scrollTop=c.scrollHeight;
-    });
-}
-function getSalaPrivada(a,b){return[a,b].sort().join("_");}
-function selecionarDestinatario(agente){if(!agente)return;if(!agenteAutenticado){alert("Autentica primeiro!");document.getElementById("privDestinatario").value="";return;}if(agente===agenteAutenticado){alert("Nao podes enviar para ti mesmo.");document.getElementById("privDestinatario").value="";return;}if(privListener)database.ref("chat_privado/"+salaPrivadaAtual).off();salaPrivadaAtual=getSalaPrivada(agenteAutenticado,agente);ouvirChatPrivado(salaPrivadaAtual,agente);}
-function ouvirChatPrivado(sala,dest){privListener=database.ref("chat_privado/"+sala).on("value",(snap)=>{const c=document.getElementById("privChatBox");c.innerHTML="";const d=snap.val();if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:20px;font-size:0.8rem;'>Inicio da conversa com "+dest+".</div>";return;}const agora=Date.now(),toDel=[];Object.keys(d).forEach(key=>{const m=d[key];if(m.expira&&agora>m.expira){toDel.push(key);return;}const mine=m.user===agenteAutenticado;const dH=m.expira?"<span class='priv-destruct'>"+formatarTempo(Math.max(0,m.expira-agora))+"</span>":"";c.innerHTML+="<div class='priv-msg"+(mine?" mine":"")+"'><span class='priv-user'>"+m.user+":</span> "+realcarMencoes(m.msg)+dH+"<span class='chat-meta'> ["+m.time+"]</span></div>";});toDel.forEach(k=>database.ref("chat_privado/"+sala+"/"+k).remove());c.scrollTop=c.scrollHeight;});}
-function enviarMensagemPrivada(){if(!agenteAutenticado)return alert("Autentica primeiro!");const dest=document.getElementById("privDestinatario").value;if(!dest||!salaPrivadaAtual)return alert("Seleciona um destinatario.");const txt=document.getElementById("privInput").value;if(!txt.trim())return;const timer=parseInt(document.getElementById("privTimer").value)||0;const msg={user:agenteAutenticado,msg:txt,time:new Date().toLocaleTimeString(),timestamp:Date.now()};if(timer>0)msg.expira=Date.now()+(timer*1000);database.ref("chat_privado/"+salaPrivadaAtual).push().set(msg);document.getElementById("privInput").value="";document.getElementById("mentionDropdownPriv").style.display="none";}
-function iniciarLimpezaAutomatica(){setInterval(()=>{const a=Date.now();database.ref("chat").once("value",(s)=>{const d=s.val();if(!d)return;Object.keys(d).forEach(k=>{if(d[k].expira&&a>d[k].expira)datab
-// ── MISSOES ───────────────────────────────────────────────────
-function ouvirAlarmeMissoes(){database.ref("tarefas").on("child_added",(snap)=>{if(!primeiraCargaTarefas){const t=snap.val();document.body.classList.add("siren-active");setTimeout(()=>document.body.classList.remove("siren-active"),3000);if(t.prioridade==="critica")tocarAlertaCritico();else tocarSomErro();enviarNotificacaoPush("NOVA MISSAO ["+(t.prioridade||"normal").toUpperCase()+"]",t.agente+": "+t.desc);}});}
-function filtrarMissoes(f){filtroAtivo=f;renderizarTarefas(todasTarefas);}
-function renderizarTarefas(dados){const c=document.getElementById("taskContainer");c.innerHTML="";if(!dados||Object.keys(dados).length===0){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem missoes.</div>";return;}Object.keys(dados).forEach(key=>{const t=dados[key],p=t.prioridade||"normal";if(filtroAtivo==="critica"&&p!=="critica")return;if(filtroAtivo==="alta"&&p!=="alta")return;if(filtroAtivo==="pendente"&&t.done)return;const done=t.done?"done":"",badge=p.charAt(0).toUpperCase()+p.slice(1);c.innerHTML+="<div class='task-item prio-"+p+" "+done+"' onclick='alternarStatusTarefa(\""+key+"\","+t.done+")'><div><b>["+t.agente.toUpperCase()+"]</b> "+t.desc+" <span class='prio-badge "+p+"'>"+badge+"</span></div><div class='task-meta'><span>"+t.coord+"</span><span>"+(t.done?"FINALIZADA":"EM CURSO")+"</span></div></div>";}); }
-function ouvirTarefas(){database.ref("tarefas").on("value",(snap)=>{todasTarefas=snap.val()||{};renderizarTarefas(todasTarefas);});}
-function alternarStatusTarefa(key,s){if(!agenteAutenticado){tocarSomErro();return alert("Autentica primeiro.");}database.ref("tarefas/"+key).update({done:!s});tocarSomSucesso();adicionarLog("Missao atualizada por "+agenteAutenticado+".");}
-function ouvirAtas(){database.ref("atas").on("value",(snap)=>{const c=document.getElementById("ataContainer");c.innerHTML="";const d=snap.val();if(d)Object.values(d).reverse().forEach(a=>{c.innerHTML+="<div class='task-item done' style='border-left-color:#00ff66;cursor:default;'><div>"+a.desc+"</div><div class='task-meta'><span>"+a.hora+"</span></div></div>";});});}
+function envChat(){const t=document.getElementById("chi").value;if(!t.trim())return;if(!ag){sErr();alert("Autentica primeiro!");return;}if(!DB)return;const tmr=parseInt(document.getElementById("cht").value)||0;const men=extMen(t);const msg={user:ag,msg:t,time:new Date().toLocaleTimeString(),timestamp:Date.now(),mencoes:men};if(tmr>0)msg.expira=Date.now()+(tmr*1000);R("chat").push().set(msg);document.getElementById("chi").value="";const mdc=document.getElementById("mdc");if(mdc)mdc.style.display="none";}
+function lisChat(){if(!R("chat"))return;R("chat").on("value",s=>{const c=document.getElementById("chat"),d=s.val();if(!c)return;c.innerHTML="";if(d){const now=Date.now(),del=[];Object.keys(d).forEach(k=>{const m=d[k];if(m.expira&&now>m.expira){del.push(k);return;}const th=m.expira?"<span class='mti'>"+ftm(Math.max(0,m.expira-now))+"</span>":"";const mb=m.mencoes&&m.mencoes.includes(ag||"")?"<span style='color:#ff8800;font-size:0.63rem;margin-left:3px;'>[MENCAO]</span>":"";const db=CEO?"<button class='mdb' onclick='delMsg(\""+k+"\")'>X</button>":"";c.innerHTML+="<div class='cm'><div class='cmc'><span class='ct2'>["+m.time+"]</span> <span class='cu'>"+m.user+":</span> "+rm(m.msg)+th+mb+"</div>"+db+"</div>";});del.forEach(k=>R("chat/"+k).remove());if(!c1Load){const ks=Object.keys(d),u=d[ks[ks.length-1]];if(u&&u.user!==ag){if((u.mencoes||"").includes(ag||"")){sMen();notif("@MENCAO de "+u.user,u.msg);}else notif("MSG de "+u.user,u.msg);}}}c.scrollTop=c.scrollHeight;});}
 
-// ── ESTATISTICAS ──────────────────────────────────────────────
-function ouvirEstatisticas(){database.ref("presencas").on("value",(s)=>{atualizarStat("stat-online",Object.values(s.val()||{}).filter(v=>v==="ATIVO").length);});database.ref("tarefas").on("value",(s)=>{const d=s.val()||{},total=Object.keys(d).length;const conc=Object.values(d).filter(t=>t.done).length;const crit=Object.values(d).filter(t=>!t.done&&t.prioridade==="critica").length;const pct=total>0?Math.round((conc/total)*100):0;atualizarStat("stat-missoes",total);atualizarStat("stat-concluidas",conc);atualizarStat("stat-pendentes",total-conc);atualizarStat("stat-criticas",crit);const bar=document.getElementById("progresso-bar"),pctEl=document.getElementById("progresso-pct");if(bar)bar.style.width=pct+"%";if(pctEl)pctEl.textContent=pct+"% concluido";});database.ref("config/banidos").on("value",(s)=>{atualizarStat("stat-banidos",Object.keys(s.val()||{}).length);});}
-function atualizarStat(id,val){const el=document.getElementById(id);if(el){el.textContent=val;el.style.animation="none";el.offsetHeight;el.style.animation="countUp 0.4s ease-out";}}
-function alternarCamposPainel(){const m=document.getElementById("emissaoTipo").value==="missao";document.getElementById("labelDinamica").innerText=m?"Descricao:":"Resumo da Reuniao:";document.getElementById("panelDesc").placeholder=m?"Ex: Monitorizar...":"Ex: Decisoes tomadas...";document.getElementById("grupoAgente").style.display=m?"block":"none";document.getElementById("grupoCoordenadas").style.display=m?"block":"none";document.getElementById("grupoPrioridade").style.display=m?"block":"none";}
-async function executarAcaoPainel(){const tipo=document.getElementById("emissaoTipo").value,desc=document.getElementById("panelDesc").value;if(!desc.trim())return alert("Preencha a descricao.");const pin=prompt("PIN DO CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)!==CEO_HASH){tocarSomErro();return alert("PIN incorreto.");}tocarSomSucesso();if(tipo==="missao"){const coord=document.getElementById("panelCoord").value,agente=document.getElementById("taskAgent").value,prio=document.getElementById("taskPrioridade").value;if(!coord.trim())return alert("Preencha as coordenadas.");database.ref("tarefas").push().set({desc,coord,agente,prioridade:prio,done:false,timestamp:Date.now()});adicionarLog("Nova missao ["+prio.toUpperCase()+"] para "+agente+": "+desc);}else{database.ref("atas").push().set({desc,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});adicionarLog("Ata arquivada: "+desc);}document.getElementById("panelDesc").value="";const coord=document.getElementById("panelCoord");if(coord)coord.value="";}
-        </script>
-  </body>
+function getSala(a,b){return[a,b].sort().join("_");}
+function selDest(agt){if(!agt)return;if(!ag){alert("Autentica primeiro!");document.getElementById("pd5").value="";return;}if(agt===ag){alert("Nao podes enviar para ti mesmo.");document.getElementById("pd5").value="";return;}if(privLis&&sala)R("chat_privado/"+sala).off();sala=getSala(ag,agt);lisPriv(sala,agt);}
+function lisPriv(s,dest){privLis=R("chat_privado/"+s).on("value",snap=>{const c=document.getElementById("pchat");if(!c)return;c.innerHTML="";const d=snap.val();if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:18px;font-size:0.78rem;'>Inicio da conversa com "+dest+".</div>";return;}const now=Date.now(),del=[];Object.keys(d).forEach(k=>{const m=d[k];if(m.expira&&now>m.expira){del.push(k);return;}const mine=m.user===ag;const dh=m.expira?"<span class='pd2'>"+ftm(Math.max(0,m.expira-now))+"</span>":"";c.innerHTML+="<div class='pm"+(mine?" me2":"")+"'><span class='pu'>"+m.user+":</span> "+rm(m.msg)+dh+"<span class='ct2'> ["+m.time+"]</span></div>";});del.forEach(k=>R("chat_privado/"+s+"/"+k).remove());c.scrollTop=c.scrollHeight;});}
+function envPriv(){if(!ag)return alert("Autentica primeiro!");const dest=document.getElementById("pd5").value;if(!dest||!sala)return alert("Seleciona um destinatario.");const t=document.getElementById("pi2").value;if(!t.trim())return;const tmr=parseInt(document.getElementById("pt2").value)||0;const msg={user:ag,msg:t,time:new Date().toLocaleTimeString(),timestamp:Date.now()};if(tmr>0)msg.expira=Date.now()+(tmr*1000);R("chat_privado/"+sala).push().set(msg);document.getElementById("pi2").value="";const mdp=document.getElementById("mdp");if(mdp)mdp.style.display="none";}
+function inicLimpeza(){setInterval(()=>{if(!R("chat"))return;const now=Date.now();R("chat").once("value",s=>{const d=s.val();if(!d)return;Object.keys(d).forEach(k=>{if(d[k].expira&&now>d[k].expira)R("chat/"+k).remove();});});},15000);}
+</script>
+EOF4Bcat >> index.html << 'EOF4C'
+<script>
+// PRAZO HELPER
+function renderPrazo(prazo){if(!prazo)return "";const diff=prazo-Date.now();if(diff<=0)return "<span class='prazo-exp'>PRAZO EXPIRADO</span>";const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);if(h<2)return "<span class='prazo-urgente'>URGENTE: "+h+"h "+m+"m</span>";return "<span class='prazo-ok'>Prazo: "+h+"h "+m+"m</span>";}
+
+// MISSOES COM PRAZO
+function lisAlarmeMissoes(){if(!R("tarefas"))return;R("tarefas").on("child_added",s=>{if(!p1Load){const t=s.val();document.body.classList.add("sa");setTimeout(()=>document.body.classList.remove("sa"),3000);if(t.prioridade==="c")sCrit();else sErr();notif("NOVA MISSAO ["+(t.prioridade==="c"?"CRITICA":t.prioridade==="a"?"ALTA":"NORMAL")+"]",t.agente+": "+t.desc);}});}
+function filtro(f){filtroAct=f;renderMiss(todos);}
+function renderMiss(dados){const c=document.getElementById("miss");if(!c)return;c.innerHTML="";if(!dados||!Object.keys(dados).length){c.innerHTML="<div style='color:#555;font-size:0.78rem;text-align:center;padding:18px;'>Sem missoes.</div>";return;}const now=Date.now();let shown=0;Object.keys(dados).forEach(k=>{const t=dados[k],p=t.prioridade||"n";const exp=t.prazo&&now>t.prazo&&!t.done;if(filtroAct==="c"&&p!=="c")return;if(filtroAct==="a"&&p!=="a")return;if(filtroAct==="p"&&t.done)return;if(filtroAct==="e"&&!exp)return;shown++;const dn=t.done?"dn":"",pc="p"+(p==="c"?"c":p==="a"?"a":"n");const expCls=exp&&!t.done?" exp":"";const badge=p==="c"?"Critica":p==="a"?"Alta":"Normal",bl=p==="c"?"c":p==="a"?"a":"n";const prazHtml=renderPrazo(t.prazo);c.innerHTML+="<div class='ti "+pc+" "+dn+expCls+"' onclick='togMis(\""+k+"\","+t.done+")'><div><b>["+t.agente.toUpperCase()+"]</b> "+t.desc+" <span class='pb2 "+bl+"'>"+badge+"</span></div><div class='tm'><span>"+t.coord+"</span><span>"+prazHtml+"</span><span>"+(t.done?"FINALIZADA":"EM CURSO")+"</span></div></div>";});if(!shown)c.innerHTML="<div style='color:#555;font-size:0.78rem;text-align:center;padding:18px;'>Sem missoes neste filtro.</div>";}
+function lisMissoes(){if(!R("tarefas"))return;R("tarefas").on("value",s=>{todos=s.val()||{};renderMiss(todos);});}
+function togMis(k,sta){if(!ag){sErr();alert("Autentica primeiro.");return;}if(!R("tarefas/"+k))return;R("tarefas/"+k).update({done:!sta});sOk();log("Missao atualizada por "+ag+".");}
+function lisAtas(){if(!R("atas"))return;R("atas").on("value",s=>{const c=document.getElementById("atas");if(!c)return;c.innerHTML="";const d=s.val();if(d)Object.values(d).reverse().forEach(a=>{c.innerHTML+="<div class='ti dn' style='border-left-color:#00ff66;cursor:default;'><div>"+a.desc+"</div><div class='tm'><span>"+a.hora+"</span></div></div>";});});}
+
+// STATS
+function lisStats(){if(!DB)return;R("presencas").on("value",s=>{stat("st-on",Object.values(s.val()||{}).filter(v=>v==="ATIVO").length);});R("tarefas").on("value",s=>{const d=s.val()||{},tot=Object.keys(d).length;const co=Object.values(d).filter(t=>t.done).length;const cr=Object.values(d).filter(t=>!t.done&&t.prioridade==="c").length;const pct=tot>0?Math.round((co/tot)*100):0;stat("st-mi",tot);stat("st-co",co);stat("st-pe",tot-co);stat("st-cr",cr);const pb=document.getElementById("pb5"),pctEl=document.getElementById("pct");if(pb)pb.style.width=pct+"%";if(pctEl)pctEl.textContent=pct+"% concluido";});R("config/banidos").on("value",s=>{stat("st-ba",Object.keys(s.val()||{}).length);});}
+function stat(id,v){const e=document.getElementById(id);if(e){e.textContent=v;e.style.animation="none";e.offsetHeight;e.style.animation="cu2 0.4s ease-out";}}
+
+// VOTACOES
+function lisVotacoes(){if(!R("votacoes"))return;R("votacoes").on("value",s=>{const c=document.getElementById("votacoes");if(!c)return;const d=s.val();const ativas=d?Object.keys(d).filter(k=>d[k].ativo):[];if(!ativas.length){c.innerHTML="<div style='color:#555;text-align:center;padding:18px;font-size:0.78rem;'>Sem votacoes ativas.</div>";return;}c.innerHTML="";ativas.forEach(k=>{const v=d[k];const votos=v.votos||{};const tot=Object.keys(votos).length;const jv=ag&&votos[ag]!==undefined;let h="<div class='vc'><div class='vtit'>"+v.titulo+"</div><div class='vinfo'>por "+v.criado_por+" | "+v.h+"</div>";v.opcoes.forEach((op,i)=>{const cnt=Object.values(votos).filter(x=>x===i).length;const pct=tot>0?Math.round((cnt/tot)*100):0;const voted=jv&&votos[ag]===i;h+="<div class='vop"+(voted?" vv":"")+"'><div style='display:flex;justify-content:space-between;font-size:0.8rem;'><span>"+(voted?"✓ ":"")+op+"</span><span style='color:#888;'>"+cnt+" ("+pct+"%)</span></div><div class='vbar'><div class='vfill' style='width:"+pct+"%;'></div></div>"+((!jv&&ag)?"<button class='vbtn' onclick='votar(\""+k+"\","+i+")'>VOTAR</button>":"")+"</div>";});h+="<div style='color:#555;font-size:0.68rem;margin-top:5px;'>"+tot+" voto(s) no total</div></div>";c.innerHTML+=h;});});}
+function votar(vid,idx){if(!ag)return alert("Autentica primeiro.");if(!R("votacoes/"+vid+"/votos"))return;R("votacoes/"+vid+"/votos/"+ag).set(idx);log(ag+" votou numa votacao.");sOk();}
+
+// NOTAS DO AGENTE
+function ativarNota(){if(!ag||!DB)return;const ta=document.getElementById("nota_txt"),ni=document.getElementById("nota_info");if(ta){ta.disabled=false;ta.placeholder="As tuas notas privadas... (auto-guardadas)";}if(ni)ni.textContent="Notas de "+ag+" (privadas, so tu podes ver):";R("notas/"+ag).once("value",s=>{const d=s.val();if(ta&&d&&d.texto)ta.value=d.texto;});}
+function desativarNota(){const ta=document.getElementById("nota_txt"),ni=document.getElementById("nota_info");if(ta){ta.disabled=true;ta.value="";}if(ni)ni.textContent="Autentica para aceder as tuas notas privadas.";}
+function debNota(){if(notaTimer)clearTimeout(notaTimer);notaTimer=setTimeout(guardarNota,1500);}
+function guardarNota(){if(!ag||!DB)return;const ta=document.getElementById("nota_txt");if(!ta)return;R("notas/"+ag).set({texto:ta.value,ts:Date.now()});const ns=document.getElementById("nota_saved");if(ns){ns.style.display="block";setTimeout(()=>ns.style.display="none",2000);}}
+
+// PAINEL DO COMANDANTE
+function altPainel(){const m=document.getElementById("et").value==="m";document.getElementById("ld").innerText=m?"Descricao:":"Resumo da Reuniao:";document.getElementById("pd6").placeholder=m?"Ex: Monitorizar...":"Ex: Decisoes tomadas...";document.getElementById("ga").style.display=m?"block":"none";document.getElementById("gc2").style.display=m?"block":"none";document.getElementById("gp").style.display=m?"block":"none";document.getElementById("gprazo").style.display=m?"block":"none";}
+async function execPainel(){const tipo=document.getElementById("et").value,desc=document.getElementById("pd6").value;if(!desc.trim())return alert("Preenche a descricao.");const p=prompt("PIN DO CEO:");if(!p)return;if(await h256("yelseik:"+p)!==CEO_H){sErr();return alert("PIN incorreto.");}sOk();if(tipo==="m"){const coord=document.getElementById("pc2").value,agt=document.getElementById("ta").value,prio=document.getElementById("tp").value;if(!coord.trim())return alert("Preenche as coordenadas.");const prazoEl=document.getElementById("prazo_i");const prazo=prazoEl&&prazoEl.value?new Date(prazoEl.value).getTime():null;const obj={desc,coord,agente:agt,prioridade:prio,done:false,timestamp:Date.now()};if(prazo)obj.prazo=prazo;if(!R("tarefas"))return;R("tarefas").push().set(obj);log("Nova missao ["+prio.toUpperCase()+"] para "+agt+": "+desc+(prazo?" [COM PRAZO]":""));}else{if(!R("atas"))return;R("atas").push().set({desc,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});log("Ata arquivada: "+desc);}document.getElementById("pd6").value="";const co=document.getElementById("pc2");if(co)co.value="";const pr=document.getElementById("prazo_i");if(pr)pr.value="";}
+</script>
+</body>
 </html>
 
