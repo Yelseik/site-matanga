@@ -759,6 +759,7 @@ function ouvirEstatisticas(){database.ref("presencas").on("value",(s)=>{atualiza
 function atualizarStat(id,val){const el=document.getElementById(id);if(el){el.textContent=val;el.style.animation="none";el.offsetHeight;el.style.animation="countUp 0.4s ease-out";}}
 function alternarCamposPainel(){const m=document.getElementById("emissaoTipo").value==="missao";document.getElementById("labelDinamica").innerText=m?"Descricao:":"Resumo da Reuniao:";document.getElementById("panelDesc").placeholder=m?"Ex: Monitorizar...":"Ex: Decisoes tomadas...";document.getElementById("grupoAgente").style.display=m?"block":"none";document.getElementById("grupoCoordenadas").style.display=m?"block":"none";document.getElementById("grupoPrioridade").style.display=m?"block":"none";}
 async function executarAcaoPainel(){const tipo=document.getElementById("emissaoTipo").value,desc=document.getElementById("panelDesc").value;if(!desc.trim())return alert("Preencha a descricao.");const pin=prompt("PIN DO CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)!==CEO_HASH){tocarSomErro();return alert("PIN incorreto.");}tocarSomSucesso();if(tipo==="missao"){const coord=document.getElementById("panelCoord").value,agente=document.getElementById("taskAgent").value,prio=document.getElementById("taskPrioridade").value;if(!coord.trim())return alert("Preencha as coordenadas.");database.ref("tarefas").push().set({desc,coord,agente,prioridade:prio,done:false,timestamp:Date.now()});adicionarLog("Nova missao ["+prio.toUpperCase()+"] para "+agente+": "+desc);}else{database.ref("atas").push().set({desc,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});adicionarLog("Ata arquivada: "+desc);}document.getElementById("panelDesc").value="";const coord=document.getElementById("panelCoord");if(coord)coord.value="";}
-    </script>
-</body>
+        </script>
+  </body>
 </html>
+
