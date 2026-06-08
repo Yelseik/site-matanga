@@ -32,14 +32,20 @@
         .glitch-text.glitching::after{opacity:1;left:-3px;color:#00ffff;text-shadow:2px 0 #00ffff;animation:gClip2 0.25s steps(3) forwards;}
         @keyframes gClip1{0%{clip-path:polygon(0 5%,100% 5%,100% 25%,0 25%);}33%{clip-path:polygon(0 55%,100% 55%,100% 75%,0 75%);}66%{clip-path:polygon(0 30%,100% 30%,100% 45%,0 45%);}100%{clip-path:polygon(0 0,100% 0,100% 0,0 0);opacity:0;}}
         @keyframes gClip2{0%{clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}33%{clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%);}66%{clip-path:polygon(0 80%,100% 80%,100% 100%,0 100%);}100%{clip-path:polygon(0 0,100% 0,100% 0,0 0);opacity:0;}}
+        .alerta-banner{position:fixed;top:0;left:0;right:0;z-index:9997;padding:10px 15px;text-align:center;font-weight:bold;font-size:0.85rem;letter-spacing:2px;display:none;border-bottom:3px solid;cursor:pointer;}
+        .alerta-verde{background:#002210;color:#00ff66;border-color:#00ff66;}
+        .alerta-amarelo{background:#221a00;color:#ffcc00;border-color:#ffcc00;animation:blink 1.5s infinite;}
+        .alerta-vermelho{background:#220000;color:#ff3333;border-color:#ff3333;animation:blink 0.4s infinite;}
+        .conexao-badge{padding:4px 10px;font-size:0.78rem;border:1px solid var(--prim);background:var(--prim-bg);transition:0.5s;cursor:default;}
+        .conexao-online{color:#00ff66;border-color:#00ff66;}
+        .conexao-offline{color:#ff8800;border-color:#ff8800;animation:blink 1s infinite;}
         .theme-switcher{display:flex;gap:5px;align-items:center;}
         .btn-tema{width:18px;height:18px;border-radius:50%;border:2px solid #333;cursor:pointer;transition:0.2s;}
         .btn-tema:hover,.btn-tema.ativo{border-color:#fff;transform:scale(1.3);}
         #btn-tema-v{background:#00ff66;}#btn-tema-r{background:#ff4444;}#btn-tema-b{background:#0088ff;}
         header{border-bottom:2px solid var(--prim);padding-bottom:10px;margin-bottom:25px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;transition:border-color 0.5s;}
         h1{font-size:1.3rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 5px var(--prim);}
-        .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-        .status-badge{background:var(--prim-bg);border:1px solid var(--prim);padding:5px 10px;font-size:0.8rem;animation:blink 2s infinite;}
+        .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
         .timeout-display{background:#001100;border:1px solid var(--prim-dark);padding:4px 10px;font-size:0.75rem;color:#888;}
         .btn-notif{background:transparent;border:1px solid #ffcc00;color:#ffcc00;padding:5px 10px;font-size:0.75rem;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:0.3s;}
         .btn-notif:hover{background:#ffcc00;color:#000;}
@@ -60,7 +66,6 @@
         .status-box{float:right;font-size:0.8rem;padding:2px 6px;border-radius:2px;font-weight:bold;}
         .status-online{background:#003311;color:#00ff66;border:1px solid #00ff66;box-shadow:0 0 5px #00ff66;}
         .status-offline{background:#330000;color:#ff3333;border:1px solid #ff3333;}
-        .status-banido{background:#332200;color:#ff8800;border:1px solid #ff8800;}
         .btn-action{background:transparent;border:1px solid var(--prim);color:var(--prim);padding:10px 12px;width:100%;cursor:pointer;font-weight:bold;text-transform:uppercase;transition:0.3s;margin-top:10px;font-family:inherit;}
         .btn-action:hover{background:var(--prim);color:#000;box-shadow:0 0 10px var(--prim);}
         .btn-danger{border-color:#ff3333;color:#ff3333;}
@@ -87,9 +92,12 @@
         .task-meta{font-size:0.75rem;color:#888;margin-top:5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;}
         .chat-input-wrap{position:relative;}
         .chat-box{background:var(--prim-bg);border:1px solid var(--prim);height:150px;overflow-y:auto;padding:10px;font-size:0.8rem;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;transition:border-color 0.5s;}
-        .chat-msg{border-bottom:1px dashed var(--prim-dark);padding-bottom:4px;line-height:1.5;}
+        .chat-msg{border-bottom:1px dashed var(--prim-dark);padding-bottom:4px;line-height:1.5;display:flex;justify-content:space-between;align-items:flex-start;gap:5px;}
+        .chat-msg-content{flex:1;}
         .chat-user{color:#fff;font-weight:bold;}
         .chat-meta{color:#ffcc00;font-size:0.7rem;}
+        .msg-del-btn{background:transparent;border:1px solid #ff3333;color:#ff3333;padding:1px 5px;font-size:0.6rem;cursor:pointer;border-radius:2px;flex-shrink:0;display:none;}
+        .msg-del-btn:hover{background:#ff3333;color:#000;}
         .mention{color:#ffcc00;font-weight:bold;}
         .mention.me{color:#ff8800;background:#1a1000;padding:0 3px;border-radius:2px;}
         .msg-timer{display:inline-block;font-size:0.65rem;padding:1px 5px;border:1px solid #ff3333;color:#ff3333;border-radius:2px;margin-left:5px;}
@@ -146,20 +154,20 @@
         .pin-error{color:#ff3333;text-align:center;font-size:0.8rem;margin-top:10px;font-weight:bold;display:none;}
         .ceo-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:10001;overflow-y:auto;padding:20px;}
         .ceo-modal-overlay.show{display:block;}
-        .ceo-panel{background:#080202;border:2px solid #ff3333;max-width:700px;margin:0 auto;padding:25px;box-shadow:0 0 50px rgba(255,0,0,0.2);}
+        .ceo-panel{background:#080202;border:2px solid #ff3333;max-width:720px;margin:0 auto;padding:25px;box-shadow:0 0 50px rgba(255,0,0,0.2);}
         .ceo-panel-title{color:#ff3333;font-size:1.1rem;letter-spacing:3px;text-align:center;margin-bottom:4px;text-shadow:0 0 10px #ff3333;}
         .ceo-panel-sub{text-align:center;color:#555;font-size:0.7rem;letter-spacing:2px;margin-bottom:20px;}
         .ceo-tabs{display:flex;gap:0;border-bottom:1px solid #330000;margin-bottom:15px;flex-wrap:wrap;}
-        .ceo-tab{background:transparent;border:1px solid #330000;border-bottom:none;color:#883333;padding:8px 14px;cursor:pointer;font-family:inherit;font-size:0.78rem;text-transform:uppercase;transition:0.2s;}
+        .ceo-tab{background:transparent;border:1px solid #330000;border-bottom:none;color:#883333;padding:7px 10px;cursor:pointer;font-family:inherit;font-size:0.72rem;text-transform:uppercase;transition:0.2s;}
         .ceo-tab.active,.ceo-tab:hover{background:#220000;color:#ff3333;}
         .ceo-tab-content{display:none;}
         .ceo-tab-content.active{display:block;}
         .agent-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #220000;margin-bottom:6px;font-size:0.82rem;flex-wrap:wrap;gap:8px;border-radius:2px;}
         .agent-row:hover{background:#110000;}
-        .agent-nome{color:#ff6666;font-weight:bold;min-width:90px;}
+        .agent-nome{color:#ff6666;font-weight:bold;min-width:80px;}
         .agent-cargo-badge{font-size:0.7rem;padding:2px 6px;border:1px solid #440000;color:#ff8800;border-radius:2px;background:#220000;}
         .agent-actions{display:flex;gap:5px;flex-wrap:wrap;}
-        .ceo-btn{background:transparent;border:1px solid;padding:4px 8px;font-size:0.7rem;cursor:pointer;font-family:inherit;border-radius:2px;transition:0.2s;text-transform:uppercase;}
+        .ceo-btn{background:transparent;border:1px solid;padding:4px 8px;font-size:0.68rem;cursor:pointer;font-family:inherit;border-radius:2px;transition:0.2s;text-transform:uppercase;}
         .ceo-btn-up{border-color:#00ff66;color:#00ff66;}
         .ceo-btn-up:hover{background:#00ff66;color:#000;}
         .ceo-btn-down{border-color:#ffcc00;color:#ffcc00;}
@@ -168,6 +176,19 @@
         .ceo-btn-ban:hover{background:#ff3333;color:#000;}
         .ceo-btn-unban{border-color:#00ff66;color:#00ff66;}
         .ceo-btn-unban:hover{background:#00ff66;color:#000;}
+        .ceo-msg-row{display:flex;align-items:flex-start;justify-content:space-between;padding:7px 8px;border-bottom:1px solid #220000;font-size:0.78rem;gap:8px;}
+        .ceo-msg-row:hover{background:#110000;}
+        .ceo-canal-row{padding:8px 10px;border:1px solid #220000;margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;border-radius:2px;}
+        .ceo-canal-row:hover{background:#110000;}
+        .ceo-priv-msgs{max-height:250px;overflow-y:auto;margin-top:10px;border:1px solid #330000;padding:8px;display:none;}
+        .alerta-nivel-box{display:flex;gap:8px;margin:15px 0;justify-content:center;}
+        .nivel-btn{background:transparent;border:2px solid;padding:10px 16px;font-family:inherit;font-size:0.8rem;font-weight:bold;cursor:pointer;border-radius:3px;transition:0.2s;letter-spacing:1px;}
+        .nivel-verde{border-color:#00ff66;color:#00ff66;}
+        .nivel-verde:hover,.nivel-verde.ativo{background:#00ff66;color:#000;}
+        .nivel-amarelo{border-color:#ffcc00;color:#ffcc00;}
+        .nivel-amarelo:hover,.nivel-amarelo.ativo{background:#ffcc00;color:#000;}
+        .nivel-vermelho{border-color:#ff3333;color:#ff3333;}
+        .nivel-vermelho:hover,.nivel-vermelho.ativo{background:#ff3333;color:#000;}
         .banido-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #330000;margin-bottom:6px;font-size:0.8rem;background:#0a0000;border-radius:2px;flex-wrap:wrap;gap:8px;}
         .banido-nome{color:#ff5555;font-weight:bold;}
         .banido-info{color:#888;font-size:0.72rem;}
@@ -194,16 +215,14 @@
             <button id="loginBtn" onclick="inicializarSistema()">[ INICIALIZAR SISTEMA ]</button>
         </div>
     </div>
-
+    <div id="alertaGlobalBanner" class="alerta-banner" onclick="fecharPainelCEO()"></div>
     <div id="timeoutWarning" class="timeout-bar"></div>
-
     <div id="pinModal" class="pin-modal-overlay">
         <div class="pin-box" id="pinBox">
             <div class="pin-title">AUTENTICACAO SEGURA</div>
             <div class="pin-subtitle">AREA 51 // ACESSO RESTRITO</div>
             <div id="pinStep1">
-                <div class="input-group">
-                    <label>AGENTE:</label>
+                <div class="input-group"><label>AGENTE:</label>
                     <select id="pinAgente" class="input-field">
                         <option value="">-- SELECIONAR --</option>
                         <option value="yelseik">yelseik [CEO]</option>
@@ -226,107 +245,119 @@
                     <div class="pin-dot" id="pinDot4"></div><div class="pin-dot" id="pinDot5"></div>
                 </div>
                 <div class="pin-pad">
-                    <button class="pin-btn" onclick="pinDigito('7')">7</button>
-                    <button class="pin-btn" onclick="pinDigito('8')">8</button>
-                    <button class="pin-btn" onclick="pinDigito('9')">9</button>
-                    <button class="pin-btn" onclick="pinDigito('4')">4</button>
-                    <button class="pin-btn" onclick="pinDigito('5')">5</button>
-                    <button class="pin-btn" onclick="pinDigito('6')">6</button>
-                    <button class="pin-btn" onclick="pinDigito('1')">1</button>
-                    <button class="pin-btn" onclick="pinDigito('2')">2</button>
-                    <button class="pin-btn" onclick="pinDigito('3')">3</button>
-                    <button class="pin-btn del" onclick="pinDel()">DEL</button>
-                    <button class="pin-btn" onclick="pinDigito('0')">0</button>
-                    <button class="pin-btn ok" onclick="validarPIN()">OK</button>
+                    <button class="pin-btn" onclick="pinDigito('7')">7</button><button class="pin-btn" onclick="pinDigito('8')">8</button><button class="pin-btn" onclick="pinDigito('9')">9</button>
+                    <button class="pin-btn" onclick="pinDigito('4')">4</button><button class="pin-btn" onclick="pinDigito('5')">5</button><button class="pin-btn" onclick="pinDigito('6')">6</button>
+                    <button class="pin-btn" onclick="pinDigito('1')">1</button><button class="pin-btn" onclick="pinDigito('2')">2</button><button class="pin-btn" onclick="pinDigito('3')">3</button>
+                    <button class="pin-btn del" onclick="pinDel()">DEL</button><button class="pin-btn" onclick="pinDigito('0')">0</button><button class="pin-btn ok" onclick="validarPIN()">OK</button>
                 </div>
                 <div class="pin-error" id="pinError">PIN INCORRETO</div>
                 <button class="btn-action btn-danger" style="margin-top:15px;" onclick="voltarStep1()">VOLTAR</button>
             </div>
         </div>
     </div>
-
     <div id="ceoPainel" class="ceo-modal-overlay">
         <div class="ceo-panel">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-                <div class="ceo-panel-title">PAINEL CEO // ACESSO MAXIMO</div>
+                <div class="ceo-panel-title">PAINEL CEO // PODER MAXIMO</div>
                 <button class="ceo-btn ceo-btn-ban" onclick="fecharPainelCEO()">X FECHAR</button>
             </div>
-            <div class="ceo-panel-sub">TODAS AS ACOES SAO REGISTADAS NO FIREBASE</div>
+            <div class="ceo-panel-sub">TODAS AS ACOES SAO REGISTADAS E IRREVERSIVEIS</div>
             <div class="ceo-tabs">
                 <button class="ceo-tab active" id="ceoTabBtn_agentes" onclick="ceoTab('agentes')">AGENTES</button>
-                <button class="ceo-tab" id="ceoTabBtn_pins" onclick="ceoTab('pins')">MUDAR PINS</button>
+                <button class="ceo-tab" id="ceoTabBtn_pins" onclick="ceoTab('pins')">PINS</button>
                 <button class="ceo-tab" id="ceoTabBtn_banidos" onclick="ceoTab('banidos')">BANIDOS</button>
+                <button class="ceo-tab" id="ceoTabBtn_chat" onclick="ceoTab('chat')">CHAT</button>
+                <button class="ceo-tab" id="ceoTabBtn_missoes" onclick="ceoTab('missoes')">MISSOES</button>
+                <button class="ceo-tab" id="ceoTabBtn_priv" onclick="ceoTab('priv')">PRIVADOS</button>
+                <button class="ceo-tab" id="ceoTabBtn_alerta" onclick="ceoTab('alerta')">ALERTA</button>
             </div>
             <div class="ceo-tab-content active" id="ceoTabContent_agentes">
                 <div id="ceoAgentesList"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
-                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="carregarPainelCEO()">ATUALIZAR DADOS</button>
+                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="carregarPainelCEO()">ATUALIZAR</button>
             </div>
             <div class="ceo-tab-content" id="ceoTabContent_pins">
-                <div style="font-size:0.8rem;color:#888;margin-bottom:15px;padding:10px;border:1px solid #330000;background:#0a0000;">O PIN antigo deixa de funcionar imediatamente apos alteracao.</div>
-                <div class="input-group">
-                    <label>AGENTE ALVO:</label>
+                <div style="font-size:0.8rem;color:#888;margin-bottom:15px;padding:10px;border:1px solid #330000;background:#0a0000;">PIN antigo deixa de funcionar imediatamente.</div>
+                <div class="input-group"><label>AGENTE:</label>
                     <select id="ceoPinAgente" class="input-field">
                         <option value="">-- SELECIONAR --</option>
-                        <option value="aihosj">aihosj</option>
-                        <option value="Rengaw">Rengaw</option>
-                        <option value="innavoeg">innavoeg</option>
-                        <option value="onaitsirc">onaitsirc</option>
+                        <option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option>
+                        <option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label>NOVO PIN (6 digitos numericos):</label>
-                    <input type="text" id="ceoPinNovo" class="input-field" placeholder="Ex: 123456" maxlength="6">
-                </div>
+                <div class="input-group"><label>NOVO PIN (6 digitos):</label><input type="text" id="ceoPinNovo" class="input-field" placeholder="Ex: 123456" maxlength="6"></div>
                 <button class="btn-action btn-danger" onclick="mudarPinAgente()">DEFINIR NOVO PIN</button>
             </div>
             <div class="ceo-tab-content" id="ceoTabContent_banidos">
                 <div id="ceoBanidosList"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
                 <div style="margin-top:15px;border-top:1px solid #330000;padding-top:15px;">
                     <div style="font-size:0.8rem;color:#888;margin-bottom:10px;">BANIR NOVO AGENTE:</div>
-                    <div class="input-group">
-                        <label>AGENTE:</label>
+                    <div class="input-group"><label>AGENTE:</label>
                         <select id="ceoBanirAgente" class="input-field">
                             <option value="">-- SELECIONAR --</option>
-                            <option value="aihosj">aihosj</option>
-                            <option value="Rengaw">Rengaw</option>
-                            <option value="innavoeg">innavoeg</option>
-                            <option value="onaitsirc">onaitsirc</option>
+                            <option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option>
+                            <option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option>
                         </select>
                     </div>
-                    <div class="input-group">
-                        <label>MOTIVO DO BANIMENTO:</label>
-                        <input type="text" id="ceoBanirMotivo" class="input-field" placeholder="Motivo...">
-                    </div>
+                    <div class="input-group"><label>MOTIVO:</label><input type="text" id="ceoBanirMotivo" class="input-field" placeholder="Motivo..."></div>
                     <button class="btn-action btn-danger" onclick="banirAgenteForm()">EXECUTAR BANIMENTO</button>
                 </div>
             </div>
+            <div class="ceo-tab-content" id="ceoTabContent_chat">
+                <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                    <button class="btn-action btn-danger" style="margin:0;padding:7px;" onclick="carregarChatCEO()">ATUALIZAR</button>
+                    <button class="btn-action btn-danger" style="margin:0;padding:7px;" onclick="apagarTodoChat()">APAGAR TUDO</button>
+                </div>
+                <div id="ceoChatList" style="max-height:350px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
+            </div>
+            <div class="ceo-tab-content" id="ceoTabContent_missoes">
+                <div style="font-size:0.8rem;color:#888;margin-bottom:8px;font-weight:bold;">MISSOES:</div>
+                <div id="ceoMissoesList" style="max-height:200px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:15px;">Carregando...</div></div>
+                <div style="font-size:0.8rem;color:#888;margin:12px 0 8px;font-weight:bold;">ATAS:</div>
+                <div id="ceoAtasList" style="max-height:150px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:15px;">Carregando...</div></div>
+                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="carregarMissoesCEO()">ATUALIZAR</button>
+            </div>
+            <div class="ceo-tab-content" id="ceoTabContent_priv">
+                <div id="ceoCanaisList" style="max-height:200px;overflow-y:auto;"><div style="color:#555;text-align:center;padding:20px;">Carregando...</div></div>
+                <div id="ceoPrivMsgs" class="ceo-priv-msgs"></div>
+                <button class="btn-action btn-danger" style="margin-top:10px;" onclick="carregarCanaisPrivados()">ATUALIZAR</button>
+            </div>
+            <div class="ceo-tab-content" id="ceoTabContent_alerta">
+                <div id="alertaAtualStatus" style="text-align:center;padding:10px;font-size:0.85rem;margin-bottom:10px;border:1px solid #330000;background:#0a0000;color:#888;">Sem alerta ativo.</div>
+                <div style="font-size:0.8rem;color:#888;margin-bottom:8px;">NIVEL DE AMEACA:</div>
+                <div class="alerta-nivel-box">
+                    <button class="nivel-btn nivel-verde" id="nivelVerde" onclick="selecionarNivel('VERDE')">VERDE</button>
+                    <button class="nivel-btn nivel-amarelo" id="nivelAmarelo" onclick="selecionarNivel('AMARELO')">AMARELO</button>
+                    <button class="nivel-btn nivel-vermelho" id="nivelVermelho" onclick="selecionarNivel('VERMELHO')">VERMELHO</button>
+                </div>
+                <div class="input-group"><label>MENSAGEM DE ALERTA:</label><input type="text" id="alertaMensagem" class="input-field" placeholder="Mensagem para todos os agentes..."></div>
+                <button class="btn-action btn-danger" onclick="ativarAlertaGlobal()">ATIVAR ALERTA GLOBAL</button>
+                <button class="btn-action btn-warn" style="margin-top:5px;" onclick="cancelarAlertaGlobal()">CANCELAR ALERTA</button>
+            </div>
         </div>
     </div>
-
     <header>
         <h1 class="glitch-text" data-text="AREA 51 // OPERACOES">AREA 51 // OPERACOES</h1>
         <div class="header-right">
             <button id="btnCEOPanel" class="btn-ceo" onclick="abrirPainelCEO()">CEO PANEL</button>
             <div class="theme-switcher">
-                <button class="btn-tema ativo" id="btn-tema-v" onclick="trocarTema('v')" title="Verde"></button>
-                <button class="btn-tema" id="btn-tema-r" onclick="trocarTema('r')" title="Vermelho"></button>
-                <button class="btn-tema" id="btn-tema-b" onclick="trocarTema('b')" title="Azul"></button>
+                <button class="btn-tema ativo" id="btn-tema-v" onclick="trocarTema('v')"></button>
+                <button class="btn-tema" id="btn-tema-r" onclick="trocarTema('r')"></button>
+                <button class="btn-tema" id="btn-tema-b" onclick="trocarTema('b')"></button>
             </div>
             <div class="timeout-display" id="timeoutDisplay" style="display:none;">SESSAO: --:--</div>
             <button class="btn-notif" id="btnNotif" onclick="pedirPermissaoNotificacoes()">ALERTAS</button>
-            <div class="status-badge">REDE SINCRONIZADA</div>
+            <div id="conexaoBadge" class="conexao-badge conexao-online">ONLINE</div>
         </div>
     </header>
-
     <div class="grid-container">
         <div class="card">
-            <h2>CONTROLO DE PRESENCA</h2>
+<h2>CONTROLO DE PRESENCA</h2>
             <ul class="presence-list">
                 <li><span class="membro-nome">[CEO] yelseik</span><span class="status-box status-offline" id="status-yelseik">AUSENTE</span><span class="membro-cargo" id="cargo-yelseik">Lider Supremo</span></li>
-                <li><span class="membro-nome">[ASSIST.] aihosj</span><span class="status-box status-offline" id="status-aihosj">AUSENTE</span><span class="membro-cargo" id="cargo-aihosj">Assistente do CEO</span></li>
+                <li><span class="membro-nome">[ASSIST.] aihosj</span><span class="status-box status-offline" id="status-aihosj">AUSENTE</span><span class="membro-cargo" id="cargo-aihosj">Assistente</span></li>
                 <li><span class="membro-nome">[CONS.] Rengaw</span><span class="status-box status-offline" id="status-rengaw">AUSENTE</span><span class="membro-cargo" id="cargo-rengaw">Conselheiro</span></li>
-                <li><span class="membro-nome">[S.CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo" id="cargo-innavoeg">Chefe de Seguranca</span></li>
-                <li><span class="membro-nome">[SEG.] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo" id="cargo-onaitsirc">Seguranca Tatico</span></li>
+                <li><span class="membro-nome">[S.CHEFE] innavoeg</span><span class="status-box status-offline" id="status-innavoeg">AUSENTE</span><span class="membro-cargo" id="cargo-innavoeg">Chefe Seguranca</span></li>
+                <li><span class="membro-nome">[SEG.] onaitsirc</span><span class="status-box status-offline" id="status-onaitsirc">AUSENTE</span><span class="membro-cargo" id="cargo-onaitsirc">Seguranca</span></li>
             </ul>
             <button class="btn-action" onclick="mostrarModalPIN()">Autenticar via PIN</button>
             <button class="btn-action btn-warn" onclick="sairDaRede()">Sair da Rede</button>
@@ -339,25 +370,18 @@
                 <div id="mentionDropdownChat" style="display:none;" class="mention-autocomplete"></div>
                 <input type="text" id="chatInput" class="input-field" placeholder="Mensagem... @agente para mencionar" oninput="detetarMencao(this,'chat')" onkeydown="if(event.key==='Enter')enviarMensagemChat()">
             </div>
-            <div class="input-group" style="margin-top:8px;">
-                <label>Autodestruicao:</label>
+            <div class="input-group" style="margin-top:8px;"><label>Autodestruicao:</label>
                 <select id="chatTimer" class="input-field">
-                    <option value="0">Sem timer</option>
-                    <option value="30">30 segundos</option>
-                    <option value="60">1 minuto</option>
-                    <option value="300">5 minutos</option>
+                    <option value="0">Sem timer</option><option value="30">30 seg</option>
+                    <option value="60">1 min</option><option value="300">5 min</option>
                 </select>
             </div>
             <button class="btn-action" onclick="enviarMensagemChat()">Transmitir Sinal</button>
-            <div class="radar-container">
-                <div class="radar"></div>
-                <div style="font-size:0.75rem;color:#888;">SCANNER:<br><span style="color:var(--prim);animation:blink 1s infinite;">PROCURANDO...</span></div>
-            </div>
+            <div class="radar-container"><div class="radar"></div><div style="font-size:0.75rem;color:#888;">SCANNER:<br><span style="color:var(--prim);animation:blink 1s infinite;">ATIVO</span></div></div>
         </div>
         <div class="card private-card">
-            <h2>CANAL PRIVADO (CIFRADO)</h2>
-            <div class="input-group">
-                <label>DESTINATARIO:</label>
+            <h2>CANAL PRIVADO</h2>
+            <div class="input-group"><label>DESTINATARIO:</label>
                 <select id="privDestinatario" class="input-field" onchange="selecionarDestinatario(this.value)">
                     <option value="">-- SELECIONAR --</option>
                     <option value="yelseik">yelseik</option><option value="aihosj">aihosj</option>
@@ -370,11 +394,10 @@
                 <div id="mentionDropdownPriv" style="display:none;" class="mention-autocomplete"></div>
                 <input type="text" id="privInput" class="input-field" placeholder="Mensagem cifrada..." oninput="detetarMencao(this,'priv')" onkeydown="if(event.key==='Enter')enviarMensagemPrivada()">
             </div>
-            <div class="input-group" style="margin-top:8px;">
-                <label>Autodestruicao:</label>
+            <div class="input-group" style="margin-top:8px;"><label>Autodestruicao:</label>
                 <select id="privTimer" class="input-field">
-                    <option value="0">Sem timer</option><option value="30">30 segundos</option>
-                    <option value="60">1 minuto</option><option value="300">5 minutos</option>
+                    <option value="0">Sem timer</option><option value="30">30 seg</option>
+                    <option value="60">1 min</option><option value="300">5 min</option>
                 </select>
             </div>
             <button class="btn-action btn-blue" onclick="enviarMensagemPrivada()">Enviar Cifrado</button>
@@ -395,20 +418,9 @@
                 <div style="margin-top:5px;color:var(--prim);" id="progresso-pct">0%</div>
             </div>
         </div>
-        <div class="card">
-            <h2>REGISTO DE SEGURANCA</h2>
-            <div class="sec-log-list" id="secLogContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:15px;">Sem eventos.</div></div>
-            <button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparSecLog()">Limpar (CEO)</button>
-        </div>
-        <div class="card">
-            <h2>HISTORICO DE PRESENCAS</h2>
-            <div class="history-list" id="historyContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:20px;">Sem registos.</div></div>
-            <button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparHistorico()">Limpar (CEO)</button>
-        </div>
-        <div class="card">
-            <h2>ARQUIVO DE BRIEFINGS</h2>
-            <div class="task-list" id="ataContainer"></div>
-        </div>
+        <div class="card"><h2>REGISTO DE SEGURANCA</h2><div class="sec-log-list" id="secLogContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:15px;">Sem eventos.</div></div><button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparSecLog()">Limpar (CEO)</button></div>
+        <div class="card"><h2>HISTORICO DE PRESENCAS</h2><div class="history-list" id="historyContainer"><div style="color:#555;font-size:0.8rem;text-align:center;padding:20px;">Sem registos.</div></div><button class="btn-action btn-danger" style="margin-top:12px;" onclick="limparHistorico()">Limpar (CEO)</button></div>
+        <div class="card"><h2>ARQUIVO DE BRIEFINGS</h2><div class="task-list" id="ataContainer"></div></div>
         <div class="card">
             <h2>MISSOES OPERACIONAIS</h2>
             <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
@@ -421,38 +433,18 @@
         </div>
         <div class="card">
             <h2>PAINEL DO COMANDANTE</h2>
-            <div class="input-group">
-                <label>Tipo:</label>
-                <select id="emissaoTipo" class="input-field" onchange="alternarCamposPainel()">
-                    <option value="missao">Lancar Nova Missao</option>
-                    <option value="ata">Arquivar Ata</option>
-                </select>
-            </div>
+            <div class="input-group"><label>Tipo:</label><select id="emissaoTipo" class="input-field" onchange="alternarCamposPainel()"><option value="missao">Lancar Missao</option><option value="ata">Arquivar Ata</option></select></div>
             <div class="input-group"><label id="labelDinamica">Descricao:</label><input type="text" id="panelDesc" class="input-field" placeholder="Detalhes..."></div>
             <div class="input-group" id="grupoCoordenadas"><label>Coordenadas:</label><input type="text" id="panelCoord" class="input-field" placeholder="Ex: Setor Sul..."></div>
-            <div class="input-group" id="grupoAgente">
-                <label>Agente:</label>
-                <select id="taskAgent" class="input-field">
-                    <option value="yelseik">yelseik</option><option value="aihosj">aihosj</option>
-                    <option value="Rengaw">Rengaw</option><option value="innavoeg">innavoeg</option>
-                    <option value="onaitsirc">onaitsirc</option>
-                </select>
-            </div>
-            <div class="input-group" id="grupoPrioridade">
-                <label>Prioridade:</label>
-                <select id="taskPrioridade" class="input-field">
-                    <option value="normal">NORMAL</option><option value="alta">ALTA</option><option value="critica">CRITICA</option>
-                </select>
-            </div>
+            <div class="input-group" id="grupoAgente"><label>Agente:</label><select id="taskAgent" class="input-field"><option value="yelseik">yelseik</option><option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option><option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option></select></div>
+            <div class="input-group" id="grupoPrioridade"><label>Prioridade:</label><select id="taskPrioridade" class="input-field"><option value="normal">NORMAL</option><option value="alta">ALTA</option><option value="critica">CRITICA</option></select></div>
             <button class="btn-action" onclick="executarAcaoPainel()">Executar Diretriz</button>
         </div>
     </div>
-    <div class="log-panel">
-        <div class="log-title">LOGS DE INCIDENTES:</div>
-        <ul class="log-content" id="logContainer"></ul>
-    </div>
+    <div class="log-panel"><div class="log-title">LOGS DE INCIDENTES:</div><ul class="log-content" id="logContainer"></ul></div>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+cat >> index.html << 'AREA51EOF3A'
     <script>
 const firebaseConfig={apiKey:"AIzaSyA0L_KIg0VA41_pfHUON-XJf3yz7...",authDomain:"area51-matanga.firebaseapp.com",databaseURL:"https://area51-matanga-default-rtdb.firebaseio.com",projectId:"area51-matanga",storageBucket:"area51-matanga.firebasestorage.app",messagingSenderId:"8932975266",appId:"1:8932975266:web:50532f72a8c73b42"};
 firebase.initializeApp(firebaseConfig);
@@ -473,7 +465,7 @@ const CARGOS_DEFAULT={yelseik:"CEO",aihosj:"ASSISTENTE",Rengaw:"CONSELHEIRO",inn
 let agenteAutenticado=null,agenteId=null,isCEO=false;
 let tentativasFalhadas=0,bloqueioAte=0,filtroAtivo="todas";
 let primeiraCargaTarefas=true,primeiraCargaChat=true,todasTarefas={};
-let pinAtual="",pinAgenteEscolhido="";
+let pinAtual="",pinAgenteEscolhido="",nivelAlertaSelecionado="VERMELHO";
 let timeoutInterval=null,lastActivity=Date.now();
 let salaPrivadaAtual=null,privListener=null;
 const TIMEOUT_MS=15*60*1000;
@@ -485,42 +477,37 @@ function trocarTema(t){document.body.classList.remove("tema-r","tema-b");if(t===
 function carregarTema(){const t=localStorage.getItem("matanga_tema")||"v";trocarTema(t);}
 
 const bootSeq=[
-    {t:"PROTOCOLO DE ARRANQUE INICIADO...",c:"b-warn",p:10},
-    {t:"VERIFICANDO HARDWARE...             [OK]",c:"b-ok",p:25},
-    {t:"CARREGANDO MODULOS SEGURANCA...     [OK]",c:"b-ok",p:45},
-    {t:"LIGACAO ENCRIPTADA ESTABELECIDA...  [OK]",c:"b-ok",p:60},
-    {t:"FIREBASE SINCRONIZADO...            [OK]",c:"b-ok",p:75},
-    {t:"VERIFICANDO BANIMENTOS...           [OK]",c:"b-ok",p:90},
+    {t:"PROTOCOLO DE ARRANQUE INICIADO...",c:"b-warn",p:12},
+    {t:"VERIFICANDO HARDWARE...             [OK]",c:"b-ok",p:26},
+    {t:"SERVICE WORKER REGISTADO...         [OK]",c:"b-ok",p:40},
+    {t:"MODO OFFLINE ATIVADO...             [OK]",c:"b-ok",p:54},
+    {t:"FIREBASE SINCRONIZADO...            [OK]",c:"b-ok",p:70},
+    {t:"VERIFICANDO BANIMENTOS...           [OK]",c:"b-ok",p:86},
     {t:"SISTEMA PRONTO.                     [OK]",c:"b-ok",p:100}
 ];
 function mostrarBootSequence(){
     const cont=document.getElementById("bootLines"),bar=document.getElementById("bootBarFill");
-    bootSeq.forEach((item,i)=>{
-        setTimeout(()=>{const l=document.createElement("div");l.className="boot-line "+item.c;l.textContent="> "+item.t;cont.appendChild(l);bar.style.width=item.p+"%";},i*480);
-    });
-    setTimeout(()=>{
-        document.getElementById("loginLogo").style.display="block";
-        document.getElementById("loginLogo").classList.add("pulse");
-        setTimeout(()=>document.getElementById("loginSub").style.display="block",400);
-        setTimeout(()=>{document.getElementById("loginBtn").style.display="block";iniciarGlitch();},800);
-    },bootSeq.length*480+300);
+    bootSeq.forEach((item,i)=>{setTimeout(()=>{const l=document.createElement("div");l.className="boot-line "+item.c;l.textContent="> "+item.t;cont.appendChild(l);bar.style.width=item.p+"%";},i*480);});
+    setTimeout(()=>{document.getElementById("loginLogo").style.display="block";document.getElementById("loginLogo").classList.add("pulse");setTimeout(()=>document.getElementById("loginSub").style.display="block",400);setTimeout(()=>{document.getElementById("loginBtn").style.display="block";iniciarGlitch();},800);},bootSeq.length*480+300);
 }
 function inicializarSistema(){const s=document.getElementById("loginScreen");s.classList.add("fadeout");setTimeout(()=>s.style.display="none",1000);adicionarLog("Sistema inicializado.");}
 function iniciarGlitch(){function d(){const els=document.querySelectorAll(".glitch-text");if(els.length>0){const el=els[Math.floor(Math.random()*els.length)];if(!el.classList.contains("glitching")){el.classList.add("glitching");setTimeout(()=>el.classList.remove("glitching"),280);}}setTimeout(d,Math.random()*3500+1500);}d();}
 
 window.onload=function(){
-    carregarTema(); mostrarBootSequence();
+    carregarTema();mostrarBootSequence();
     ouvirPresencas();ouvirChat();ouvirTarefas();ouvirAtas();ouvirLogs();
     ouvirEstatisticas();ouvirHistoricoPresencas();ouvirSecurityLog();
     ouvirAlarmeMissoes();ouvirBanimentos();ouvirCargos();
+    ouvirAlertaGlobal();ouvirConexao();
     verificarSessaoGuardada();iniciarLimpezaAutomatica();
     adicionarLog("Terminal operacional conectado.");
     setTimeout(()=>{primeiraCargaTarefas=false;primeiraCargaChat=false;},3000);
     window.addEventListener("beforeunload",()=>{if(agenteAutenticado&&agenteId){registarHistoricoPresenca(agenteAutenticado,"SAIDA");database.ref("presencas/"+agenteId).remove();}});
     document.addEventListener("click",(e)=>{if(!e.target.closest(".chat-input-wrap")){["mentionDropdownChat","mentionDropdownPriv"].forEach(id=>{const d=document.getElementById(id);if(d)d.style.display="none";});}});
+    if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").catch(()=>{});}
 };
 
-function verificarSessaoGuardada(){const dados=localStorage.getItem("matanga_sessao");if(dados){try{const s=JSON.parse(dados);agenteAutenticado=s.nome;agenteId=s.id;isCEO=s.isCEO;database.ref("presencas/"+agenteId).set("ATIVO");iniciarTimeout();if(isCEO){const b=document.getElementById("btnCEOPanel");if(b)b.style.display="inline-block";}}catch(e){localStorage.removeItem("matanga_sessao");}}}
+function verificarSessaoGuardada(){const d=localStorage.getItem("matanga_sessao");if(d){try{const s=JSON.parse(d);agenteAutenticado=s.nome;agenteId=s.id;isCEO=s.isCEO;database.ref("presencas/"+agenteId).set("ATIVO");iniciarTimeout();if(isCEO){const b=document.getElementById("btnCEOPanel");if(b)b.style.display="inline-block";}}catch(e){localStorage.removeItem("matanga_sessao");}}}
 
 function adicionarLog(msg,erro=false){database.ref("logs").push().set({msg,erro,timestamp:Date.now(),hora:new Date().toLocaleTimeString()});}
 function ouvirLogs(){database.ref("logs").limitToLast(50).on("value",(snap)=>{const c=document.getElementById("logContainer");c.innerHTML="";const logs=snap.val();if(logs)Object.values(logs).reverse().forEach(l=>{c.innerHTML+="<li "+(l.erro?"class='log-erro'":"")+">["+l.hora+"] "+l.msg+"</li>";});});}
@@ -541,33 +528,21 @@ function atualizarDots(){for(let i=0;i<6;i++){const dot=document.getElementById(
 async function validarPIN(){
     const agente=pinAgenteEscolhido;
     const banSnap=await database.ref("config/banidos/"+agente).once("value");
-    if(banSnap.val()){
-        pinAtual="";atualizarDots();
-        const ban=banSnap.val();
-        const err=document.getElementById("pinError");
-        err.style.display="block";err.textContent="ACESSO NEGADO - AGENTE BANIDO";
-        tocarSomErro();
-        registarSeguranca("ACESSO_NEGADO",agente,"Banido: "+ban.motivo);
-        adicionarLog("Acesso negado - banido: "+agente,true);
-        return;
-    }
+    if(banSnap.val()){pinAtual="";atualizarDots();const ban=banSnap.val();const err=document.getElementById("pinError");err.style.display="block";err.textContent="ACESSO NEGADO - BANIDO";tocarSomErro();registarSeguranca("ACESSO_NEGADO",agente,"Banido: "+ban.motivo);adicionarLog("Banido tentou aceder: "+agente,true);return;}
     const inputHash=await sha256(agente+":"+pinAtual);
     const pinSnap=await database.ref("config/pins/"+agente).once("value");
     const customHash=pinSnap.val();
     const valid=customHash?inputHash===customHash:(agentesHashMap[inputHash]&&agentesHashMap[inputHash].nome.toLowerCase()===agente.toLowerCase());
     if(valid){
-        const agInfo=getAgenteByNome(agente);
-        if(!agInfo){errarPIN();return;}
+        const agInfo=getAgenteByNome(agente);if(!agInfo){errarPIN();return;}
         agenteAutenticado=agInfo.nome;agenteId=agInfo.id;isCEO=agInfo.isCEO;tentativasFalhadas=0;
         localStorage.setItem("matanga_sessao",JSON.stringify({nome:agInfo.nome,id:agInfo.id,isCEO:isCEO}));
         database.ref("presencas/"+agInfo.id).set("ATIVO");
-        registarHistoricoPresenca(agInfo.nome,"ENTRADA");
-        registarSeguranca("ACESSO_CONCEDIDO",agInfo.nome,"Login via PIN");
-        adicionarLog("SINAL: Agente "+agInfo.nome+" entrou na rede.");
-        tocarSomSucesso();fecharModalPIN();iniciarTimeout();
+        registarHistoricoPresenca(agInfo.nome,"ENTRADA");registarSeguranca("ACESSO_CONCEDIDO",agInfo.nome,"Login PIN");
+        adicionarLog("SINAL: Agente "+agInfo.nome+" entrou na rede.");tocarSomSucesso();fecharModalPIN();iniciarTimeout();
         if(isCEO){const b=document.getElementById("btnCEOPanel");if(b)b.style.display="inline-block";}
         alert("Identidade validada. Canal ativo para "+agInfo.nome+".");
-    } else { errarPIN(); }
+    }else{errarPIN();}
 }
 function errarPIN(){pinAtual="";atualizarDots();tentativasFalhadas++;const box=document.getElementById("pinBox");box.classList.add("pin-shake");setTimeout(()=>box.classList.remove("pin-shake"),400);const err=document.getElementById("pinError");err.style.display="block";err.textContent="PIN INCORRETO ["+tentativasFalhadas+"/3]";tocarSomErro();if(tentativasFalhadas>=3){bloqueioAte=Date.now()+30000;tentativasFalhadas=0;fecharModalPIN();registarSeguranca("BLOQUEIO",pinAgenteEscolhido,"3 falhas");adicionarLog("BREACH: Bloqueado 30s.",true);alert("BLOQUEADO 30s!");}else{registarSeguranca("ACESSO_NEGADO",pinAgenteEscolhido,"Tentativa "+tentativasFalhadas+"/3");adicionarLog("PIN incorreto ["+tentativasFalhadas+"/3]",true);}}
 
@@ -578,146 +553,200 @@ function mostrarAviso(r,critico){const bar=document.getElementById("timeoutWarni
 function esconderAviso(){const b=document.getElementById("timeoutWarning");if(b)b.style.display="none";}
 function formatarTempo(ms){const s=Math.ceil(ms/1000),min=Math.floor(s/60),sec=s%60;return min.toString().padStart(2,"0")+":"+sec.toString().padStart(2,"0");}
 function limparSessao(){clearInterval(timeoutInterval);esconderAviso();const td=document.getElementById("timeoutDisplay");if(td)td.style.display="none";const b=document.getElementById("btnCEOPanel");if(b)b.style.display="none";agenteAutenticado=null;agenteId=null;isCEO=false;localStorage.removeItem("matanga_sessao");}
-function autoLogout(){registarSeguranca("SESSAO_EXPIRADA",agenteAutenticado,"Inatividade");adicionarLog("TIMEOUT: Sessao de "+agenteAutenticado+" expirou.");database.ref("presencas/"+agenteId).remove();registarHistoricoPresenca(agenteAutenticado,"SAIDA");limparSessao();tocarSomErro();alert("SESSAO EXPIRADA!");}
+function autoLogout(){registarSeguranca("SESSAO_EXPIRADA",agenteAutenticado,"Inatividade");adicionarLog("TIMEOUT: "+agenteAutenticado+" expirou.");database.ref("presencas/"+agenteId).remove();registarHistoricoPresenca(agenteAutenticado,"SAIDA");limparSessao();tocarSomErro();alert("SESSAO EXPIRADA!");}
 
-function registarSeguranca(tipo,agente,detalhes){const icons={ACESSO_CONCEDIDO:"OK",ACESSO_NEGADO:"ERR",BLOQUEIO:"BLK",SESSAO_EXPIRADA:"TMO",SESSAO_ENCERRADA:"OFF",BANIMENTO:"BAN"};database.ref("security_logs").push().set({tipo,agente:agente||"?",detalhes:detalhes||"",icone:icons[tipo]||"?",hora:new Date().toLocaleTimeString(),timestamp:Date.now()});}
+function registarSeguranca(tipo,agente,detalhes){const icons={ACESSO_CONCEDIDO:"OK",ACESSO_NEGADO:"ERR",BLOQUEIO:"BLK",SESSAO_EXPIRADA:"TMO",SESSAO_ENCERRADA:"OFF",BANIMENTO:"BAN",ALERTA_GLOBAL:"ALT"};database.ref("security_logs").push().set({tipo,agente:agente||"?",detalhes:detalhes||"",icone:icons[tipo]||"?",hora:new Date().toLocaleTimeString(),timestamp:Date.now()});}
 function ouvirSecurityLog(){database.ref("security_logs").limitToLast(20).on("value",(snap)=>{const c=document.getElementById("secLogContainer");c.innerHTML="";const d=snap.val();if(!d){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:15px;'>Sem eventos.</div>";return;}Object.values(d).reverse().forEach(e=>{let cls="sec-info";if(e.tipo==="ACESSO_CONCEDIDO"||e.tipo==="SESSAO_ENCERRADA")cls="sec-ok";if(e.tipo==="ACESSO_NEGADO"||e.tipo==="BLOQUEIO"||e.tipo==="BANIMENTO")cls="sec-fail";c.innerHTML+="<div class='sec-log-item "+cls+"'>["+e.hora+"] ["+e.icone+"] "+e.tipo+" "+e.agente+(e.detalhes?" ("+e.detalhes+")":"")+"</div>";});});}
 async function limparSecLog(){const pin=prompt("PIN DO CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("security_logs").remove();adicionarLog("CEO limpou registo.");tocarSomSucesso();}else{tocarSomErro();alert("PIN incorreto.");}}
-// ── PAINEL CEO ────────────────────────────────────────────────
-function abrirPainelCEO(){if(!isCEO)return alert("Acesso negado.");document.getElementById("ceoPainel").classList.add("show");carregarPainelCEO();ceoTab("agentes");}
-function fecharPainelCEO(){document.getElementById("ceoPainel").classList.remove("show");}
-function ceoTab(tab){document.querySelectorAll(".ceo-tab-content").forEach(c=>c.classList.remove("active"));document.querySelectorAll(".ceo-tab").forEach(t=>t.classList.remove("active"));document.getElementById("ceoTabContent_"+tab).classList.add("active");document.getElementById("ceoTabBtn_"+tab).classList.add("active");}
-
-async function carregarPainelCEO(){
-    const[presSnap,banSnap,cargoSnap]=await Promise.all([database.ref("presencas").once("value"),database.ref("config/banidos").once("value"),database.ref("config/cargos").once("value")]);
-    const pres=presSnap.val()||{},bans=banSnap.val()||{},cargos=cargoSnap.val()||{};
-    renderizarAgentes(pres,bans,cargos);
-    renderizarBanidos(bans);
+cat >> index.html << 'AREA51EOF3B'
+// ── MODO OFFLINE ──────────────────────────────────────────────
+function ouvirConexao(){
+    database.ref(".info/connected").on("value",(snap)=>{
+        const online=snap.val();
+        const badge=document.getElementById("conexaoBadge");
+        if(badge){badge.textContent=online?"ONLINE":"OFFLINE";badge.className="conexao-badge "+(online?"conexao-online":"conexao-offline");}
+        if(!online)adicionarLog("AVISO: Conexao perdida. Modo offline ativo.");
+        else adicionarLog("Ligacao restabelecida.");
+    });
 }
 
+// ── ALERTA GLOBAL ─────────────────────────────────────────────
+let alertaAtivo=false;
+function selecionarNivel(nivel){
+    nivelAlertaSelecionado=nivel;
+    ["Verde","Amarelo","Vermelho"].forEach(n=>{const b=document.getElementById("nivel"+n);if(b)b.classList.remove("ativo");});
+    const btn=document.getElementById("nivel"+nivel.charAt(0)+nivel.slice(1).toLowerCase());
+    if(btn)btn.classList.add("ativo");
+}
+function ouvirAlertaGlobal(){
+    database.ref("config/alerta").on("value",(snap)=>{
+        const a=snap.val();
+        const banner=document.getElementById("alertaGlobalBanner");
+        const status=document.getElementById("alertaAtualStatus");
+        if(!banner)return;
+        if(a&&a.ativo){
+            const cores={VERDE:"alerta-verde",AMARELO:"alerta-amarelo",VERMELHO:"alerta-vermelho"};
+            banner.className="alerta-banner "+(cores[a.nivel]||"alerta-vermelho");
+            banner.style.display="block";
+            banner.textContent="["+a.nivel+"] "+a.mensagem+" — Clica para fechar";
+            if(status)status.textContent="ATIVO: ["+a.nivel+"] "+a.mensagem;
+            if(a.nivel==="VERMELHO"){tocarAlertaCritico();document.body.classList.add("siren-active");setTimeout(()=>document.body.classList.remove("siren-active"),3000);}
+            enviarNotificacaoPush("ALERTA "+a.nivel,a.mensagem);
+        }else{
+            banner.style.display="none";
+            if(status)status.textContent="Sem alerta ativo.";
+        }
+    });
+}
+function ativarAlertaGlobal(){
+    const msg=document.getElementById("alertaMensagem").value;
+    if(!msg.trim())return alert("Escreve uma mensagem de alerta.");
+    database.ref("config/alerta").set({nivel:nivelAlertaSelecionado,mensagem:msg,ativo:true,por:"yelseik",timestamp:Date.now()});
+    adicionarLog("CEO ativou ALERTA "+nivelAlertaSelecionado+": "+msg,nivelAlertaSelecionado==="VERMELHO");
+    registarSeguranca("ALERTA_GLOBAL","yelseik",nivelAlertaSelecionado+": "+msg);
+    tocarSomSucesso();document.getElementById("alertaMensagem").value="";
+}
+function cancelarAlertaGlobal(){
+    database.ref("config/alerta").set({ativo:false});
+    adicionarLog("CEO cancelou alerta global.");tocarSomSucesso();
+}
+// ── PAINEL CEO ────────────────────────────────────────────────
+function abrirPainelCEO(){if(!isCEO)return;document.getElementById("ceoPainel").classList.add("show");carregarPainelCEO();ceoTab("agentes");}
+function fecharPainelCEO(){document.getElementById("ceoPainel").classList.remove("show");}
+function ceoTab(tab){document.querySelectorAll(".ceo-tab-content").forEach(c=>c.classList.remove("active"));document.querySelectorAll(".ceo-tab").forEach(t=>t.classList.remove("active"));document.getElementById("ceoTabContent_"+tab).classList.add("active");document.getElementById("ceoTabBtn_"+tab).classList.add("active");if(tab==="chat")carregarChatCEO();if(tab==="missoes")carregarMissoesCEO();if(tab==="priv")carregarCanaisPrivados();}
+
+async function carregarPainelCEO(){
+    const[pS,bS,cS]=await Promise.all([database.ref("presencas").once("value"),database.ref("config/banidos").once("value"),database.ref("config/cargos").once("value")]);
+    renderizarAgentes(pS.val()||{},bS.val()||{},cS.val()||{});
+    renderizarBanidos(bS.val()||{});
+}
 function renderizarAgentes(pres,bans,cargos){
     const c=document.getElementById("ceoAgentesList");c.innerHTML="";
     AGENTES_NOMES.forEach(nome=>{
-        const agInfo=getAgenteByNome(nome);
-        const statusId=agInfo?agInfo.id:null;
-        const online=statusId&&pres[statusId]==="ATIVO";
-        const banido=bans[nome];
-        const cargo=cargos[nome]||CARGOS_DEFAULT[nome]||"AGENTE";
-        const isCeoAgent=nome==="yelseik";
-        let statusHtml="";
-        if(banido)statusHtml="<span style='color:#ff8800;font-size:0.75rem;'>BANIDO</span>";
-        else if(online)statusHtml="<span style='color:#00ff66;font-size:0.75rem;'>ATIVO</span>";
-        else statusHtml="<span style='color:#ff3333;font-size:0.75rem;'>AUSENTE</span>";
-        let acoes="";
+        const agInfo=getAgenteByNome(nome),statusId=agInfo?agInfo.id:null;
+        const online=statusId&&pres[statusId]==="ATIVO",banido=bans[nome];
+        const cargo=cargos[nome]||CARGOS_DEFAULT[nome]||"AGENTE",isCeoAgent=nome==="yelseik";
+        let stH="";
+        if(banido)stH="<span style='color:#ff8800;font-size:0.75rem;'>BANIDO</span>";
+        else if(online)stH="<span style='color:#00ff66;font-size:0.75rem;'>ATIVO</span>";
+        else stH="<span style='color:#ff3333;font-size:0.75rem;'>AUSENTE</span>";
+        let ac="";
         if(!isCeoAgent){
             const idx=RANKS.indexOf(cargo);
-            if(idx<RANKS.length-2)acoes+="<button class='ceo-btn ceo-btn-up' onclick='promoverAgente(\""+nome+"\",\""+cargo+"\")'>+PROMOVER</button> ";
-            if(idx>0)acoes+="<button class='ceo-btn ceo-btn-down' onclick='rebaixarAgente(\""+nome+"\",\""+cargo+"\")'>-REBAIXAR</button> ";
-            if(banido)acoes+="<button class='ceo-btn ceo-btn-unban' onclick='desbanirAgente(\""+nome+"\")'>DESBANIR</button>";
-            else acoes+="<button class='ceo-btn ceo-btn-ban' onclick='pedirBanimento(\""+nome+"\")'>BANIR</button>";
+            if(idx<RANKS.length-2)ac+="<button class='ceo-btn ceo-btn-up' onclick='promoverAgente(\""+nome+"\",\""+cargo+"\")'>>PROM</button> ";
+            if(idx>0)ac+="<button class='ceo-btn ceo-btn-down' onclick='rebaixarAgente(\""+nome+"\",\""+cargo+"\")'><REB</button> ";
+            if(banido)ac+="<button class='ceo-btn ceo-btn-unban' onclick='desbanirAgente(\""+nome+"\")'>DESBAN</button>";
+            else ac+="<button class='ceo-btn ceo-btn-ban' onclick='pedirBanimento(\""+nome+"\")'>BANIR</button>";
         }
-        c.innerHTML+="<div class='agent-row'><span class='agent-nome'>"+nome+"</span><span class='agent-cargo-badge'>"+cargo+"</span>"+statusHtml+"<div class='agent-actions'>"+acoes+"</div></div>";
+        c.innerHTML+="<div class='agent-row'><span class='agent-nome'>"+nome+"</span><span class='agent-cargo-badge'>"+cargo+"</span>"+stH+"<div class='agent-actions'>"+ac+"</div></div>";
     });
 }
-
-async function promoverAgente(nome,cargo){
-    const idx=RANKS.indexOf(cargo);
-    if(idx>=RANKS.length-2)return alert("Nivel maximo atingido.");
-    const novo=RANKS[idx+1];
-    if(!confirm("Promover "+nome+" para "+novo+"?"))return;
-    await database.ref("config/cargos/"+nome).set(novo);
-    adicionarLog("CEO promoveu "+nome+" para "+novo+".");
-    tocarSomSucesso();carregarPainelCEO();
-}
-async function rebaixarAgente(nome,cargo){
-    const idx=RANKS.indexOf(cargo);
-    if(idx<=0)return alert("Nivel minimo atingido.");
-    const novo=RANKS[idx-1];
-    if(!confirm("Rebaixar "+nome+" para "+novo+"?"))return;
-    await database.ref("config/cargos/"+nome).set(novo);
-    adicionarLog("CEO rebaixou "+nome+" para "+novo+".");
-    tocarSomSucesso();carregarPainelCEO();
-}
+async function promoverAgente(nome,cargo){const idx=RANKS.indexOf(cargo);if(idx>=RANKS.length-2)return alert("Nivel maximo.");const novo=RANKS[idx+1];if(!confirm("Promover "+nome+" para "+novo+"?"))return;await database.ref("config/cargos/"+nome).set(novo);adicionarLog("CEO promoveu "+nome+" para "+novo+".");tocarSomSucesso();carregarPainelCEO();}
+async function rebaixarAgente(nome,cargo){const idx=RANKS.indexOf(cargo);if(idx<=0)return alert("Nivel minimo.");const novo=RANKS[idx-1];if(!confirm("Rebaixar "+nome+" para "+novo+"?"))return;await database.ref("config/cargos/"+nome).set(novo);adicionarLog("CEO rebaixou "+nome+" para "+novo+".");tocarSomSucesso();carregarPainelCEO();}
 function pedirBanimento(nome){const motivo=prompt("MOTIVO DO BANIMENTO de "+nome+":");if(!motivo)return;banirAgenteCEO(nome,motivo);}
-async function banirAgenteCEO(nome,motivo){
-    await database.ref("config/banidos/"+nome).set({motivo,por:"yelseik",hora:new Date().toLocaleTimeString(),timestamp:Date.now()});
-    const agInfo=getAgenteByNome(nome);
-    if(agInfo)database.ref("presencas/"+agInfo.id).remove();
-    adicionarLog("CEO baniu "+nome+". Motivo: "+motivo,true);
-    registarSeguranca("BANIMENTO",nome,motivo);
-    tocarSomErro();carregarPainelCEO();
-}
-async function desbanirAgente(nome){
-    if(!confirm("Desbanir "+nome+"?"))return;
-    await database.ref("config/banidos/"+nome).remove();
-    adicionarLog("CEO desbaniu "+nome+".");
-    tocarSomSucesso();carregarPainelCEO();
-}
-function banirAgenteForm(){const nome=document.getElementById("ceoBanirAgente").value,motivo=document.getElementById("ceoBanirMotivo").value;if(!nome)return alert("Seleciona um agente.");if(!motivo.trim())return alert("Insere um motivo.");banirAgenteCEO(nome,motivo);document.getElementById("ceoBanirMotivo").value="";document.getElementById("ceoBanirAgente").value="";}
-function renderizarBanidos(bans){
-    const c=document.getElementById("ceoBanidosList");c.innerHTML="";
-    const entries=Object.entries(bans);
-    if(entries.length===0){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Nenhum agente banido.</div>";return;}
-    entries.forEach(([nome,info])=>{c.innerHTML+="<div class='banido-row'><div><span class='banido-nome'>"+nome+"</span><br><span class='banido-info'>Motivo: "+info.motivo+" | "+info.hora+"</span></div><button class='ceo-btn ceo-btn-unban' onclick='desbanirAgente(\""+nome+"\")'>DESBANIR</button></div>";});
-}
-async function mudarPinAgente(){
-    const agente=document.getElementById("ceoPinAgente").value,novoPin=document.getElementById("ceoPinNovo").value;
-    if(!agente)return alert("Seleciona um agente.");
-    if(!novoPin||novoPin.length!==6||!/^\d{6}$/.test(novoPin))return alert("PIN deve ter 6 digitos numericos.");
-    if(!confirm("Definir novo PIN para "+agente+"? O PIN antigo deixa de funcionar."))return;
-    const novoHash=await sha256(agente+":"+novoPin);
-    await database.ref("config/pins/"+agente).set(novoHash);
-    adicionarLog("CEO alterou PIN de "+agente+".");
-    tocarSomSucesso();document.getElementById("ceoPinNovo").value="";
-    alert("PIN de "+agente+" atualizado!");
-}
+async function banirAgenteCEO(nome,motivo){await database.ref("config/banidos/"+nome).set({motivo,por:"yelseik",hora:new Date().toLocaleTimeString(),timestamp:Date.now()});const agInfo=getAgenteByNome(nome);if(agInfo)database.ref("presencas/"+agInfo.id).remove();adicionarLog("CEO baniu "+nome+": "+motivo,true);registarSeguranca("BANIMENTO",nome,motivo);tocarSomErro();carregarPainelCEO();}
+async function desbanirAgente(nome){if(!confirm("Desbanir "+nome+"?"))return;await database.ref("config/banidos/"+nome).remove();adicionarLog("CEO desbaniu "+nome+".");tocarSomSucesso();carregarPainelCEO();}
+function banirAgenteForm(){const nome=document.getElementById("ceoBanirAgente").value,motivo=document.getElementById("ceoBanirMotivo").value;if(!nome||!motivo.trim())return alert("Preenche agente e motivo.");banirAgenteCEO(nome,motivo);document.getElementById("ceoBanirMotivo").value="";document.getElementById("ceoBanirAgente").value="";}
+function renderizarBanidos(bans){const c=document.getElementById("ceoBanidosList");c.innerHTML="";const entries=Object.entries(bans);if(entries.length===0){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Nenhum agente banido.</div>";return;}entries.forEach(([nome,info])=>{c.innerHTML+="<div class='banido-row'><div><span class='banido-nome'>"+nome+"</span><br><span class='banido-info'>"+info.motivo+" | "+info.hora+"</span></div><button class='ceo-btn ceo-btn-unban' onclick='desbanirAgente(\""+nome+"\")'>DESBANIR</button></div>";});}
+async function mudarPinAgente(){const agente=document.getElementById("ceoPinAgente").value,novoPin=document.getElementById("ceoPinNovo").value;if(!agente)return alert("Seleciona agente.");if(!novoPin||novoPin.length!==6||!/^\d{6}$/.test(novoPin))return alert("PIN: 6 digitos numericos.");if(!confirm("Definir novo PIN para "+agente+"?"))return;const novoHash=await sha256(agente+":"+novoPin);await database.ref("config/pins/"+agente).set(novoHash);adicionarLog("CEO alterou PIN de "+agente+".");tocarSomSucesso();document.getElementById("ceoPinNovo").value="";alert("PIN de "+agente+" atualizado!");}
 
-function ouvirBanimentos(){
-    database.ref("config/banidos").on("value",(snap)=>{
-        const bans=snap.val()||{};
-        if(agenteAutenticado&&bans[agenteAutenticado]){
-            const ban=bans[agenteAutenticado];
-            alert("A tua conta foi BANIDA!\nMotivo: "+ban.motivo);
-            if(agenteId)database.ref("presencas/"+agenteId).remove();
-            registarHistoricoPresenca(agenteAutenticado,"SAIDA_FORCADA");
-            limparSessao();fecharPainelCEO();
-        }
+// ── CEO: APAGAR CHAT ──────────────────────────────────────────
+async function carregarChatCEO(){
+    const c=document.getElementById("ceoChatList");c.innerHTML="";
+    const snap=await database.ref("chat").once("value");
+    const d=snap.val();
+    if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:20px;'>Chat vazio.</div>";return;}
+    Object.keys(d).forEach(key=>{
+        const m=d[key];
+        c.innerHTML+="<div class='ceo-msg-row'><div><span style='color:#ff6666;font-weight:bold;'>"+m.user+":</span> "+m.msg+"<span style='color:#555;font-size:0.65rem;margin-left:5px;'>["+m.time+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarMsgChat(\""+key+"\")'>X</button></div>";
     });
 }
-function ouvirCargos(){
-    database.ref("config/cargos").on("value",(snap)=>{
-        const cargos=snap.val()||{};
-        AGENTES_NOMES.forEach(nome=>{
-            const el=document.getElementById("cargo-"+nome.toLowerCase());
-            if(el&&cargos[nome])el.textContent=cargos[nome];
-        });
+function apagarMsgChat(key){database.ref("chat/"+key).remove();adicionarLog("CEO apagou mensagem do chat.");carregarChatCEO();}
+function apagarTodoChat(){if(!confirm("Apagar TODO o chat? Esta acao e irreversivel."))return;database.ref("chat").remove();adicionarLog("CEO apagou todo o chat.",true);document.getElementById("ceoChatList").innerHTML="<div style='color:#555;text-align:center;padding:20px;'>Chat apagado.</div>";}
+
+// ── CEO: APAGAR MISSOES/ATAS ──────────────────────────────────
+async function carregarMissoesCEO(){
+    const mC=document.getElementById("ceoMissoesList"),aC=document.getElementById("ceoAtasList");
+    mC.innerHTML="";aC.innerHTML="";
+    const[mS,aS]=await Promise.all([database.ref("tarefas").once("value"),database.ref("atas").once("value")]);
+    const missoes=mS.val(),atas=aS.val();
+    if(!missoes)mC.innerHTML="<div style='color:#555;text-align:center;padding:10px;'>Sem missoes.</div>";
+    else Object.keys(missoes).forEach(key=>{const t=missoes[key];mC.innerHTML+="<div class='ceo-msg-row'><div><span style='color:#ff8800;'>["+t.agente.toUpperCase()+"]</span> "+t.desc+" <span style='color:#555;font-size:0.65rem;'>["+( t.done?"CONCLUIDA":"EM CURSO")+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarMissao(\""+key+"\")'>X</button></div>";});
+    if(!atas)aC.innerHTML="<div style='color:#555;text-align:center;padding:10px;'>Sem atas.</div>";
+    else Object.keys(atas).forEach(key=>{const a=atas[key];aC.innerHTML+="<div class='ceo-msg-row'><div>"+a.desc+" <span style='color:#555;font-size:0.65rem;'>["+a.hora+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarAta(\""+key+"\")'>X</button></div>";});
+}
+function apagarMissao(key){if(!confirm("Apagar esta missao?"))return;database.ref("tarefas/"+key).remove();adicionarLog("CEO apagou missao.");carregarMissoesCEO();}
+function apagarAta(key){if(!confirm("Apagar esta ata?"))return;database.ref("atas/"+key).remove();adicionarLog("CEO apagou ata.");carregarMissoesCEO();}
+
+// ── CEO: CANAIS PRIVADOS ──────────────────────────────────────
+async function carregarCanaisPrivados(){
+    const c=document.getElementById("ceoCanaisList");c.innerHTML="";
+    document.getElementById("ceoPrivMsgs").style.display="none";
+    const snap=await database.ref("chat_privado").once("value");
+    const d=snap.val();
+    if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:20px;'>Sem canais privados.</div>";return;}
+    Object.keys(d).forEach(sala=>{
+        const count=Object.keys(d[sala]).length;
+        const nomes=sala.split("_").join(" <-> ");
+        c.innerHTML+="<div class='ceo-canal-row'><div><span style='color:#ff6666;font-weight:bold;'>"+nomes+"</span><br><span style='color:#555;font-size:0.72rem;'>"+count+" mensagem(ns)</span></div><div style='display:flex;gap:5px;'><button class='ceo-btn ceo-btn-up' onclick='event.stopPropagation();verCanalPrivado(\""+sala+"\")'>VER</button><button class='ceo-btn ceo-btn-ban' onclick='event.stopPropagation();apagarCanalPrivado(\""+sala+"\")'>APAGAR</button></div></div>";
     });
 }
+async function verCanalPrivado(sala){
+    const box=document.getElementById("ceoPrivMsgs");box.style.display="block";box.innerHTML="<div style='color:#888;font-size:0.75rem;margin-bottom:8px;border-bottom:1px solid #330000;padding-bottom:5px;'>"+sala.split("_").join(" <-> ")+"</div>";
+    const snap=await database.ref("chat_privado/"+sala).once("value");
+    const msgs=snap.val();
+    if(!msgs){box.innerHTML+="<div style='color:#555;'>Sem mensagens.</div>";return;}
+    Object.keys(msgs).forEach(key=>{const m=msgs[key];box.innerHTML+="<div class='ceo-msg-row'><div><span style='color:#ff6666;font-weight:bold;'>"+m.user+":</span> "+m.msg+"<span style='color:#555;font-size:0.65rem;margin-left:5px;'>["+m.time+"]</span></div><button class='ceo-btn ceo-btn-ban' onclick='apagarMsgPrivCEO(\""+sala+"\",\""+key+"\")'>X</button></div>";});
+}
+function apagarMsgPrivCEO(sala,key){database.ref("chat_privado/"+sala+"/"+key).remove();adicionarLog("CEO apagou mensagem privada.");verCanalPrivado(sala);}
+function apagarCanalPrivado(sala){if(!confirm("Apagar canal privado "+sala+"?"))return;database.ref("chat_privado/"+sala).remove();adicionarLog("CEO apagou canal privado: "+sala,true);carregarCanaisPrivados();}
+
+// ── BANIMENTOS & CARGOS ───────────────────────────────────────
+function ouvirBanimentos(){database.ref("config/banidos").on("value",(snap)=>{const bans=snap.val()||{};if(agenteAutenticado&&bans[agenteAutenticado]){const ban=bans[agenteAutenticado];alert("A tua conta foi BANIDA!\nMotivo: "+ban.motivo);if(agenteId)database.ref("presencas/"+agenteId).remove();registarHistoricoPresenca(agenteAutenticado,"SAIDA_FORCADA");limparSessao();fecharPainelCEO();}});}
+function ouvirCargos(){database.ref("config/cargos").on("value",(snap)=>{const cargos=snap.val()||{};AGENTES_NOMES.forEach(nome=>{const el=document.getElementById("cargo-"+nome.toLowerCase());if(el&&cargos[nome])el.textContent=cargos[nome];});});}
+
+// ── NOTIFICACOES ──────────────────────────────────────────────
+function pedirPermissaoNotificacoes(){if(!("Notification" in window))return;if(Notification.permission==="granted"){document.getElementById("btnNotif").classList.add("active");document.getElementById("btnNotif").textContent="ATIVOS";return;}Notification.requestPermission().then(p=>{const btn=document.getElementById("btnNotif");if(p==="granted"){btn.classList.add("active");btn.textContent="ATIVOS";adicionarLog("Notificacoes ativadas.");}else btn.textContent="NEGADOS";});}
+function enviarNotificacaoPush(titulo,corpo){if("Notification" in window&&Notification.permission==="granted"&&!document.hasFocus())new Notification(titulo,{body:corpo});}
 
 // ── PRESENCAS ─────────────────────────────────────────────────
-function pedirPermissaoNotificacoes(){if(!("Notification" in window))return;if(Notification.permission==="granted"){document.getElementById("btnNotif").classList.add("active");document.getElementById("btnNotif").textContent="ALERTAS ATIVOS";return;}Notification.requestPermission().then(p=>{const btn=document.getElementById("btnNotif");if(p==="granted"){btn.classList.add("active");btn.textContent="ALERTAS ATIVOS";adicionarLog("Notificacoes ativadas.");}else btn.textContent="NEGADOS";});}
-function enviarNotificacaoPush(titulo,corpo){if("Notification" in window&&Notification.permission==="granted"&&!document.hasFocus())new Notification(titulo,{body:corpo});}
 function ouvirPresencas(){database.ref("presencas").on("value",(snap)=>{const d=snap.val()||{};for(const h in agentesHashMap){const eid=agentesHashMap[h].id,el=document.getElementById(eid);if(!el)continue;if(d[eid]==="ATIVO"){el.innerText="ATIVO";el.className="status-box status-online";}else{el.innerText="AUSENTE";el.className="status-box status-offline";}}});}
 function sairDaRede(){if(!agenteAutenticado)return alert("Nao autenticado.");if(!confirm("Sair da rede?"))return;database.ref("presencas/"+agenteId).remove();registarHistoricoPresenca(agenteAutenticado,"SAIDA");registarSeguranca("SESSAO_ENCERRADA",agenteAutenticado,"Saida manual");adicionarLog("Agente "+agenteAutenticado+" saiu.");fecharPainelCEO();limparSessao();tocarSomSucesso();alert("Sessao encerrada.");}
-async function limparPresencas(){const pin=prompt("PIN DO CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("presencas").remove();tocarSomSucesso();adicionarLog("CEO wipe presencas.");alert("Presencas reinicializadas.");}else{tocarSomErro();alert("PIN incorreto.");}}
+async function limparPresencas(){const pin=prompt("PIN CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("presencas").remove();tocarSomSucesso();adicionarLog("CEO wipe presencas.");alert("Presencas reinicializadas.");}else{tocarSomErro();alert("PIN incorreto.");}}
 function registarHistoricoPresenca(nome,acao){database.ref("historico_presencas").push().set({agente:nome,acao,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});}
 function ouvirHistoricoPresencas(){database.ref("historico_presencas").limitToLast(30).on("value",(snap)=>{const c=document.getElementById("historyContainer");c.innerHTML="";const d=snap.val();if(!d){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem registos.</div>";return;}Object.values(d).reverse().forEach(h=>{const cls=h.acao==="ENTRADA"?"history-entrada":"history-saida";c.innerHTML+="<div class='history-item "+cls+"'><div><span class='history-agente'>"+(h.acao==="ENTRADA"?">":"=")+" "+h.agente+"</span> <span class='history-acao'>"+h.acao+"</span></div><span class='history-hora'>"+h.hora+"</span></div>";});});}
-async function limparHistorico(){const pin=prompt("PIN DO CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("historico_presencas").remove();adicionarLog("CEO limpou historico.");tocarSomSucesso();}else{tocarSomErro();alert("PIN incorreto.");}}
+async function limparHistorico(){const pin=prompt("PIN CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)===CEO_HASH){database.ref("historico_presencas").remove();adicionarLog("CEO limpou historico.");tocarSomSucesso();}else{tocarSomErro();alert("PIN incorreto.");}}
 
-// ── MENCOES & CHAT ────────────────────────────────────────────
+// ── CHAT COM DELETE CEO ───────────────────────────────────────
 function detetarMencao(input,tipo){const val=input.value,pos=input.selectionStart,antes=val.substring(0,pos),match=antes.match(/@(\w*)$/);const dropId=tipo==="priv"?"mentionDropdownPriv":"mentionDropdownChat";const drop=document.getElementById(dropId);if(match){const pref=match[1].toLowerCase();const ops=AGENTES_NOMES.filter(n=>n.toLowerCase().startsWith(pref)&&n!==agenteAutenticado);if(ops.length>0){drop.innerHTML=ops.map(n=>"<div class='mention-option' onclick='inserirMencao(\""+n+"\",\""+tipo+"\")'>@"+n+"</div>").join("");drop.style.display="block";}else drop.style.display="none";}else drop.style.display="none";}
 function inserirMencao(nome,tipo){const inputId=tipo==="priv"?"privInput":"chatInput";const dropId=tipo==="priv"?"mentionDropdownPriv":"mentionDropdownChat";const inp=document.getElementById(inputId);const pos=inp.selectionStart,antes=inp.value.substring(0,pos);inp.value=antes.replace(/@\w*$/,"@"+nome+" ")+inp.value.substring(pos);document.getElementById(dropId).style.display="none";inp.focus();}
 function realcarMencoes(texto){return texto.replace(/@(\w+)/g,function(match,nome){const isMine=nome.toLowerCase()===(agenteAutenticado||"").toLowerCase();return "<span class='mention"+(isMine?" me":"")+"'>"+match+"</span>";});}
 function extrairMencoes(texto){const mencoes=[],reg=/@(\w+)/g;let m;while((m=reg.exec(texto))!==null){if(AGENTES_NOMES.some(n=>n.toLowerCase()===m[1].toLowerCase()))mencoes.push(m[1]);}return mencoes.join(",");}
 function enviarMensagemChat(){const txt=document.getElementById("chatInput").value;if(!txt.trim())return;if(!agenteAutenticado){tocarSomErro();return alert("Autentica primeiro!");}const timer=parseInt(document.getElementById("chatTimer").value)||0;const mencoes=extrairMencoes(txt);const msg={user:agenteAutenticado,msg:txt,time:new Date().toLocaleTimeString(),timestamp:Date.now(),mencoes};if(timer>0)msg.expira=Date.now()+(timer*1000);database.ref("chat").push().set(msg);document.getElementById("chatInput").value="";document.getElementById("mentionDropdownChat").style.display="none";}
-function ouvirChat(){database.ref("chat").on("value",(snap)=>{const c=document.getElementById("chatContainer"),d=snap.val();c.innerHTML="";if(d){const agora=Date.now(),toDel=[];Object.keys(d).forEach(key=>{const m=d[key];if(m.expira&&agora>m.expira){toDel.push(key);return;}const tH=m.expira?"<span class='msg-timer'>"+formatarTempo(Math.max(0,m.expira-agora))+"</span>":"";const mB=m.mencoes&&m.mencoes.includes(agenteAutenticado||"")?"<span style='color:#ff8800;font-size:0.65rem;margin-left:4px;'>[MENCAO]</span>":"";c.innerHTML+="<div class='chat-msg'><span class='chat-meta'>["+m.time+"]</span> <span class='chat-user'>"+m.user+":</span> "+realcarMencoes(m.msg)+tH+mB+"</div>";});toDel.forEach(k=>database.ref("chat/"+k).remove());if(!primeiraCargaChat){const keys=Object.keys(d),u=d[keys[keys.length-1]];if(u&&u.user!==agenteAutenticado){if((u.mencoes||"").includes(agenteAutenticado||"")){tocarSomMencao();enviarNotificacaoPush("@MENCAO de "+u.user,u.msg);}else enviarNotificacaoPush("MSG de "+u.user,u.msg);}}}c.scrollTop=c.scrollHeight;});}
+function ouvirChat(){
+    database.ref("chat").on("value",(snap)=>{
+        const c=document.getElementById("chatContainer"),d=snap.val();c.innerHTML="";
+        if(d){
+            const agora=Date.now(),toDel=[];
+            Object.keys(d).forEach(key=>{
+                const m=d[key];if(m.expira&&agora>m.expira){toDel.push(key);return;}
+                const tH=m.expira?"<span class='msg-timer'>"+formatarTempo(Math.max(0,m.expira-agora))+"</span>":"";
+                const mB=m.mencoes&&m.mencoes.includes(agenteAutenticado||"")?"<span style='color:#ff8800;font-size:0.65rem;margin-left:4px;'>[MENCAO]</span>":"";
+                const delBtn=isCEO?"<button class='msg-del-btn' style='display:inline-block;' onclick='apagarMsgChat(\""+key+"\")'>X</button>":"";
+                c.innerHTML+="<div class='chat-msg'><div class='chat-msg-content'><span class='chat-meta'>["+m.time+"]</span> <span class='chat-user'>"+m.user+":</span> "+realcarMencoes(m.msg)+tH+mB+"</div>"+delBtn+"</div>";
+            });
+            toDel.forEach(k=>database.ref("chat/"+k).remove());
+            if(!primeiraCargaChat){const keys=Object.keys(d),u=d[keys[keys.length-1]];if(u&&u.user!==agenteAutenticado){if((u.mencoes||"").includes(agenteAutenticado||"")){tocarSomMencao();enviarNotificacaoPush("@MENCAO de "+u.user,u.msg);}else enviarNotificacaoPush("MSG de "+u.user,u.msg);}}
+        }
+        c.scrollTop=c.scrollHeight;
+    });
+}
 function getSalaPrivada(a,b){return[a,b].sort().join("_");}
 function selecionarDestinatario(agente){if(!agente)return;if(!agenteAutenticado){alert("Autentica primeiro!");document.getElementById("privDestinatario").value="";return;}if(agente===agenteAutenticado){alert("Nao podes enviar para ti mesmo.");document.getElementById("privDestinatario").value="";return;}if(privListener)database.ref("chat_privado/"+salaPrivadaAtual).off();salaPrivadaAtual=getSalaPrivada(agenteAutenticado,agente);ouvirChatPrivado(salaPrivadaAtual,agente);}
 function ouvirChatPrivado(sala,dest){privListener=database.ref("chat_privado/"+sala).on("value",(snap)=>{const c=document.getElementById("privChatBox");c.innerHTML="";const d=snap.val();if(!d){c.innerHTML="<div style='color:#555;text-align:center;padding:20px;font-size:0.8rem;'>Inicio da conversa com "+dest+".</div>";return;}const agora=Date.now(),toDel=[];Object.keys(d).forEach(key=>{const m=d[key];if(m.expira&&agora>m.expira){toDel.push(key);return;}const mine=m.user===agenteAutenticado;const dH=m.expira?"<span class='priv-destruct'>"+formatarTempo(Math.max(0,m.expira-agora))+"</span>":"";c.innerHTML+="<div class='priv-msg"+(mine?" mine":"")+"'><span class='priv-user'>"+m.user+":</span> "+realcarMencoes(m.msg)+dH+"<span class='chat-meta'> ["+m.time+"]</span></div>";});toDel.forEach(k=>database.ref("chat_privado/"+sala+"/"+k).remove());c.scrollTop=c.scrollHeight;});}
 function enviarMensagemPrivada(){if(!agenteAutenticado)return alert("Autentica primeiro!");const dest=document.getElementById("privDestinatario").value;if(!dest||!salaPrivadaAtual)return alert("Seleciona um destinatario.");const txt=document.getElementById("privInput").value;if(!txt.trim())return;const timer=parseInt(document.getElementById("privTimer").value)||0;const msg={user:agenteAutenticado,msg:txt,time:new Date().toLocaleTimeString(),timestamp:Date.now()};if(timer>0)msg.expira=Date.now()+(timer*1000);database.ref("chat_privado/"+salaPrivadaAtual).push().set(msg);document.getElementById("privInput").value="";document.getElementById("mentionDropdownPriv").style.display="none";}
-function iniciarLimpezaAutomatica(){setInterval(()=>{const a=Date.now();database.ref("chat").once("value",(s)=>{const d=s.val();if(!d)return;Object.keys(d).forEach(k=>{if(d[k].expira&&a>d[k].expira)database.ref("chat/"+k).remove();});});},15000);}
-
-// ── ALARME & MISSOES ──────────────────────────────────────────
+function iniciarLimpezaAutomatica(){setInterval(()=>{const a=Date.now();database.ref("chat").once("value",(s)=>{const d=s.val();if(!d)return;Object.keys(d).forEach(k=>{if(d[k].expira&&a>d[k].expira)datab
+// ── MISSOES ───────────────────────────────────────────────────
 function ouvirAlarmeMissoes(){database.ref("tarefas").on("child_added",(snap)=>{if(!primeiraCargaTarefas){const t=snap.val();document.body.classList.add("siren-active");setTimeout(()=>document.body.classList.remove("siren-active"),3000);if(t.prioridade==="critica")tocarAlertaCritico();else tocarSomErro();enviarNotificacaoPush("NOVA MISSAO ["+(t.prioridade||"normal").toUpperCase()+"]",t.agente+": "+t.desc);}});}
 function filtrarMissoes(f){filtroAtivo=f;renderizarTarefas(todasTarefas);}
 function renderizarTarefas(dados){const c=document.getElementById("taskContainer");c.innerHTML="";if(!dados||Object.keys(dados).length===0){c.innerHTML="<div style='color:#555;font-size:0.8rem;text-align:center;padding:20px;'>Sem missoes.</div>";return;}Object.keys(dados).forEach(key=>{const t=dados[key],p=t.prioridade||"normal";if(filtroAtivo==="critica"&&p!=="critica")return;if(filtroAtivo==="alta"&&p!=="alta")return;if(filtroAtivo==="pendente"&&t.done)return;const done=t.done?"done":"",badge=p.charAt(0).toUpperCase()+p.slice(1);c.innerHTML+="<div class='task-item prio-"+p+" "+done+"' onclick='alternarStatusTarefa(\""+key+"\","+t.done+")'><div><b>["+t.agente.toUpperCase()+"]</b> "+t.desc+" <span class='prio-badge "+p+"'>"+badge+"</span></div><div class='task-meta'><span>"+t.coord+"</span><span>"+(t.done?"FINALIZADA":"EM CURSO")+"</span></div></div>";}); }
@@ -726,16 +755,17 @@ function alternarStatusTarefa(key,s){if(!agenteAutenticado){tocarSomErro();retur
 function ouvirAtas(){database.ref("atas").on("value",(snap)=>{const c=document.getElementById("ataContainer");c.innerHTML="";const d=snap.val();if(d)Object.values(d).reverse().forEach(a=>{c.innerHTML+="<div class='task-item done' style='border-left-color:#00ff66;cursor:default;'><div>"+a.desc+"</div><div class='task-meta'><span>"+a.hora+"</span></div></div>";});});}
 
 // ── ESTATISTICAS ──────────────────────────────────────────────
-function ouvirEstatisticas(){
-    database.ref("presencas").on("value",(s)=>{atualizarStat("stat-online",Object.values(s.val()||{}).filter(v=>v==="ATIVO").length);});
-    database.ref("tarefas").on("value",(s)=>{const d=s.val()||{},total=Object.keys(d).length;const conc=Object.values(d).filter(t=>t.done).length;const crit=Object.values(d).filter(t=>!t.done&&t.prioridade==="critica").length;const pct=total>0?Math.round((conc/total)*100):0;atualizarStat("stat-missoes",total);atualizarStat("stat-concluidas",conc);atualizarStat("stat-pendentes",total-conc);atualizarStat("stat-criticas",crit);const bar=document.getElementById("progresso-bar"),pctEl=document.getElementById("progresso-pct");if(bar)bar.style.width=pct+"%";if(pctEl)pctEl.textContent=pct+"% concluido";});
-    database.ref("config/banidos").on("value",(s)=>{atualizarStat("stat-banidos",Object.keys(s.val()||{}).length);});
-}
+function ouvirEstatisticas(){database.ref("presencas").on("value",(s)=>{atualizarStat("stat-online",Object.values(s.val()||{}).filter(v=>v==="ATIVO").length);});database.ref("tarefas").on("value",(s)=>{const d=s.val()||{},total=Object.keys(d).length;const conc=Object.values(d).filter(t=>t.done).length;const crit=Object.values(d).filter(t=>!t.done&&t.prioridade==="critica").length;const pct=total>0?Math.round((conc/total)*100):0;atualizarStat("stat-missoes",total);atualizarStat("stat-concluidas",conc);atualizarStat("stat-pendentes",total-conc);atualizarStat("stat-criticas",crit);const bar=document.getElementById("progresso-bar"),pctEl=document.getElementById("progresso-pct");if(bar)bar.style.width=pct+"%";if(pctEl)pctEl.textContent=pct+"% concluido";});database.ref("config/banidos").on("value",(s)=>{atualizarStat("stat-banidos",Object.keys(s.val()||{}).length);});}
 function atualizarStat(id,val){const el=document.getElementById(id);if(el){el.textContent=val;el.style.animation="none";el.offsetHeight;el.style.animation="countUp 0.4s ease-out";}}
-// ── PAINEL COMANDANTE ─────────────────────────────────────────
 function alternarCamposPainel(){const m=document.getElementById("emissaoTipo").value==="missao";document.getElementById("labelDinamica").innerText=m?"Descricao:":"Resumo da Reuniao:";document.getElementById("panelDesc").placeholder=m?"Ex: Monitorizar...":"Ex: Decisoes tomadas...";document.getElementById("grupoAgente").style.display=m?"block":"none";document.getElementById("grupoCoordenadas").style.display=m?"block":"none";document.getElementById("grupoPrioridade").style.display=m?"block":"none";}
 async function executarAcaoPainel(){const tipo=document.getElementById("emissaoTipo").value,desc=document.getElementById("panelDesc").value;if(!desc.trim())return alert("Preencha a descricao.");const pin=prompt("PIN DO CEO:");if(!pin)return;if(await sha256("yelseik:"+pin)!==CEO_HASH){tocarSomErro();return alert("PIN incorreto.");}tocarSomSucesso();if(tipo==="missao"){const coord=document.getElementById("panelCoord").value,agente=document.getElementById("taskAgent").value,prio=document.getElementById("taskPrioridade").value;if(!coord.trim())return alert("Preencha as coordenadas.");database.ref("tarefas").push().set({desc,coord,agente,prioridade:prio,done:false,timestamp:Date.now()});adicionarLog("Nova missao ["+prio.toUpperCase()+"] para "+agente+": "+desc);}else{database.ref("atas").push().set({desc,hora:new Date().toLocaleTimeString(),timestamp:Date.now()});adicionarLog("Ata arquivada: "+desc);}document.getElementById("panelDesc").value="";const coord=document.getElementById("panelCoord");if(coord)coord.value="";}
     </script>
 </body>
 </html>
-
+cat > sw.js << 'SWEOF'
+const CACHE='area51-v2';
+const URLS=['/index.html','/sw.js','https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(URLS).catch(()=>{}))));
+self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{const clone=res.clone();caches.open(CACHE).then(c=>c.put(e.request,clone));return res;}).catch(()=>caches.match('/index.html')))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
+SWEOF
