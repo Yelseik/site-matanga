@@ -575,7 +575,7 @@ const BS=[
     {t:"TODOS OS SISTEMAS OPERACIONAIS.      [OK]",c:"bok",p:100}
 ];
 function boot(){
-    const bl=document.getElementById("bl"),bf=document.getElementById("bbf");
+    const bl=document.getElementById("bbf"),bf=document.getElementById("bbf");
     if(!bl||!bf)return;
     BS.forEach((x,i)=>setTimeout(()=>{const l=document.createElement("div");l.className="bl "+x.c;l.textContent="> "+x.t;bl.appendChild(l);bf.style.width=x.p+"%";},i*400));
     setTimeout(()=>{
