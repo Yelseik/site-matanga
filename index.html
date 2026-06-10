@@ -1,10 +1,9 @@
-cat > index.html << 'P1END'
 <!DOCTYPE html>
 <html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AREA 51</title>
+<title>Matanga oficial</title>
 <style>
 :root{--p:#00ff66;--pd:#004411;--pb:#020502;--bg:#050705;--cb:#0a0c0a;}
 body.r{--p:#ff4444;--pd:#440000;--pb:#050202;--bg:#070202;--cb:#0c0808;}
@@ -164,8 +163,6 @@ body::before{content:" ";display:block;position:fixed;top:0;left:0;bottom:0;righ
 </style>
 </head>
 <body>
-P1END
-cat >> index.html << 'P2END'
 <div id="ls">
   <div id="lw">
     <div id="bl"></div>
@@ -256,7 +253,7 @@ cat >> index.html << 'P2END'
             <option value="aihosj">aihosj</option><option value="Rengaw">Rengaw</option>
             <option value="innavoeg">innavoeg</option><option value="onaitsirc">onaitsirc</option>
           </select>
-</div>
+        </div>
         <div class="ig"><label>MOTIVO:</label><input type="text" id="cbm" class="if" placeholder="Motivo..."></div>
         <button class="ba bd" onclick="banirForm()">EXECUTAR BANIMENTO</button>
       </div>
@@ -437,8 +434,6 @@ cat >> index.html << 'P2END'
 <div class="lp"><div class="lt">LOGS DE INCIDENTES:</div><ul class="lc" id="logs"></ul></div>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-P2END
-cat >> index.html << 'P3END'
 <script>
 var FC={apiKey:"AIzaSyA0L_KIg0VA41_pFhUON-XJf3yz7ims2u0",authDomain:"area51-matanga.firebaseapp.com",databaseURL:"https://area51-matanga-default-rtdb.firebaseio.com",projectId:"area51-matanga",storageBucket:"area51-matanga.firebasestorage.app",messagingSenderId:"89329275266",appId:"1:89329275266:web:50532f72a8c73b42267f9b"};
 var DB=null;
@@ -663,8 +658,6 @@ function criarVot(){var t=document.getElementById("v_tit").value,o1=document.get
 async function encVot(k){if(!confirm("Encerrar esta votacao?"))return;await R("votacoes/"+k+"/ativo").set(false);log("CEO encerrou votacao.");sOk();loadVotsCEO();}
 function delVot(k){if(!confirm("Apagar votacao?"))return;var r=R("votacoes/"+k);if(r)r.remove();log("CEO apagou votacao.");loadVotsCEO();}
 </script>
-P3END
-cat >> index.html << 'P4END'
 <script>
 function pedirNotif(){if(!("Notification" in window))return;if(Notification.permission==="granted"){var b=document.getElementById("bnf");if(b){b.classList.add("on");b.textContent="ATIVOS";}return;}Notification.requestPermission().then(function(p){var b=document.getElementById("bnf");if(p==="granted"&&b){b.classList.add("on");b.textContent="ATIVOS";log("Notificacoes ativadas.");}else if(b)b.textContent="NEGADOS";});}
 function notif(t,c){if("Notification" in window&&Notification.permission==="granted"&&!document.hasFocus())new Notification(t,{body:c});}
@@ -717,4 +710,3 @@ async function execPainel(){var tipo=document.getElementById("et").value,desc=do
 </script>
 </body>
 </html>
-P4END
