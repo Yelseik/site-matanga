@@ -1085,6 +1085,214 @@ function lisConexao(){if(!DB)return;try{var r=R(".info/connected");if(r)r.on("va
 function lisBanimentos(){var r=R("config/banidos");if(!r)return;r.on("value",function(s){var bans=s.val()||{};if(ag&&bans[ag]){alert("A tua conta foi BANIDA!\nMotivo: "+bans[ag].m);var rp=R("presencas/"+agId);if(rp)rp.remove();regHist(ag,"SAIDA_FORCADA");fecharCEO();limparSessao();}});}
 function lisCargos(){var r=R("config/cargos");if(!r)return;r.on("value",function(s){var cargos=s.val()||{};getAllAgNames().forEach(function(n){var el=document.getElementById("c-"+n.toLowerCase());if(el&&cargos[n])el.textContent=cargos[n];});});}
 </script>
+<script>
+// ═══════════════════════════════════════
+// PATCH DE SEGURANCA v3.0 — AREA 51
+// ═══════════════════════════════════════
+
+// DETECTOR DE INTRUSAO
+var tentativasRapidas=0,ultimaTentativa=0,ipBloqueado=false;
+var HONEYPOT_FIELDS=["admin","root","password","passwd","token","secret","api","key"];
+
+function detectarIntrusao(tipo,detalhe){
+    var agora=Date.now();
+    // Muitas tentativas em pouco tempo
+    if(agora-ultimaTentativa<2000)tentativasRapidas++;else tentativasRapidas=0;
+    ultimaTentativa=agora;
+    if(tentativasRapidas>10){
+        ipBloqueado=true;
+        if(DB){
+            R("security_logs").push().set({tipo:"INTRUSAO_DETETADA",agt:"SISTEMA",det:detalhe,h:new Date().toLocaleTimeString(),ts:agora,ua:navigator.userAgent.substring(0,60)});
+            R("config/alerta").set({nivel:"VERMELHO",m:"INTRUSAO DETETADA: "+detalhe,ativo:true,ts:agora});
+        }
+        alertarCEO("INTRUSAO","Atividade suspeita: "+detalhe);
+        return true;
+    }
+    return false;
+}
+
+function alertarCEO(tipo,msg){
+    if(!DB)return;
+    R("notificacoes_ceo").push().set({tipo:tipo,msg:msg,ts:Date.now(),h:new Date().toLocaleTimeString(),lida:false});
+    // Ativar alerta vermelho automaticamente
+    if(tipo==="INTRUSAO"){
+        R("config/alerta").set({nivel:"VERMELHO",m:"🚨 "+msg,ativo:true,ts:Date.now()});
+    }
+}
+
+// MONITORIZAR ACESSOS SUSPEITOS AO FIREBASE
+function monitorarAcessosSuspeitos(){
+    if(!DB)return;
+    // Detetar escrita em campos sensíveis por desconhecidos
+    R("security_logs").limitToLast(5).on("child_added",function(s){
+        var d=s.val();
+        if(!d)return;
+        if(d.tipo==="ACESSO_NEGADO"&&!c1Load){
+            // Contar falhas recentes
+            R("security_logs").orderByChild("ts").startAt(Date.now()-300000).once("value",function(snap){
+                var entries=Object.values(snap.val()||{});
+                var falhas=entries.filter(function(e){return e.tipo==="ACESSO_NEGADO";}).length;
+                if(falhas>=5){
+                    alertarCEO("MULTIPLAS_FALHAS",falhas+" tentativas de acesso negado em 5 minutos!");
+                    // Auto-lockdown se mais de 10 falhas
+                    if(falhas>=10&&CEO){
+                        R("config/lockdown").set({ativo:true,motivo:"AUTO-LOCKDOWN: "+falhas+" tentativas suspeitas",por:"SISTEMA",h:new Date().toLocaleTimeString(),ts:Date.now()});
+                        log("SISTEMA ativou AUTO-LOCKDOWN por "+falhas+" tentativas!",true);
+                    }
+                }
+            });
+        }
+    });
+}
+
+// VERIFICAR SESSAO VALIDA
+function verificarSessaoAtiva(){
+    if(!ag||!DB)return;
+    // Verificar se foi banido durante a sessao
+    R("config/banidos/"+ag).once("value",function(s){
+        if(s.val()){
+            alert("A tua sessao foi invalidada pelo CEO.");
+            if(R("presencas/"+agId))R("presencas/"+agId).remove();
+            limparSessao();
+        }
+    });
+    // Verificar lockdown
+    R("config/lockdown").once("value",function(s){
+        var lk=s.val();
+        if(lk&&lk.ativo&&!CEO){
+            alert("LOCKDOWN ATIVO. Sessao terminada.\nMotivo: "+lk.motivo);
+            if(R("presencas/"+agId))R("presencas/"+agId).remove();
+            limparSessao();
+        }
+    });
+}
+
+// WIPE DE EMERGENCIA (CEO ONLY)
+async function wipeEmergencia(){
+    if(!CEO)return alert("Apenas o CEO.");
+    var confirm1=confirm("⚠️ WIPE DE EMERGENCIA\n\nIsto vai apagar:\n- Todo o chat\n- Todas as notas\n- Historico de sessoes\n\nTens a certeza?");
+    if(!confirm1)return;
+    var confirm2=confirm("ULTIMA CONFIRMACAO — Esta acao e IRREVERSIVEL!\nEscreve OK para confirmar.");
+    if(!confirm2)return;
+    var pin2=prompt("PIN DO CEO para confirmar:");if(!pin2)return;
+    if(await h256("yelseik:"+pin2)!==CEO_H){sErr();return alert("PIN incorreto.");}
+    // Wipe dados sensiveis
+    var ops=[R("chat"),R("chat_privado"),R("notas"),R("security_sessions"),R("typing"),R("temp")];
+    ops.forEach(function(r){if(r)r.remove();});
+    log("CEO executou WIPE DE EMERGENCIA.",true);
+    logSec("WIPE_EMERGENCIA","yelseik","Dados sensiveis apagados");
+    sOk();
+    alert("Wipe concluido. Dados sensiveis apagados.");
+}
+
+// BLOQUEAR CAMPOS HONEYPOT
+function checkHoneypot(val){
+    if(!val)return false;
+    var low=val.toLowerCase();
+    return HONEYPOT_FIELDS.some(function(f){return low.indexOf(f)>=0;});
+}
+
+// VERIFICAR INTEGRIDADE DA BASE DE DADOS
+async function verificarIntegridade(){
+    if(!CEO||!DB)return;
+    var issues=[];
+    // Verificar se há agentes nao reconhecidos online
+    var presSnap=await R("presencas").once("value");
+    var pres=presSnap.val()||{};
+    var agentesIds=getAllAgNames().map(function(n){var ai=getAg(n);return ai?ai.id:null;}).filter(Boolean);
+    Object.keys(pres).forEach(function(id){
+        if(agentesIds.indexOf(id)<0)issues.push("ID desconhecido online: "+id);
+    });
+    if(issues.length>0){
+        issues.forEach(function(issue){
+            log("⚠️ INTEGRIDADE: "+issue,true);
+            R("security_logs").push().set({tipo:"INTEGRIDADE",agt:"SISTEMA",det:issue,h:new Date().toLocaleTimeString(),ts:Date.now()});
+        });
+        alert("⚠️ Problemas detetados:\n"+issues.join("\n"));
+    }else{
+        alert("✅ Integridade verificada. Sem anomalias.");
+    }
+}
+
+// MONITORIZAR ESCRITA EXTERNA SUSPEITA
+function monitorarEscritaSuspeita(){
+    if(!DB)return;
+    // Se alguem escrever no chat sem estar autenticado localmente
+    R("chat").limitToLast(1).on("child_added",function(s){
+        if(c1Load)return;
+        var m=s.val();
+        if(!m)return;
+        var agentesConhecidos=getAllAgNames();
+        if(m.user&&agentesConhecidos.indexOf(m.user)<0){
+            log("⚠️ MENSAGEM DE AGENTE DESCONHECIDO: "+m.user,true);
+            alertarCEO("AGENTE_DESCONHECIDO","Mensagem de agente desconhecido: "+m.user);
+            // Apagar mensagem automaticamente se for de desconhecido
+            if(agentesConhecidos.indexOf(m.user)<0&&m.user!=="SISTEMA"){
+                s.ref.remove();
+                log("Mensagem de desconhecido apagada automaticamente.",true);
+            }
+        }
+    });
+}
+
+// INICIAR MONITORAMENTO
+function iniciarSegurancaRefor(){
+    if(!DB)return;
+    monitorarAcessosSuspeitos();
+    monitorarEscritaSuspeita();
+    // Verificar sessao a cada 2 minutos
+    setInterval(verificarSessaoAtiva,120000);
+    log("Sistema de seguranca reforcado ativado.");
+}
+
+// ADICIONAR BOTOES DE SEGURANCA AO CEO
+function adicionarBtnsSeguranca(){
+    var cfg=document.getElementById("page-cfg");
+    if(!cfg||!CEO)return;
+    var div=document.createElement("div");
+    div.className="card";
+    div.style.borderColor="#ff3333";
+    div.innerHTML="<h2 style='border-bottom-color:#ff3333;color:#ff5555;'>🔐 SEGURANCA MAXIMA</h2>"+
+        "<button class='ba bd' onclick='wipeEmergencia()'>🗑️ WIPE DE EMERGENCIA</button>"+
+        "<button class='ba bd' style='margin-top:6px;' onclick='verificarIntegridade()'>🔍 VERIFICAR INTEGRIDADE</button>"+
+        "<button class='ba bw2' style='margin-top:6px;' onclick='ativarLockdownRapido()'>⚡ LOCKDOWN RAPIDO</button>"+
+        "<button class='ba' style='margin-top:6px;' onclick='mudarTodosPins()'>🔑 RESETAR TODOS OS PINS</button>"+
+        "<div style='font-size:.72rem;color:#555;margin-top:11px;'>WIPE apaga: chat, notas, sessoes, dados temporarios.</div>";
+    cfg.querySelector(".gc").appendChild(div);
+}
+
+function ativarLockdownRapido(){
+    if(!CEO)return;
+    var motivo=prompt("Motivo do lockdown de emergencia:");
+    if(!motivo)return;
+    if(R("config/lockdown"))R("config/lockdown").set({ativo:true,motivo:"[EMERGENCIA] "+motivo,por:"yelseik",h:new Date().toLocaleTimeString(),ts:Date.now()});
+    if(R("config/alerta"))R("config/alerta").set({nivel:"VERMELHO",m:"LOCKDOWN DE EMERGENCIA ATIVO",ativo:true,ts:Date.now()});
+    log("CEO ativou LOCKDOWN DE EMERGENCIA.",true);
+    sErr();sCrit();
+    alert("LOCKDOWN ativado. Todos os agentes foram desligados.");
+}
+
+function mudarTodosPins(){
+    if(!CEO)return;
+    alert("Vai ao Painel CEO → aba PINS → muda o PIN de cada agente individualmente.\n\nRecomendacao: usa PINs completamente novos que nao estejam relacionados com os anteriores.");
+}
+
+// ARRANCAR SEGURANCA
+setTimeout(function(){
+    iniciarSegurancaRefor();
+    if(CEO){setTimeout(adicionarBtnsSeguranca,1000);}
+    // Verificar se DB esta acessivel por desconhecidos
+    if(DB){
+        R("config/pins").once("value",function(s){
+            // Se conseguir ler os pins, as regras ainda nao foram aplicadas
+            if(s.val()){
+                console.warn("AVISO: Regras Firebase nao aplicadas! Os PINs estao visiveis.");
+            }
+        });
+    }
+},2000);
+</script>
+
 </body>
 </html>
 
