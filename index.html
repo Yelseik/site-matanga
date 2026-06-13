@@ -407,6 +407,7 @@ h1{font-size:.92rem;text-transform:uppercase;letter-spacing:2px;text-shadow:0 0 
     <div id="ls2">SISTEMA CENTRAL // MATANGA v4.0</div>
     <button id="lb" onclick="entrar()">[ INICIALIZAR SISTEMA ]</button>
   </div>
+</div>
 <div id="fa-modal" class="fa-modal">
   <div class="fa-box">
     <div class="fa-title">VERIFICACAO 2FA</div>
@@ -1418,7 +1419,9 @@ async function execPainel(){var tipo=document.getElementById("et").value,desc=do
 </script>
 <script>
 function adicionarPontos(nome,pts){if(!DB||!nome)return;try{R("ranking/"+nome+"/pontos").once("value",function(s){var at=(s.val()||0)+pts;R("ranking/"+nome).update({pontos:at,agente:nome});});}catch(e){}}
-function loadRanking(){if(!DB)return;R("ranking").on("value",function(s){var d=s.val()||{};var c=document.getElementById("rank-tbl");if(!c)return;var entries=Object.values(d).sort(function(a,b){return(b.pontos||0)-(a.pontos||0);});c.innerHTML="<tr><th>#</th><th>AGENTE</th><th>XP</th><th>NIVEL</th><th>PTS</th></tr>";entries.forEach(function(e,i){var nivel=getLvl(e.pontos||0),nxt=getNxtLvl(e.pontos||0);var xpP=nxt?Math.min(100,Math.round(((e.pontos||0)/nxt)*100)):100;var r
+
+function loadRanking(){if(!DB)return;R("ranking").on("value",function(s){var d=s.val()||{};var c=document.getElementById("rank-tbl");if(!c)return;var entries=Object.values(d).sort(function(a,b){return(b.pontos||0)-(a.pontos||0);});c.innerHTML="<tr><th>#</th><th>AGENTE</th><th>XP</th><th>NIVEL</th><th>PTS</th></tr>";entries.forEach(function(e,i){var nivel=getLvl(e.pontos||0),nxt=getNxtLvl(e.pontos||0);var xpP=nxt?Math.min(100,Math.round(((e.pontos||0)/nxt)*100)):100;var r="<tr><td>"+(i+1)+"</td><td>"+(e.agente||"ANÓNIMO")+"</td><td>"+xpP+"%</td><td>"+nivel+"</td><td>"+(e.pontos||0)+"</td></tr>";c.innerHTML+=r;});});}
 </script>
 </body>
 </html>
+
