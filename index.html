@@ -1420,6 +1420,5 @@ async function execPainel(){var tipo=document.getElementById("et").value,desc=do
 function adicionarPontos(nome,pts){if(!DB||!nome)return;try{R("ranking/"+nome+"/pontos").once("value",function(s){var at=(s.val()||0)+pts;R("ranking/"+nome).update({pontos:at,agente:nome});});}catch(e){}}
 function loadRanking(){if(!DB)return;R("ranking").on("value",function(s){var d=s.val()||{};var c=document.getElementById("rank-tbl");if(!c)return;var entries=Object.values(d).sort(function(a,b){return(b.pontos||0)-(a.pontos||0);});c.innerHTML="<tr><th>#</th><th>AGENTE</th><th>XP</th><th>NIVEL</th><th>PTS</th></tr>";entries.forEach(function(e,i){var nivel=getLvl(e.pontos||0),nxt=getNxtLvl(e.pontos||0);var xpP=nxt?Math.min(100,Math.round(((e.pontos||0)/nxt)*100)):100;var r
 </script>
-
 </body>
 </html>
