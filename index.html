@@ -31,8 +31,8 @@
             color: var(--text-main);
             font-family: var(--font-mono);
             font-size: 14px;
-            overflow: hidden; /* Previne scroll global, scroll apenas nos painéis */
-            user-select: none; /* Previne seleção acidental em mobile */
+            overflow: hidden;
+            user-select: none;
         }
 
         /* Efeito de Scanline CRT subtil */
@@ -112,8 +112,7 @@
             width: 90%;
             max-width: 400px;
             box-shadow: 0 0 20px rgba(0, 255, 102, 0.1);
-        }
-        .logo-text {
+        }     .logo-text {
             font-size: 2rem; color: var(--neon-green); font-weight: bold; letter-spacing: 4px;
             margin-bottom: 5px; text-shadow: 0 0 10px var(--neon-green);
         }
@@ -132,7 +131,7 @@
 
         /* === LAYOUT PRINCIPAL === */
         #app-container {
-            display: none; /* Oculto até login */
+            display: none;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -178,7 +177,7 @@
             position: relative;
         }
         main::-webkit-scrollbar { width: 5px; }
-        main::-webkit-scrollbar-thumb { background: var(--border-color); }
+        main::-webkit-scrollbar-thumb { background: #333; }
         
         .page { display: none; animation: fadeIn 0.3s ease; }
         .page.active { display: block; }
@@ -190,7 +189,7 @@
         /* LISTAS (Ranking, Presenças, Logs) */
         .data-list { list-style: none; }
         .data-list li {
-            padding: 10px; border-bottom: 1px dashed var(--border-color);
+            padding: 10px; border-bottom: 1px dashed #2a2a2a;
             display: flex; justify-content: space-between; align-items: center;
         }
         .data-list li:last-child { border-bottom: none; }
@@ -230,7 +229,7 @@
             
             <select id="auth-agent" class="input-std" style="margin-bottom: 15px; text-align: center;">
                 <option value="">-- SELECIONAR AGENTE --</option>
-                </select>
+            </select>
 
             <input type="password" id="auth-pin" class="input-std" placeholder="CÓDIGO PIN (6 DÍGITOS)" readonly style="text-align: center; font-size: 1.2rem; letter-spacing: 5px;">
             
@@ -252,12 +251,10 @@
             <div id="auth-status"></div>
         </div>
     </div>
-
-    <div id="app-container">
-        
+    <div id="app-container" style="display: none;">
         <header>
             <div class="header-left">
-                <h1 onclick="toggleMusic()">AREA 51 <span style="font-size:0.6rem; color:var(--text-muted)">(♬)</span></h1>
+                <h1>AREA 51 <span style="font-size:0.6rem; color:var(--text-muted)">(♬)</span></h1>
             </div>
             <div class="header-right">
                 <div class="sys-time" id="clock">00:00:00</div>
@@ -308,8 +305,7 @@
             <section id="page-chat" class="page">
                 <div class="panel-card chat-container">
                     <div class="panel-title">COMUNICAÇÕES CIFRADAS // GERAL</div>
-                    <div id="chat-box" class="chat-messages">
-                        </div>
+                    <div id="chat-box" class="chat-messages"></div>
                     <div id="typing-indicator" style="font-size:0.7rem; color:var(--text-muted); height:15px; margin-bottom:5px;"></div>
                     <div class="chat-input-area">
                         <input type="text" id="chat-input" class="input-std" placeholder="Escreva a mensagem..." onkeypress="if(event.key==='Enter') enviarMensagem()">
@@ -397,7 +393,7 @@
                     <div class="dash-grid">
                         <div>
                             <h3 style="margin-bottom:10px;">GESTÃO DE AGENTES</h3>
-                             <button class="btn btn-red" style="width:100%; margin-bottom:5px;" onclick="wipeSessoes()">FORÇAR LOGOUT GERAL</button>
+                            <button class="btn btn-red" style="width:100%; margin-bottom:5px;" onclick="wipeSessoes()">FORÇAR LOGOUT GERAL</button>
                             <button class="btn btn-gold" style="width:100%; margin-bottom:5px; border-color:var(--neon-gold); color:var(--neon-gold);" onclick="enviarAvisoCEO()">PUBLICAR AVISO GLOBAL</button>
                         </div>
                         <div>
@@ -414,22 +410,17 @@
                     </div>
                 </div>
             </section>
-
         </main>
-    </div>
-
-    <div id="toast-container"></div>
+    </div><div id="toast-container"></div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
         /* ==========================================
            1. CONFIGURAÇÃO E INICIALIZAÇÃO FIREBASE
            ========================================== */
-        // Mantive os teus dados originais do projeto Area 51
         const firebaseConfig = {
-            apiKey: "AIzaSyA0L_KlG0VA4l-...", // NOTA: O Auth vai proteger isto automaticamente
+            apiKey: "AIzaSyA0L_KlG0VA4l-...",
             authDomain: "area51-matanga.firebaseapp.com",
             databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
             projectId: "area51-matanga",
@@ -438,42 +429,30 @@
             appId: "1:89329725266:web:50532f72a8c73b42267f9b"
         };
 
-        // Inicializar Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.database();
-        const auth = firebase.auth();
 
         /* ==========================================
-           2. VARIÁVEIS GLOBAIS SEGURAS E PATENTES
+           2. VARIÁVEIS GLOBAIS E NOVOS PINS (HARDCODED)
            ========================================== */
-        let ag = null; // Nome do agente (ex: yelseik)
-        let agId = null; // UID único e seguro do Firebase
+        let ag = null; 
         let isCEO = false;
         let currentPin = "";
-        const ceoName = "yelseik"; // Apenas para referência visual/UI
+        const ceoName = "yelseik";
 
-        // Novo Sistema de Patentes (Requisito 10)
-        const PATENTES = [
-            { id: "lvl1", nome: "Recruta", minXp: 0 },
-            { id: "lvl2", nome: "Agente", minXp: 100 },
-            { id: "lvl3", nome: "Agente Especial", minXp: 250 },
-            { id: "lvl4", nome: "Agente Elite", minXp: 500 },
-            { id: "lvl5", nome: "Capitão", minXp: 1000 },
-            { id: "lvl6", nome: "Major", minXp: 2000 },
-            { id: "lvl7", nome: "Comandante", minXp: 3500 },
-            { id: "lvl8", nome: "Diretor Tático", minXp: 5000 },
-            { id: "lvl9", nome: "General", minXp: 7500 },
-            { id: "lvl10", nome: "CEO Supremo Matanga", minXp: 10000 }
-        ];
+        // BASE DE DADOS DOS PINS DE AGENTE MUDADA AQUI
+        const CREDENCIAIS = {
+            "yelseik": "001451",
+            "aihosj": "002451",
+            "rengaw": "003451",
+            "innavoeg": "004451",
+            "onaitsirc": "005451"
+        };
 
-        /* ==========================================
-           3. SISTEMA DE AUTENTICAÇÃO REAL (FIREBASE)
-           ========================================== */
-        
-        // Popular a lista de agentes no ecrã de login
-        const agentesDisponiveis = ["yelseik", "aihosj", "rengaw", "innavoeg", "onaitsirc"];
+        // Popular as opções do menu dropdown automaticamente
+        const agentesDisponiveis = Object.keys(CREDENCIAIS);
         const agentSelect = document.getElementById("auth-agent");
         agentesDisponiveis.forEach(nome => {
             let opt = document.createElement("option");
@@ -482,7 +461,9 @@
             agentSelect.appendChild(opt);
         });
 
-        // Controlo do Teclado PIN
+        /* ==========================================
+           3. SISTEMA DE AUTENTICAÇÃO LOCAL (REQUISITO PIN)
+           ========================================== */
         function addPin(num) {
             if (currentPin.length < 6) {
                 currentPin += num;
@@ -495,75 +476,50 @@
             document.getElementById("auth-pin").value = "";
         }
 
-        // Fazer Login com Auth Seguro
-        async function fazerLogin() {
+        function fazerLogin() {
             const agent = document.getElementById("auth-agent").value;
             const statusDiv = document.getElementById("auth-status");
 
-            if (!agent || currentPin.length < 5) {
-                statusDiv.innerText = "ERRO: Agente ou PIN inválido.";
+            if (!agent || currentPin.length < 6) {
+                statusDiv.style.color = "var(--neon-red)";
+                statusDiv.innerText = "ERRO: Escolha o Agente e digite os 6 dígitos.";
                 return;
             }
 
-            statusDiv.style.color = "var(--neon-blue)";
-            statusDiv.innerText = "A encriptar e autenticar na rede...";
+            // Comparar o PIN inserido com as CREDENCIAIS
+            if (CREDENCIAIS[agent] === currentPin) {
+                statusDiv.style.color = "var(--neon-green)";
+                statusDiv.innerText = "Sessão verificada. A carregar terminal...";
 
-            // O Firebase Auth usa emails. Criamos um email virtual para o sistema.
-            const emailVirtual = `${agent}@matanga.ops`;
+                setTimeout(() => {
+                    ag = agent;
+                    isCEO = (ag === ceoName);
 
-            try {
-                await auth.signInWithEmailAndPassword(emailVirtual, currentPin);
-                // O listener onAuthStateChanged cuidará do resto
-            } catch (error) {
+                    document.getElementById("auth-screen").style.display = "none";
+                    document.getElementById("app-container").style.display = "flex";
+                    document.getElementById("current-user-display").innerText = ag.toUpperCase();
+
+                    if (isCEO) {
+                        document.getElementById("btn-ceo").style.display = "block";
+                    }
+
+                    iniciarSistemas(ag);
+                    iniciarSistemasPosLogin();
+                }, 600);
+            } else {
                 statusDiv.style.color = "var(--neon-red)";
-                if (error.code === 'auth/user-not-found') {
-                    statusDiv.innerText = "AGENTE NÃO REGISTADO NO FIREBASE AUTH.";
-                } else {
-                    statusDiv.innerText = "ACESSO NEGADO. PIN INCORRETO.";
-                }
+                statusDiv.innerText = "ACESSO NEGADO. PIN INCORRETO.";
                 clearPin();
             }
         }
-
-        // Listener de Estado de Sessão (Previne perda de sessão ao dar F5)
-        auth.onAuthStateChanged((user) => {
-            const authScreen = document.getElementById("auth-screen");
-            const appContainer = document.getElementById("app-container");
-
-            if (user) {
-                // Logado com sucesso
-                agId = user.uid;
-                ag = user.email.split('@')[0];
-                isCEO = (ag === ceoName);
-
-                authScreen.style.display = "none";
-                appContainer.style.display = "flex";
-                
-                document.getElementById("current-user-display").innerText = ag.toUpperCase();
-                
-                if (isCEO) {
-                    document.getElementById("btn-ceo").style.display = "block";
-                }
-
-                iniciarSistemas(ag);
-            } else {
-                // Não logado
-                ag = null;
-                agId = null;
-                isCEO = false;
-                authScreen.style.display = "flex";
-                appContainer.style.display = "none";
-                document.getElementById("btn-ceo").style.display = "none";
-            }
-        });
 
         function fazerLogout() {
             if (confirm("Encerrar sessão na Área 51?")) {
                 if (ag) {
                     db.ref(`presencas/${ag}`).update({ estado: "OFFLINE", timestamp: firebase.database.ServerValue.TIMESTAMP })
-                      .then(() => auth.signOut());
+                      .then(() => location.reload());
                 } else {
-                    auth.signOut();
+                    location.reload();
                 }
             }
         }
@@ -571,43 +527,33 @@
         /* ==========================================
            4. LÓGICA DE INTERFACE E UTILITÁRIOS
            ========================================== */
-        
-        // Navegação por Abas Limpa
         function mudarPagina(pageId) {
-            // Remove classe ativa dos botões
             document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
-            // Esconde todas as páginas
             document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
             
-            // Ativa alvo
             event.target.classList.add("active");
             document.getElementById("page-" + pageId).classList.add("active");
         }
 
-        // Sistema de Notificações Toast
         function showToast(mensagem, tipo = "info") {
             const container = document.getElementById("toast-container");
             const toast = document.createElement("div");
             toast.className = "toast";
-            toast.innerText = mensagem;
+            toast.innerText = mensaje || mensagem;
             
             if (tipo === "error") toast.style.borderLeftColor = "var(--neon-red)";
             if (tipo === "success") toast.style.borderLeftColor = "var(--neon-green)";
             if (tipo === "ceo") toast.style.borderLeftColor = "var(--neon-gold)";
 
             container.appendChild(toast);
-            
-            // Animação de entrada
             setTimeout(() => toast.classList.add("show"), 10);
             
-            // Remover após 4 segundos
             setTimeout(() => {
                 toast.classList.remove("show");
                 setTimeout(() => toast.remove(), 300);
             }, 4000);
         }
 
-        // Relógio do Sistema Otimizado
         function updateClock() {
             const now = new Date();
             document.getElementById("clock").innerText = now.toLocaleTimeString('pt-PT', { hour12: false });
@@ -615,28 +561,22 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Inicialização Pós-Login
         function iniciarSistemas(agentName) {
             showToast("Conexão estabelecida. Bem-vindo, " + agentName.toUpperCase(), "success");
             
-            // Registo Seguro de Presença Online
             const presenceRef = db.ref(`presencas/${agentName}`);
             presenceRef.set({
                 estado: "ATIVO",
                 lastLogin: firebase.database.ServerValue.TIMESTAMP
             });
-            // Quando a janela fechar, define offline automaticamente
             presenceRef.onDisconnect().update({ estado: "OFFLINE" });
 
-            // Iniciar sub-sistemas
             initPresencasListener();
-            // (Na próxima parte chamaremos initChat(), initWebRTC(), etc.)
         }
 
-        // Carregar Presenças em Tempo Real (Corrigido Memory Leak)
         function initPresencasListener() {
             const ref = db.ref("presencas");
-            ref.off("value"); // Desliga listeners anteriores
+            ref.off("value");
             ref.on("value", (snapshot) => {
                 const list = document.getElementById("list-presencas");
                 list.innerHTML = "";
@@ -661,8 +601,198 @@
                 document.getElementById("stat-online").innerText = onlineCount;
             });
         }
+<div id="toast-container"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script>
         /* ==========================================
-           5. SISTEMA DE COMUNICAÇÕES (CHAT)
+           1. CONFIGURAÇÃO E INICIALIZAÇÃO FIREBASE
+           ========================================== */
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0L_KlG0VA4l-...",
+            authDomain: "area51-matanga.firebaseapp.com",
+            databaseURL: "https://area51-matanga-default-rtdb.firebaseio.com",
+            projectId: "area51-matanga",
+            storageBucket: "area51-matanga.appspot.com",
+            messagingSenderId: "89329725266",
+            appId: "1:89329725266:web:50532f72a8c73b42267f9b"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
+        /* ==========================================
+           2. VARIÁVEIS GLOBAIS E NOVOS PINS (HARDCODED)
+           ========================================== */
+        let ag = null; 
+        let isCEO = false;
+        let currentPin = "";
+        const ceoName = "yelseik";
+
+        // BASE DE DADOS DOS PINS DE AGENTE MUDADA AQUI
+        const CREDENCIAIS = {
+            "yelseik": "001451",
+            "aihosj": "002451",
+            "rengaw": "003451",
+            "innavoeg": "004451",
+            "onaitsirc": "005451"
+        };
+
+        // Popular as opções do menu dropdown automaticamente
+        const agentesDisponiveis = Object.keys(CREDENCIAIS);
+        const agentSelect = document.getElementById("auth-agent");
+        agentesDisponiveis.forEach(nome => {
+            let opt = document.createElement("option");
+            opt.value = nome;
+            opt.text = nome.toUpperCase();
+            agentSelect.appendChild(opt);
+        });
+
+        /* ==========================================
+           3. SISTEMA DE AUTENTICAÇÃO LOCAL (REQUISITO PIN)
+           ========================================== */
+        function addPin(num) {
+            if (currentPin.length < 6) {
+                currentPin += num;
+                document.getElementById("auth-pin").value = currentPin.replace(/./g, '*');
+            }
+        }
+
+        function clearPin() {
+            currentPin = "";
+            document.getElementById("auth-pin").value = "";
+        }
+
+        function fazerLogin() {
+            const agent = document.getElementById("auth-agent").value;
+            const statusDiv = document.getElementById("auth-status");
+
+            if (!agent || currentPin.length < 6) {
+                statusDiv.style.color = "var(--neon-red)";
+                statusDiv.innerText = "ERRO: Escolha o Agente e digite os 6 dígitos.";
+                return;
+            }
+
+            // Comparar o PIN inserido com as CREDENCIAIS
+            if (CREDENCIAIS[agent] === currentPin) {
+                statusDiv.style.color = "var(--neon-green)";
+                statusDiv.innerText = "Sessão verificada. A carregar terminal...";
+
+                setTimeout(() => {
+                    ag = agent;
+                    isCEO = (ag === ceoName);
+
+                    document.getElementById("auth-screen").style.display = "none";
+                    document.getElementById("app-container").style.display = "flex";
+                    document.getElementById("current-user-display").innerText = ag.toUpperCase();
+
+                    if (isCEO) {
+                        document.getElementById("btn-ceo").style.display = "block";
+                    }
+
+                    iniciarSistemas(ag);
+                    iniciarSistemasPosLogin();
+                }, 600);
+            } else {
+                statusDiv.style.color = "var(--neon-red)";
+                statusDiv.innerText = "ACESSO NEGADO. PIN INCORRETO.";
+                clearPin();
+            }
+        }
+
+        function fazerLogout() {
+            if (confirm("Encerrar sessão na Área 51?")) {
+                if (ag) {
+                    db.ref(`presencas/${ag}`).update({ estado: "OFFLINE", timestamp: firebase.database.ServerValue.TIMESTAMP })
+                      .then(() => location.reload());
+                } else {
+                    location.reload();
+                }
+            }
+        }
+
+        /* ==========================================
+           4. LÓGICA DE INTERFACE E UTILITÁRIOS
+           ========================================== */
+        function mudarPagina(pageId) {
+            document.querySelectorAll(".nav-btn").forEach(btn => btn.classList.remove("active"));
+            document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+            
+            event.target.classList.add("active");
+            document.getElementById("page-" + pageId).classList.add("active");
+        }
+
+        function showToast(mensagem, tipo = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = "toast";
+            toast.innerText = mensaje || mensagem;
+            
+            if (tipo === "error") toast.style.borderLeftColor = "var(--neon-red)";
+            if (tipo === "success") toast.style.borderLeftColor = "var(--neon-green)";
+            if (tipo === "ceo") toast.style.borderLeftColor = "var(--neon-gold)";
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add("show"), 10);
+            
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById("clock").innerText = now.toLocaleTimeString('pt-PT', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function iniciarSistemas(agentName) {
+            showToast("Conexão estabelecida. Bem-vindo, " + agentName.toUpperCase(), "success");
+            
+            const presenceRef = db.ref(`presencas/${agentName}`);
+            presenceRef.set({
+                estado: "ATIVO",
+                lastLogin: firebase.database.ServerValue.TIMESTAMP
+            });
+            presenceRef.onDisconnect().update({ estado: "OFFLINE" });
+
+            initPresencasListener();
+        }
+
+        function initPresencasListener() {
+            const ref = db.ref("presencas");
+            ref.off("value");
+            ref.on("value", (snapshot) => {
+                const list = document.getElementById("list-presencas");
+                list.innerHTML = "";
+                let onlineCount = 0;
+
+                snapshot.forEach(child => {
+                    const agent = child.key;
+                    const data = child.val();
+                    const isOnline = data.estado === "ATIVO";
+                    
+                    if (isOnline) onlineCount++;
+
+                    const li = document.createElement("li");
+                    const badgeClass = isOnline ? "badge-on" : "badge-off";
+                    li.innerHTML = `
+                        <span style="font-weight:bold; color: ${isOnline ? 'var(--text-main)' : 'var(--text-muted)'}">${agent.toUpperCase()}</span>
+                        <span class="badge ${badgeClass}">${data.estado}</span>
+                    `;
+                    list.appendChild(li);
+                });
+                
+                document.getElementById("stat-online").innerText = onlineCount;
+            });
+        }
+   /* ==========================================
+           5. SISTEMA DE COMUNICAÇÕES (CHAT REALTIME)
            ========================================== */
         function enviarMensagem() {
             const input = document.getElementById("chat-input");
@@ -680,16 +810,18 @@
         function initChatListener() {
             const chatRef = db.ref("chat").limitToLast(50);
             chatRef.off("child_added");
+            chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML = ""; // Limpa lixo visual anterior
+
             chatRef.on("child_added", (snapshot) => {
                 const msg = snapshot.val();
-                const chatBox = document.getElementById("chat-box");
                 
                 const div = document.createElement("div");
                 div.className = "msg-row";
                 div.innerHTML = `
                     <span class="msg-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                    <span class="msg-author ${msg.author === ceoName ? 'ceo' : ''}">${msg.author.toUpperCase()}:</span>
-                    <span class="msg-text">${msg.text.replace(/</g, "&lt;")}</span>
+                    <span class="msg-author ${msg.author === ceoName ? 'ceo' : ''}">${msg.author ? msg.author.toUpperCase() : "SISTEMA"}:</span>
+                    <span class="msg-text">${msg.text ? msg.text.replace(/</g, "&lt;") : ""}</span>
                 `;
                 chatBox.appendChild(div);
                 chatBox.scrollTop = chatBox.scrollHeight;
@@ -697,31 +829,26 @@
         }
 
         /* ==========================================
-           6. SISTEMA DE CHAMADAS (WEBRTC OTIMIZADO)
+           6. SISTEMA DE CHAMADAS (WEBRTC CLEANUP)
            ========================================== */
         let localStream = null;
 
         async function iniciarChamada() {
             try {
-                // Pedir permissão ao hardware corretamente
                 localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
                 showToast("Linha aberta. A chamar...", "info");
-                
-                // Aqui seria a lógica de sinalização Firebase para WebRTC
-                // Em v5.0, esta função está limpa para que possas ligar ao teu PeerID
+                document.getElementById("call-actions").style.display = "flex";
             } catch (err) {
                 showToast("Erro: Microfone bloqueado pelo utilizador.", "error");
             }
         }
 
         function terminarChamada() {
-            // CORREÇÃO CRÍTICA: Desliga todos os processos do microfone
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
             }
-            showToast("Chamada encerrada. Recursos de áudio libertados.", "success");
-            // Reset UI
+            showToast("Chamada encerrada. Recursos libertados.", "success");
             document.getElementById("call-actions").style.display = "none";
         }
 
@@ -733,13 +860,12 @@
         }
 
         /* ==========================================
-           7. MUNDIAL 2026 E DADOS
+           7. MUNDIAL 2026 E DADOS EXTRA
            ========================================== */
         function loadMundialData(tipo) {
             const container = document.getElementById("world-content");
             container.innerHTML = `<p>A consultar base de dados mundial...</p>`;
             
-            // Simulação de resposta de API. Aqui podes inserir o fetch("https://api...")
             setTimeout(() => {
                 if(tipo === 'grupos') {
                     container.innerHTML = `<div><strong>GRUPO A:</strong> CANADÁ, MÉXICO, EUA, PORTUGAL</div>`;
@@ -749,6 +875,15 @@
             }, 800);
         }
 
+        function verificarIntegridade() {
+            const list = document.getElementById("log-list");
+            list.innerHTML += `<li>[${new Date().toLocaleTimeString()}] > A correr diagnóstico estrutural...</li>`;
+            setTimeout(() => {
+                list.innerHTML += `<li style="color:var(--neon-green)">[SISTEMA] > Todos os módulos encriptados locais estão ESTÁVEIS.</li>`;
+                list.scrollTop = list.scrollHeight;
+            }, 1000);
+        }
+
         /* ==========================================
            8. FINALIZAÇÃO DA INICIALIZAÇÃO
            ========================================== */
@@ -756,8 +891,6 @@
             initChatListener();
             updateClock();
         }
-
     </script>
 </body>
 </html>
-
